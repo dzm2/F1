@@ -36,9 +36,6 @@
     .f1-wordmark span { color:var(--red); }
     .f1-season { display:none; }
     .f1-header-right { display:flex; align-items:center; gap:20px; padding:0 24px; border-left:0.5px solid var(--border); flex-shrink:0; flex-wrap:wrap; }
-    .header-stat { text-align:center; }
-    .header-stat-val { font-family:'Barlow',sans-serif; font-weight:900; font-size:22px; letter-spacing:-0.5px; color:var(--text); line-height:1; }
-    .header-stat-label { font-family:'Space Grotesk',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text2); margin-top:3px; }
     .header-divider { width:0.5px; height:28px; background:var(--border); }
     .icon-btn { background:var(--bg2); border:0.5px solid var(--border); border-radius:8px; padding:7px 10px; cursor:pointer; color:var(--text2); display:flex; align-items:center; gap:5px; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; transition:all .15s; white-space:nowrap; }
     .icon-btn:hover { border-color:var(--border2); color:var(--text); }
@@ -59,8 +56,14 @@
     .f1-metric-value { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; color:var(--text); line-height:1; letter-spacing:0.5px; }
     .f1-metric-sub { font-size:11px; color:var(--text2); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    /* Tabs */
-    .f1-tabs { display:flex; width:100%; margin-bottom:0; border-bottom:1px solid var(--border); background:var(--bg); }
+    /* Season stats strip */
+    .season-stats-strip { display:flex; align-items:center; gap:20px; padding:12px 24px; background:var(--bg); border-bottom:0.5px solid var(--border); }
+    .season-stat { text-align:center; }
+    .season-stat-val { font-family:'Barlow',sans-serif; font-weight:900; font-size:22px; letter-spacing:-0.5px; color:var(--text); line-height:1; }
+    .season-stat-val.season-stat-countdown { font-size:15px; letter-spacing:0; color:var(--red); }
+    .season-stat-val.race-on { color:var(--red); font-size:13px; }
+    .season-stat-label { font-family:'Space Grotesk',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text2); margin-top:3px; }
+    .season-stat-div { width:0.5px; height:28px; background:var(--border); } display:flex; width:100%; margin-bottom:0; border-bottom:1px solid var(--border); background:var(--bg); }
     .f1-tab { font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text3); flex:1 1 0; min-width:0; padding:11px 4px 9px; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; text-align:center; white-space:nowrap; transition:color .15s; }
     .f1-tab:hover{color:var(--text2);} .f1-tab.active{color:var(--text);border-bottom-color:var(--red);}
     .f1-tab.wide{flex:1.5 1 0;}
@@ -413,21 +416,6 @@
       <div class="f1-wordmark"><span style="color:var(--text)">SECTOR </span><span>THREE</span></div>
     </div>
     <div class="f1-header-right">
-      <div class="header-stat">
-        <div class="header-stat-val" id="h-rounds-done">—</div>
-        <div class="header-stat-label">Rounds done</div>
-      </div>
-      <div class="header-divider"></div>
-      <div class="header-stat">
-        <div class="header-stat-val" id="h-rounds-left">—</div>
-        <div class="header-stat-label">Remaining</div>
-      </div>
-      <div class="header-divider"></div>
-      <div class="header-stat">
-        <div class="header-stat-val" id="h-next-race">—</div>
-        <div class="header-stat-label">Next race</div>
-      </div>
-      <div class="header-divider"></div>
       <div class="live-badge"><span class="live-dot" id="live-dot"></span><span id="fetch-status">Fetching...</span></div>
       <button class="icon-btn" id="refresh-btn">↻ Refresh</button>
       <button class="icon-btn" id="share-btn">⎘ Share</button>
@@ -474,6 +462,29 @@
     <button onclick="dismissWelcome()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;padding:0">✕</button>
     <div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;color:var(--text);margin-bottom:6px">Welcome to Sector Three</div>
     <div style="font-size:13px;color:var(--text2);line-height:1.6;max-width:600px">Your 2026 Formula 1 dashboard — standings, race results, news and records all in one place. Data is sourced from the Jolpica F1 API and updates after each race weekend. Click any driver or team to see detailed stats. New to F1? Check out the <strong style="color:var(--text);cursor:pointer" onclick="showTab('season',document.querySelector('[data-tab=season]'))">Season tab</strong> for an explainer on the 2026 regulations.</div>
+  </div>
+
+  <!-- Season stats strip -->
+  <div class="season-stats-strip">
+    <div class="season-stat">
+      <div class="season-stat-val" id="h-rounds-done">—</div>
+      <div class="season-stat-label">Rounds done</div>
+    </div>
+    <div class="season-stat-div"></div>
+    <div class="season-stat">
+      <div class="season-stat-val" id="h-rounds-left">—</div>
+      <div class="season-stat-label">Remaining</div>
+    </div>
+    <div class="season-stat-div"></div>
+    <div class="season-stat">
+      <div class="season-stat-val" id="h-next-race">—</div>
+      <div class="season-stat-label">Next race</div>
+    </div>
+    <div class="season-stat-div"></div>
+    <div class="season-stat">
+      <div class="season-stat-val season-stat-countdown" id="h-countdown">—</div>
+      <div class="season-stat-label">Countdown</div>
+    </div>
   </div>
 
   <div class="f1-tabs" id="tab-bar" role="tablist">
@@ -882,16 +893,35 @@ function weatherIcon(code){
 let _cdInterval=null;
 function startCountdown(dateStr,name){
   if(_cdInterval) clearInterval(_cdInterval);
-  const target=new Date(dateStr).getTime();
-  const el=document.getElementById('m-round-sub');
+  // Race date from API is midnight UTC on race day.
+  // Assume race starts ~14:00 UTC and lasts ~2h — so "race in progress" window is 14:00–17:00 UTC.
+  const raceDay=new Date(dateStr);
+  const raceStart=new Date(raceDay); raceStart.setUTCHours(13,0,0,0); // conservative: 1pm UTC
+  const raceEnd=new Date(raceDay);   raceEnd.setUTCHours(17,0,0,0);   // generous: 5pm UTC
+  const el=document.getElementById('h-countdown');
+  const elSub=document.getElementById('m-round-sub'); // keep legacy element updated too
   function tick(){
-    const diff=target-Date.now();
-    if(diff<=0){el.textContent=name+' · Race day!';clearInterval(_cdInterval);return;}
+    const now=Date.now();
+    const diffToStart=raceStart.getTime()-now;
+    if(now>=raceStart.getTime()&&now<=raceEnd.getTime()){
+      if(el){ el.textContent='Race on'; el.className='season-stat-val season-stat-countdown race-on'; }
+      if(elSub) elSub.textContent=name+' · Race in progress';
+      return;
+    }
+    if(now>raceEnd.getTime()){
+      if(el){ el.textContent='Results soon'; el.className='season-stat-val season-stat-countdown'; }
+      if(elSub) elSub.textContent=name+' · Awaiting results';
+      clearInterval(_cdInterval);
+      return;
+    }
+    const diff=diffToStart;
     const d=Math.floor(diff/86400000);
     const h=Math.floor((diff%86400000)/3600000);
     const m=Math.floor((diff%3600000)/60000);
     const s=Math.floor((diff%60000)/1000);
-    el.textContent=name+' · '+d+'d '+h+'h '+m+'m '+s+'s';
+    const str=d>0?`${d}d ${h}h ${m}m`:`${h}h ${m}m ${s}s`;
+    if(el){ el.textContent=str; el.className='season-stat-val season-stat-countdown'; }
+    if(elSub) elSub.textContent=name+' · '+str;
   }
   tick(); _cdInterval=setInterval(tick,1000);
 }
