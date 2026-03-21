@@ -393,7 +393,10 @@
       </div>
       <div style="margin-top:1rem">
         <label style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px">Anthropic API Key</label>
-        <input id="api-key-input" type="password" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box;background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:monospace;outline:none">
+        <div style="position:relative">
+          <input id="api-key-input" type="text" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box;background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;padding:9px 36px 9px 12px;color:var(--text);font-size:13px;font-family:monospace;outline:none;-webkit-text-security:disc">
+          <button onclick="toggleApiKeyVisibility()" id="api-key-toggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text2);font-size:13px;padding:2px 4px">Show</button>
+        </div>
         <div style="font-size:12px;color:var(--text3);margin-top:6px">Required for AI team assessments. Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--info)">console.anthropic.com</a>. Your key is never sent anywhere except the Anthropic API.</div>
         <button class="icon-btn" onclick="saveApiKey()" style="margin-top:14px;width:100%;justify-content:center;background:var(--red);color:#fff;border-color:var(--red)">Save key</button>
         <div id="api-key-status" style="font-size:12px;color:var(--text2);margin-top:8px;text-align:center;min-height:16px"></div>
@@ -2160,6 +2163,14 @@ function filterNews(cat,btn){
   if(saved&&saved!=='all'){ const btn=document.querySelector(`.news-filter-btn[onclick*="'${saved}'"]`); if(btn) filterNews(saved,btn); }
 })();
 
+
+function toggleApiKeyVisibility(){
+  const input=document.getElementById('api-key-input');
+  const btn=document.getElementById('api-key-toggle');
+  const masked=input.style.webkitTextSecurity==='disc';
+  input.style.webkitTextSecurity=masked?'none':'disc';
+  btn.textContent=masked?'Hide':'Show';
+}
 
 // ── Settings ──
 function openSettings(){
