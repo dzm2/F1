@@ -502,10 +502,8 @@
         <span class="sources-group-label">Live data</span>
         <div class="src-pills">
           <a class="src-pill" href="https://api.jolpi.ca/ergast/f1/" target="_blank"><span class="src-dot" style="background:#22c55e"></span>jolpica F1 API<span class="src-tag">LIVE</span></a>
-          <a class="src-pill" href="https://www.formula1.com/en/results/2026/drivers" target="_blank"><span class="src-dot" style="background:#E10600"></span>formula1.com</a>
-          <a class="src-pill" href="https://openf1.org" target="_blank"><span class="src-dot" style="background:#e67e22"></span>openf1.org<span class="src-tag">API</span></a>
-          <a class="src-pill" href="https://www.statsf1.com/en/2026.aspx" target="_blank"><span class="src-dot" style="background:#1a3a6b"></span>statsf1.com</a>
-          <a class="src-pill" href="https://en.wikipedia.org/wiki/2026_Formula_One_World_Championship" target="_blank"><span class="src-dot" style="background:#888"></span>Wikipedia</a>
+          <a class="src-pill" href="https://open-meteo.com" target="_blank"><span class="src-dot" style="background:#0ea5e9"></span>open-meteo.com<span class="src-tag">WEATHER</span></a>
+          <a class="src-pill" href="https://www.anthropic.com" target="_blank"><span class="src-dot" style="background:#cc785c"></span>Anthropic API<span class="src-tag">AI</span></a>
         </div>
       </div>
       <div class="sources-group">
@@ -516,6 +514,11 @@
           <a class="src-pill" href="https://www.the-race.com/formula-1" target="_blank"><span class="src-dot" style="background:#d62828"></span>the-race.com</a>
           <a class="src-pill" href="https://www.motorsport.com/f1/news" target="_blank"><span class="src-dot" style="background:#e63946"></span>motorsport.com</a>
           <a class="src-pill" href="https://www.gpfans.com/en" target="_blank"><span class="src-dot" style="background:#6b21a8"></span>gpfans.com</a>
+          <a class="src-pill" href="https://racer.com/f1" target="_blank"><span class="src-dot" style="background:#b45309"></span>racer.com</a>
+          <a class="src-pill" href="https://joesaward.wordpress.com" target="_blank"><span class="src-dot" style="background:#0f766e"></span>joesaward</a>
+          <a class="src-pill" href="https://www.f1technical.net" target="_blank"><span class="src-dot" style="background:#0d9488"></span>f1technical.net</a>
+          <a class="src-pill" href="https://www.gptoday.net" target="_blank"><span class="src-dot" style="background:#16a34a"></span>gptoday.net</a>
+          <a class="src-pill" href="https://www.pitpass.com" target="_blank"><span class="src-dot" style="background:#7c3aed"></span>pitpass.com</a>
         </div>
       </div>
     </div>
@@ -578,6 +581,23 @@ function tyreChip(c){
   return `<span class="tyre tyre-${k}" title="${label}">${k}</span>`;
 }
 function teamColor(n){ for(const[k,v]of Object.entries(teamColors))if(n.includes(k))return v; return'#888'; }
+function cleanConstructorName(n){
+  if(!n) return n;
+  // Specific overrides first
+  if(n.includes('RB F1 Team')||n==='RB') return 'Racing Bulls';
+  if(n.includes('Kick Sauber')) return 'Audi';
+  // Strip sponsor prefixes and suffixes
+  return n
+    .replace(/^BWT\s+/i,'')
+    .replace(/^Stake\s+/i,'')
+    .replace(/^MoneyGram\s+/i,'')
+    .replace(/^Aramco\s+/i,'')
+    .replace(/\s+Aramco$/i,'')
+    .replace(/\s+F1\s+Team$/i,'')
+    .replace(/\s+Formula\s+1\s+Team$/i,'')
+    .replace(/\s+Racing$/i,(m,o,s)=>s.toLowerCase().includes('red bull')?m:'')
+    .trim();
+}
 function flag(n){ return flagMap[n]||'🏁'; }
 
 // ── Theme ──
@@ -777,7 +797,7 @@ async function loadDriverStandings(){
     first:d.Driver.givenName,last:d.Driver.familyName,
     driverId:d.Driver.driverId,nationality:d.Driver.nationality,
     dob:d.Driver.dateOfBirth,code:d.Driver.code,number:d.Driver.permanentNumber,
-    team:d.Constructors[0]?.name||'',constructorId:d.Constructors[0]?.constructorId||'',
+    team:cleanConstructorName(d.Constructors[0]?.name||''),constructorId:d.Constructors[0]?.constructorId||'',
     pts:parseFloat(d.points),wins:parseInt(d.wins),color:teamColor(d.Constructors[0]?.name||'')
   }));
 
@@ -1029,8 +1049,8 @@ function closeModal(e){
 async function openConstructorModal(constructorId){
   const c=liveConstructors.find(x=>x.Constructor.constructorId===constructorId);
   if(!c) return;
-  const name=c.Constructor.name;
-  const color=teamColor(name);
+  const name=cleanConstructorName(c.Constructor.name);
+  const color=teamColor(c.Constructor.name);
   const pts=parseFloat(c.points);
   const wins=parseInt(c.wins);
   const pos=parseInt(c.position);
@@ -1223,7 +1243,7 @@ async function loadConstructorStandings(){
   const maxPts=parseFloat(list[0]?.points||1);
   const ctb=document.getElementById('con-tbody');ctb.innerHTML='';
   list.forEach(c=>{
-    const pos=parseInt(c.position),pts=parseFloat(c.points),name=c.Constructor.name,color=teamColor(name);
+    const pos=parseInt(c.position),pts=parseFloat(c.points),name=cleanConstructorName(c.Constructor.name),color=teamColor(c.Constructor.name);
     const gap=pos===1?'—':'–'+(parseFloat(list[0].points)-pts);
     const pct=Math.round(pts/maxPts*100);
     ctb.innerHTML+=`<tr class="${pos===1?'p1':''}" data-search="${name}" onclick="openConstructorModal('${c.Constructor.constructorId}')" style="cursor:pointer">
@@ -1239,8 +1259,8 @@ async function loadConstructorStandings(){
   document.getElementById('con-stale').classList.toggle('show',stale);
   if(list.length>=2){
     const p1=list[0],p2=list[1];
-    document.getElementById('m-con').textContent=p1.Constructor.name.split(' ')[0];
-    document.getElementById('m-con-sub').textContent=p1.points+' pts · +'+(parseFloat(p1.points)-parseFloat(p2.points))+' over '+p2.Constructor.name.split(' ')[0];
+    document.getElementById('m-con').textContent=cleanConstructorName(p1.Constructor.name).split(' ')[0];
+    document.getElementById('m-con-sub').textContent=p1.points+' pts · +'+(parseFloat(p1.points)-parseFloat(p2.points))+' over '+cleanConstructorName(p2.Constructor.name).split(' ')[0];
   }
   tickProgress();
 }
@@ -1727,7 +1747,7 @@ function exportCSV(type){
     rows=[['Pos','Driver','Team','Points','Wins'],...liveDrivers.map(d=>[d.pos,`${d.first} ${d.last}`,d.team,d.pts,d.wins])];
     filename='f1_2026_drivers.csv';
   }else{
-    rows=[['Pos','Constructor','Points','Wins'],...liveConstructors.map(c=>[c.position,c.Constructor.name,c.points,c.wins])];
+    rows=[['Pos','Constructor','Points','Wins'],...liveConstructors.map(c=>[c.position,cleanConstructorName(c.Constructor.name),c.points,c.wins])];
     filename='f1_2026_constructors.csv';
   }
   const a=document.createElement('a');
@@ -1777,8 +1797,8 @@ function renderH2H(){
   const el=document.getElementById('h2h-grid');
   if(!liveConstructors.length){el.innerHTML='<div style="font-size:13px;color:var(--text2)">No data yet.</div>';return;}
   liveConstructors.forEach(c=>{
-    const name=c.Constructor.name;
-    const color=teamColor(name);
+    const name=cleanConstructorName(c.Constructor.name);
+    const color=teamColor(c.Constructor.name);
     const drivers=liveDrivers.filter(d=>d.team===name).slice(0,2);
     if(drivers.length<2) return;
     const [a,b]=drivers;
@@ -1842,7 +1862,7 @@ async function generateAssessments(){
   // Build a data summary from live standings and reliability
   const racesCompleted=standingsHistory.length;
   const teamSummaries=liveConstructors.map(c=>{
-    const name=c.Constructor.name;
+    const name=cleanConstructorName(c.Constructor.name);
     const pts=parseFloat(c.points);
     const wins=parseInt(c.wins);
     const pos=parseInt(c.position);
@@ -1870,7 +1890,11 @@ ${teamSummaries}`;
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true',
+      },
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:1000,
@@ -1995,6 +2019,11 @@ const RSS_FEEDS = [
   { url:'https://www.the-race.com/rss/',           source:'the-race.com',    color:'#d62828' },
   { url:'https://www.motorsport.com/rss/f1/news/', source:'motorsport.com',  color:'#e63946' },
   { url:'https://www.gpfans.com/en/rss/',          source:'gpfans.com',      color:'#6b21a8' },
+  { url:'https://racer.com/f1/feed/',              source:'racer.com',       color:'#b45309' },
+  { url:'https://joesaward.wordpress.com/feed/',   source:'joesaward',       color:'#0f766e' },
+  { url:'https://www.f1technical.net/rss/news.xml',source:'f1technical.net', color:'#0d9488' },
+  { url:'https://www.gptoday.net/rss.php',         source:'gptoday.net',     color:'#16a34a' },
+  { url:'https://www.pitpass.com/rss/pitpass_fes_site_news.php', source:'pitpass.com', color:'#7c3aed' },
 ];
 
 // On file:// we use allorigins as a single lightweight proxy; on https:// we try direct first
