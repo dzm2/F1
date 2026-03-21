@@ -57,13 +57,17 @@
     .f1-metric-sub { font-size:11px; color:var(--text2); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
     /* Season stats strip */
-    .season-stats-strip { display:flex; align-items:center; gap:20px; padding:12px 24px; background:var(--bg); border-bottom:0.5px solid var(--border); }
-    .season-stat { text-align:center; }
-    .season-stat-val { font-family:'Barlow',sans-serif; font-weight:900; font-size:22px; letter-spacing:-0.5px; color:var(--text); line-height:1; }
-    .season-stat-val.season-stat-countdown { font-size:15px; letter-spacing:0; color:var(--red); }
-    .season-stat-val.race-on { color:var(--red); font-size:13px; }
-    .season-stat-label { font-family:'Space Grotesk',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text2); margin-top:3px; }
-    .season-stat-div { width:0.5px; height:28px; background:var(--border); } display:flex; width:100%; margin-bottom:0; border-bottom:1px solid var(--border); background:var(--bg); }
+    .season-stats-strip { display:grid; grid-template-columns:repeat(4,1fr); background:var(--bg); border-bottom:0.5px solid var(--border); }
+    .season-stat { text-align:center; padding:16px 12px; border-right:0.5px solid var(--border); }
+    .season-stat:last-child { border-right:none; }
+    .season-stat-val { font-family:'Barlow',sans-serif; font-weight:900; font-size:28px; letter-spacing:-1px; color:var(--text); line-height:1; }
+    .season-stat-val.season-stat-countdown { font-size:20px; letter-spacing:-0.5px; color:var(--red); }
+    .season-stat-val.race-on { color:var(--red); font-size:16px; letter-spacing:0; }
+    .season-stat-label { font-family:'Space Grotesk',sans-serif; font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text2); margin-top:6px; }
+    .season-stat-div { display:none; }
+
+    /* Tabs */
+    .f1-tabs { display:flex; width:100%; margin-bottom:0; border-bottom:1px solid var(--border); background:var(--bg); }
     .f1-tab { font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text3); flex:1 1 0; min-width:0; padding:11px 4px 9px; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; text-align:center; white-space:nowrap; transition:color .15s; }
     .f1-tab:hover{color:var(--text2);} .f1-tab.active{color:var(--text);border-bottom-color:var(--red);}
     .f1-tab.wide{flex:1.5 1 0;}
@@ -458,7 +462,7 @@
   </div>
 
   <!-- Welcome banner -->
-  <div id="welcome-banner" style="display:none;background:var(--bg);border:0.5px solid var(--border);border-left:3px solid var(--red);border-radius:0;padding:14px 24px;position:relative">
+  <div id="welcome-banner" style="display:none;background:var(--bg);border:0.5px solid var(--border);border-left:3px solid var(--red);border-radius:0;padding:20px 32px;position:relative">
     <button onclick="dismissWelcome()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;padding:0">✕</button>
     <div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;color:var(--text);margin-bottom:6px">Welcome to Sector Three</div>
     <div style="font-size:13px;color:var(--text2);line-height:1.6;max-width:600px">Your 2026 Formula 1 dashboard — standings, race results, news and records all in one place. Data is sourced from the Jolpica F1 API and updates after each race weekend. Click any driver or team to see detailed stats. New to F1? Check out the <strong style="color:var(--text);cursor:pointer" onclick="showTab('season',document.querySelector('[data-tab=season]'))">Season tab</strong> for an explainer on the 2026 regulations.</div>
