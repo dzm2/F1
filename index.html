@@ -383,7 +383,7 @@
 
   <!-- Settings modal -->
   <div id="settings-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeSettings()">
-    <div class="modal-box" style="max-width:420px">
+    <div class="modal-box" style="max-width:420px" onclick="event.stopPropagation()">
       <div class="modal-header">
         <div>
           <div class="modal-title">Settings</div>
