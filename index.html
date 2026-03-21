@@ -377,6 +377,27 @@
       <button class="icon-btn" id="share-btn">⎘ Share</button>
       <button class="icon-btn" id="theme-btn">◐ Theme</button>
       <button class="icon-btn" onclick="window.print()">⎙ Print</button>
+      <button class="icon-btn" onclick="openSettings()">⚙ Settings</button>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div id="settings-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeSettings()">
+    <div class="modal-box" style="max-width:420px">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Settings</div>
+          <div class="modal-sub">Stored locally in your browser only</div>
+        </div>
+        <button class="modal-close" onclick="closeSettings()">✕</button>
+      </div>
+      <div style="margin-top:1rem">
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px">Anthropic API Key</label>
+        <input id="api-key-input" type="password" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box;background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:monospace;outline:none">
+        <div style="font-size:12px;color:var(--text3);margin-top:6px">Required for AI team assessments. Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--info)">console.anthropic.com</a>. Your key is never sent anywhere except the Anthropic API.</div>
+        <button class="icon-btn" onclick="saveApiKey()" style="margin-top:14px;width:100%;justify-content:center;background:var(--red);color:#fff;border-color:var(--red)">Save key</button>
+        <div id="api-key-status" style="font-size:12px;color:var(--text2);margin-top:8px;text-align:center;min-height:16px"></div>
+      </div>
     </div>
   </div>
 
@@ -1887,6 +1908,15 @@ Format your response as valid JSON only, no other text:
 Live 2026 standings after ${racesCompleted} race${racesCompleted!==1?'s':''} completed:
 ${teamSummaries}`;
 
+  const apiKey=localStorage.getItem('anthropic_api_key')||'';
+  if(!apiKey){
+    el.innerHTML='<div class="error-msg" style="grid-column:1/-1">No API key found. Click <strong>⚙ Settings</strong> in the header to add your Anthropic API key.</div>';
+    status.style.display='block';
+    status.textContent='API key required.';
+    btn.disabled=false; btn.textContent='✦ Generate with AI';
+    return;
+  }
+
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -1894,6 +1924,7 @@ ${teamSummaries}`;
         'Content-Type':'application/json',
         'anthropic-version':'2023-06-01',
         'anthropic-dangerous-direct-browser-access':'true',
+        'x-api-key':apiKey,
       },
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
@@ -2130,7 +2161,23 @@ function filterNews(cat,btn){
 })();
 
 
-// ── Refresh ──
+// ── Settings ──
+function openSettings(){
+  const stored=localStorage.getItem('anthropic_api_key')||'';
+  document.getElementById('api-key-input').value=stored;
+  document.getElementById('api-key-status').textContent=stored?'✓ Key saved':'No key saved yet';
+  document.getElementById('settings-modal').classList.remove('hidden');
+}
+function closeSettings(){ document.getElementById('settings-modal').classList.add('hidden'); }
+function saveApiKey(){
+  const key=document.getElementById('api-key-input').value.trim();
+  if(!key){ document.getElementById('api-key-status').textContent='Please enter a key.'; return; }
+  if(!key.startsWith('sk-ant-')){ document.getElementById('api-key-status').textContent='Key should start with sk-ant-'; return; }
+  localStorage.setItem('anthropic_api_key',key);
+  document.getElementById('api-key-status').textContent='✓ Key saved successfully';
+}
+
+
 async function loadAll(){
   resetProgress();
   _loadTotal=4;
