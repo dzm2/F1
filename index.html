@@ -52,7 +52,7 @@
     .f1-metric.leader{border-left-color:var(--red);} .f1-metric.pts{border-left-color:var(--gold);} .f1-metric.con{border-left-color:#00D2BE;} .f1-metric.prog{border-left-color:var(--green);}
     .f1-metric-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text3); margin-bottom:5px; }
     .f1-metric-value { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; color:var(--text); line-height:1; letter-spacing:0.5px; }
-    .f1-metric-sub { font-size:11px; color:var(--text2); margin-top:4px; }
+    .f1-metric-sub { font-size:11px; color:var(--text2); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
     /* Tabs */
     .f1-tabs { display:flex; width:100%; margin-bottom:1.25rem; border-bottom:1px solid var(--border); }
@@ -78,8 +78,8 @@
 
     /* Tables */
     .f1-table { width:100%; border-collapse:collapse; font-size:14px; }
-    .f1-table th { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--text2); padding:6px 10px; border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer; user-select:none; }
-    .f1-table th:hover { color:var(--text); }
+    .f1-table th { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--text2); padding:6px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+    .f1-table th:hover { color:var(--text2); }
     .f1-table td { padding:9px 10px; border-bottom:0.5px solid var(--border); color:var(--text); vertical-align:middle; }
     .f1-table tr:last-child td{border-bottom:none;} .f1-table tr.p1 td{background:var(--bg2);} .f1-table tr:hover td{background:var(--bg2); cursor:pointer;}
     .f1-pos { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:var(--text2); width:32px; text-align:center; }
@@ -239,8 +239,8 @@
     .f1-sources{margin-top:1.5rem;padding-top:1rem;border-top:0.5px solid var(--border);}
     .sources-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
     .sources-groups{display:flex;flex-direction:column;gap:10px;}
-    .sources-group{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-    .sources-group-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);min-width:80px;flex-shrink:0;}
+    .sources-group{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+    .sources-group-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);min-width:80px;flex-shrink:0;padding-top:4px;}
     .src-pills{display:flex;gap:6px;flex-wrap:wrap;}
     .src-pill{font-size:11px;color:var(--info);text-decoration:none;display:flex;align-items:center;gap:5px;background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;transition:border-color .15s;}
     .src-pill:hover{border-color:var(--border2);}
@@ -301,7 +301,7 @@
 
     /* Season Timeline table */
     .tl-table{width:100%;border-collapse:collapse;font-size:13px;}
-    .tl-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-weight:600;padding:6px 10px;border-bottom:0.5px solid var(--border);text-align:left;font-family:'Barlow Condensed',sans-serif;}
+    .tl-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-weight:600;padding:6px 10px;border-bottom:0.5px solid var(--border);text-align:left;font-family:'Barlow Condensed',sans-serif;white-space:nowrap;}
     .tl-table td{padding:8px 10px;border-bottom:0.5px solid var(--border);vertical-align:middle;}
     .tl-table tr:last-child td{border-bottom:none;}
     .tl-table tr:hover td{background:var(--bg2);}
@@ -430,8 +430,8 @@
     <table class="f1-table" id="drivers-table" style="display:none">
       <thead><tr>
         <th style="text-align:center">Pos</th><th>Driver</th><th>Team</th>
-        <th style="text-align:right" onclick="sortTable('driver-tbody',4)">Pts ↕</th>
-        <th style="text-align:center" onclick="sortTable('driver-tbody',5)">W ↕</th>
+        <th style="text-align:right">Pts</th>
+        <th style="text-align:center">W</th>
         <th style="text-align:right">Gap</th>
       </tr></thead>
       <tbody id="driver-tbody"></tbody>
@@ -446,8 +446,8 @@
     <table class="f1-table" id="con-table" style="display:none">
       <thead><tr>
         <th style="text-align:center">Pos</th><th>Constructor</th>
-        <th style="text-align:right" onclick="sortTable('con-tbody',2)">Pts ↕</th>
-        <th style="text-align:center" onclick="sortTable('con-tbody',3)">W ↕</th>
+        <th style="text-align:right">Pts</th>
+        <th style="text-align:center">W</th>
         <th style="text-align:right">Gap</th>
       </tr></thead>
       <tbody id="con-tbody"></tbody>
@@ -968,24 +968,46 @@ async function openDriverModal(driverId){
     <hr class="modal-divider">
 
     <div class="modal-section-title">2026 Race results</div>
-    <div id="modal-race-results"><div class="loading-text" style="font-size:12px;color:var(--text3);padding:8px 0">Loading race history...</div></div>`;
+    <div id="modal-race-results"><div class="loading-text" style="font-size:12px;color:var(--text3);padding:8px 0">Loading race history...</div></div>
+
+    <hr class="modal-divider">
+    <div class="modal-section-title">Points progression</div>
+    <div style="position:relative;height:160px;margin-bottom:4px"><canvas id="modal-pts-chart"></canvas></div>
+
+    <hr class="modal-divider">
+    <div class="modal-section-title">Qualifying vs Race position</div>
+    <div style="position:relative;height:160px;margin-bottom:4px"><canvas id="modal-pos-chart"></canvas></div>`;
 
   // Fetch career stats and race results in parallel
   // Career endpoint uses all-time data; rookies may have no prior seasons so we fall back to current season only
-  const [careerData, raceData] = await Promise.allSettled([
-    fetchJSON(`${BASE}/drivers/${driverId}/results.json?limit=500`),
+  // Career stats — paginate to handle veterans with 300+ races (Jolpica caps at 100 per call)
+  async function fetchAllCareerRaces(driverId){
+    let allRaces=[], offset=0, limit=100, total=null;
+    do {
+      try {
+        const data=await fetchJSON(`${BASE}/drivers/${driverId}/results.json?limit=${limit}&offset=${offset}`);
+        const races=data.MRData.RaceTable.Races||[];
+        if(total===null) total=parseInt(data.MRData.total||0);
+        allRaces.push(...races);
+        offset+=limit;
+      } catch(e){ break; }
+    } while(allRaces.length < total && offset < total);
+    return allRaces;
+  }
+
+  const [careerRaces, raceData] = await Promise.allSettled([
+    fetchAllCareerRaces(driverId),
     fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/results.json?limit=30`),
   ]);
 
   // Career stats
   const clEl=document.getElementById('modal-career-loading');
   if(clEl) clEl.textContent='';
-  // Combine career + current season results to handle rookies whose career IS only 2026
   let allCareerRaces=[];
-  if(careerData.status==='fulfilled'){
-    allCareerRaces=careerData.value.MRData.RaceTable.Races||[];
+  if(careerRaces.status==='fulfilled'){
+    allCareerRaces=careerRaces.value||[];
   }
-  // If career returned nothing but season did, use season data for career stats too
+  // If career returned nothing but season did, use season data
   if(!allCareerRaces.length && raceData.status==='fulfilled'){
     allCareerRaces=raceData.value.MRData.RaceTable.Races||[];
   }
@@ -1057,6 +1079,54 @@ async function openDriverModal(driverId){
           +'<span class="modal-result-pts">'+(pts>0?'+'+pts+'pts':'')+'</span>'
           +'</span></div>';
       }).join('')+'</div>';
+
+      // ── Deep dive charts ──
+      const labels=results.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
+      // Points progression (cumulative)
+      let cumPts=0;
+      const ptsData=results.map(r=>{cumPts+=parseFloat(r.Results[0]?.points||0);return cumPts;});
+      // Qualifying vs Race position
+      const qualiData=results.map(r=>parseInt(r.Results[0]?.grid||0)||null);
+      const raceData2=results.map(r=>{
+        const res=r.Results[0];
+        const status=res?.status||'';
+        const isDNF=status&&status!=='Finished'&&!status.startsWith('+');
+        return isDNF?null:parseInt(res?.position||0)||null;
+      });
+
+      const chartDefaults={
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#888',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y}}},
+        scales:{
+          x:{ticks:{color:'#888',font:{size:9},maxRotation:45},grid:{color:'rgba(128,128,128,0.1)'}},
+          y:{ticks:{color:'#888',font:{size:10}},grid:{color:'rgba(128,128,128,0.1)'}}
+        }
+      };
+
+      // Points chart
+      const ptsCtx=document.getElementById('modal-pts-chart');
+      if(ptsCtx){
+        if(ptsCtx._chart) ptsCtx._chart.destroy();
+        ptsCtx._chart=new Chart(ptsCtx,{
+          type:'line',
+          data:{labels,datasets:[{label:'Cumulative pts',data:ptsData,borderColor:d.color,backgroundColor:d.color+'22',borderWidth:2,pointRadius:3,pointBackgroundColor:d.color,fill:true,tension:0.3}]},
+          options:{...chartDefaults,scales:{...chartDefaults.scales,y:{...chartDefaults.scales.y,beginAtZero:true}}}
+        });
+      }
+
+      // Quali vs Race chart
+      const posCtx=document.getElementById('modal-pos-chart');
+      if(posCtx){
+        if(posCtx._chart) posCtx._chart.destroy();
+        posCtx._chart=new Chart(posCtx,{
+          type:'line',
+          data:{labels,datasets:[
+            {label:'Qualifying',data:qualiData,borderColor:'#888',backgroundColor:'transparent',borderWidth:1.5,pointRadius:3,borderDash:[4,3],spanGaps:true},
+            {label:'Race finish',data:raceData2,borderColor:d.color,backgroundColor:'transparent',borderWidth:2,pointRadius:3,pointBackgroundColor:d.color,spanGaps:true}
+          ]},
+          options:{...chartDefaults,scales:{...chartDefaults.scales,y:{...chartDefaults.scales.y,reverse:true,min:1,suggestedMax:20,ticks:{...chartDefaults.scales.y.ticks,stepSize:5}}}}
+        });
+      }
     }
   } else {
     mrEl.innerHTML='<div class="error-msg" style="padding:8px">Could not load results.</div>';
@@ -1757,11 +1827,6 @@ function rebuildChart(){
 function filterTable(tbodyId,q){
   document.querySelectorAll(`#${tbodyId} tr`).forEach(r=>{r.style.display=(!q||r.dataset.search?.toLowerCase().includes(q.toLowerCase()))?'':'none';});
 }
-function sortTable(tbodyId,colIdx){
-  const tbody=document.getElementById(tbodyId);
-  [...tbody.querySelectorAll('tr')].map(r=>({r,v:parseFloat(r.cells[colIdx]?.dataset?.val||r.cells[colIdx]?.textContent)||0})).sort((a,b)=>b.v-a.v).forEach(({r})=>tbody.appendChild(r));
-}
-
 // ── CSV export ──
 function exportCSV(type){
   let rows,filename;
@@ -2010,7 +2075,7 @@ async function loadRecords(){
       +'<div class="record-row"><span class="record-name">8. Nigel Mansell</span><span class="record-val">32</span></div>'
       +'</div>'
       +'<div class="record-card"><div class="record-card-title">Most podiums (all-time)</div>'
-      +'<div class="record-row"><span class="record-name">1. Lewis Hamilton</span><span class="record-val">201</span></div>'
+      +'<div class="record-row"><span class="record-name">1. Lewis Hamilton</span><span class="record-val">203</span></div>'
       +'<div class="record-row"><span class="record-name">2. Michael Schumacher</span><span class="record-val">155</span></div>'
       +'<div class="record-row"><span class="record-name">3. Sebastian Vettel</span><span class="record-val">122</span></div>'
       +'<div class="record-row"><span class="record-name">4. Max Verstappen</span><span class="record-val">127</span></div>'
@@ -2021,7 +2086,7 @@ async function loadRecords(){
       +'</div>'
       +'<div class="record-card"><div class="record-card-title">Most fastest laps (all-time)</div>'
       +'<div class="record-row"><span class="record-name">1. Michael Schumacher</span><span class="record-val">77</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Lewis Hamilton</span><span class="record-val">67</span></div>'
+      +'<div class="record-row"><span class="record-name">2. Lewis Hamilton</span><span class="record-val">68</span></div>'
       +'<div class="record-row"><span class="record-name">3. Kimi Räikkönen</span><span class="record-val">46</span></div>'
       +'<div class="record-row"><span class="record-name">4. Alain Prost</span><span class="record-val">41</span></div>'
       +'<div class="record-row"><span class="record-name">5. Sebastian Vettel</span><span class="record-val">38</span></div>'
@@ -2042,12 +2107,12 @@ async function loadRecords(){
 
       // Driver records
       +'<div class="record-card"><div class="record-card-title">Most races started</div>'
-      +'<div class="record-row"><span class="record-name">1. Fernando Alonso</span><span class="record-val">403</span></div>'
+      +'<div class="record-row"><span class="record-name">1. Fernando Alonso</span><span class="record-val">427</span></div>'
       +'<div class="record-row"><span class="record-name">2. Lewis Hamilton</span><span class="record-val">352</span></div>'
       +'<div class="record-row"><span class="record-name">3. Kimi Räikkönen</span><span class="record-val">349</span></div>'
       +'<div class="record-row"><span class="record-name">4. Rubens Barrichello</span><span class="record-val">326</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Jenson Button</span><span class="record-val">306</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Michael Schumacher</span><span class="record-val">308</span></div>'
+      +'<div class="record-row"><span class="record-name">5. Michael Schumacher</span><span class="record-val">308</span></div>'
+      +'<div class="record-row"><span class="record-name">6. Jenson Button</span><span class="record-val">306</span></div>'
       +'<div class="record-row"><span class="record-name">7. Sebastian Vettel</span><span class="record-val">299</span></div>'
       +'<div class="record-row"><span class="record-name">8. David Coulthard</span><span class="record-val">246</span></div>'
       +'</div>'
@@ -2065,14 +2130,14 @@ async function loadRecords(){
 
       +'<div class="record-card"><div class="record-card-title">Most grand slams</div>'
       +'<div class="record-row"><span class="record-name" style="font-size:11px;color:var(--text2)">Pole, win, fastest lap & led every lap</span><span class="record-val"></span></div>'
-      +'<div class="record-row"><span class="record-name">1. Michael Schumacher</span><span class="record-val">8</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Lewis Hamilton</span><span class="record-val">7</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Max Verstappen</span><span class="record-val">7</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Ayrton Senna</span><span class="record-val">6</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Jim Clark</span><span class="record-val">5</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Nigel Mansell</span><span class="record-val">5</span></div>'
+      +'<div class="record-row"><span class="record-name">1. Jim Clark</span><span class="record-val">8</span></div>'
+      +'<div class="record-row"><span class="record-name">2. Max Verstappen</span><span class="record-val">7</span></div>'
+      +'<div class="record-row"><span class="record-name">3. Lewis Hamilton</span><span class="record-val">6</span></div>'
+      +'<div class="record-row"><span class="record-name">4. Michael Schumacher</span><span class="record-val">5</span></div>'
+      +'<div class="record-row"><span class="record-name">4. Ayrton Senna</span><span class="record-val">5</span></div>'
+      +'<div class="record-row"><span class="record-name">4. Nigel Mansell</span><span class="record-val">5</span></div>'
+      +'<div class="record-row"><span class="record-name">7. Alberto Ascari</span><span class="record-val">4</span></div>'
       +'<div class="record-row"><span class="record-name">7. Sebastian Vettel</span><span class="record-val">4</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Alain Prost</span><span class="record-val">3</span></div>'
       +'</div>'
 
       +'<div class="record-card"><div class="record-card-title">Youngest world champions</div>'
@@ -2100,13 +2165,13 @@ async function loadRecords(){
       // Constructor records
       +'<div class="record-card"><div class="record-card-title">Most constructors\' championships</div>'
       +'<div class="record-row"><span class="record-name">1. Ferrari</span><span class="record-val">16</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Williams</span><span class="record-val">9</span></div>'
-      +'<div class="record-row"><span class="record-name">3. McLaren</span><span class="record-val">8</span></div>'
+      +'<div class="record-row"><span class="record-name">2. McLaren</span><span class="record-val">10</span></div>'
+      +'<div class="record-row"><span class="record-name">3. Williams</span><span class="record-val">9</span></div>'
       +'<div class="record-row"><span class="record-name">4. Mercedes</span><span class="record-val">8</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Red Bull</span><span class="record-val">6</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Lotus</span><span class="record-val">7</span></div>'
+      +'<div class="record-row"><span class="record-name">5. Lotus</span><span class="record-val">7</span></div>'
+      +'<div class="record-row"><span class="record-name">6. Red Bull</span><span class="record-val">6</span></div>'
       +'<div class="record-row"><span class="record-name">7. Brabham</span><span class="record-val">2</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Renault</span><span class="record-val">2</span></div>'
+      +'<div class="record-row"><span class="record-name">7. Renault</span><span class="record-val">2</span></div>'
       +'</div>'
 
       +'<div class="record-card"><div class="record-card-title">Most constructor race wins</div>'
@@ -2121,14 +2186,14 @@ async function loadRecords(){
       +'</div>'
 
       +'<div class="record-card"><div class="record-card-title">Most consecutive constructors\' titles</div>'
-      +'<div class="record-row"><span class="record-name">1. Ferrari (1999–2004)</span><span class="record-val">6</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Mercedes (2014–2021)</span><span class="record-val">8</span></div>'
+      +'<div class="record-row"><span class="record-name">1. Mercedes (2014–2021)</span><span class="record-val">8</span></div>'
+      +'<div class="record-row"><span class="record-name">2. Ferrari (1999–2004)</span><span class="record-val">6</span></div>'
       +'<div class="record-row"><span class="record-name">3. Williams (1992–1997)</span><span class="record-val">5</span></div>'
       +'<div class="record-row"><span class="record-name">4. McLaren (1988–1991)</span><span class="record-val">4</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Red Bull (2010–2013)</span><span class="record-val">4</span></div>'
+      +'<div class="record-row"><span class="record-name">4. Red Bull (2010–2013)</span><span class="record-val">4</span></div>'
+      +'<div class="record-row"><span class="record-name">6. McLaren (1988–1989)</span><span class="record-val">2</span></div>'
+      +'<div class="record-row"><span class="record-name">6. McLaren (2024–2025)</span><span class="record-val">2</span></div>'
       +'<div class="record-row"><span class="record-name">6. Lotus (1963–1965)</span><span class="record-val">3</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Ferrari (1975–1977)</span><span class="record-val">3</span></div>'
-      +'<div class="record-row"><span class="record-name">8. McLaren (1974, 1984–1985)</span><span class="record-val">2</span></div>'
       +'</div>'
 
       // Race records
@@ -2155,14 +2220,14 @@ async function loadRecords(){
       +'</div>'
 
       +'<div class="record-card"><div class="record-card-title">Most grands prix at one circuit</div>'
-      +'<div class="record-row"><span class="record-name">1. Monza (Italian GP)</span><span class="record-val">73+</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Monaco</span><span class="record-val">70+</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Silverstone (British GP)</span><span class="record-val">60+</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Spa-Francorchamps</span><span class="record-val">55+</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Hockenheimring</span><span class="record-val">36</span></div>'
+      +'<div class="record-row"><span class="record-name">1. Monza (Italian GP)</span><span class="record-val">75</span></div>'
+      +'<div class="record-row"><span class="record-name">2. Monaco</span><span class="record-val">71</span></div>'
+      +'<div class="record-row"><span class="record-name">3. Silverstone (British GP)</span><span class="record-val">60</span></div>'
+      +'<div class="record-row"><span class="record-name">4. Spa-Francorchamps</span><span class="record-val">55</span></div>'
+      +'<div class="record-row"><span class="record-name">5. Interlagos</span><span class="record-val">42</span></div>'
       +'<div class="record-row"><span class="record-name">6. Nürburgring</span><span class="record-val">37</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Interlagos</span><span class="record-val">40+</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Suzuka</span><span class="record-val">35+</span></div>'
+      +'<div class="record-row"><span class="record-name">7. Hockenheimring</span><span class="record-val">36</span></div>'
+      +'<div class="record-row"><span class="record-name">8. Suzuka</span><span class="record-val">35</span></div>'
       +'</div>'
 
       +'</div>';
