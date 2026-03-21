@@ -1928,12 +1928,15 @@ ${teamSummaries}`;
         'x-api-key':apiKey,
       },
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',
+        model:'claude-sonnet-4-5',
         max_tokens:1000,
         messages:[{role:'user',content:prompt}]
       })
     });
-    if(!res.ok) throw new Error('API error '+res.status);
+    if(!res.ok){
+      const errData=await res.json().catch(()=>({}));
+      throw new Error('API error '+res.status+': '+(errData.error?.message||JSON.stringify(errData)));
+    }
     const data=await res.json();
     const text=data.content?.map(b=>b.text||'').join('').trim();
     const clean=text.replace(/```json|```/g,'').trim();
