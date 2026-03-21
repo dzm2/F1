@@ -213,7 +213,39 @@
     /* DNF badge */
     .dnf-badge { display:inline-block; background:var(--bg3); color:var(--text2); font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:1px; padding:2px 6px; border-radius:3px; border:0.5px solid var(--border); }
 
-    /* News feed */
+    /* Media tabs (News / Podcasts / Videos) */
+    .media-tabs{display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--border);}
+    .media-tab{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;padding:6px 16px;cursor:pointer;transition:color .15s;}
+    .media-tab:hover{color:var(--text2);}
+    .media-tab.active{color:var(--red);border-bottom-color:var(--red);}
+
+    /* Video grid */
+    .video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+    .video-card{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;overflow:hidden;text-decoration:none;display:block;transition:border-color .15s;}
+    .video-card:hover{border-color:var(--border2);}
+    .video-thumb{width:100%;aspect-ratio:16/9;background:var(--bg2);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .video-thumb img{width:100%;height:100%;object-fit:cover;}
+    .video-thumb-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
+    .play-btn{width:36px;height:36px;background:#E10600;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .play-triangle{width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #fff;margin-left:3px;}
+    .video-duration{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.75);color:#fff;font-size:10px;padding:2px 5px;border-radius:3px;font-family:'Barlow Condensed',sans-serif;}
+    .video-body{padding:10px 12px;}
+    .video-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.35;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .video-meta{display:flex;align-items:center;gap:6px;}
+    .channel-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+    .channel-name{font-size:11px;color:var(--text2);}
+    .video-date{font-size:11px;color:var(--text3);margin-left:auto;}
+
+    /* Podcast list */
+    .podcast-grid{display:flex;flex-direction:column;gap:1px;background:var(--border);border-radius:8px;overflow:hidden;border:0.5px solid var(--border);}
+    .podcast-item{background:var(--bg);padding:13px 16px;display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;text-decoration:none;transition:background .12s;}
+    .podcast-item:hover{background:var(--bg2);}
+    .podcast-icon{width:48px;height:48px;border-radius:6px;background:var(--bg2);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:0.5px solid var(--border);}
+    .podcast-play{width:20px;height:20px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .podcast-play-tri{width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid #fff;margin-left:2px;}
+    .podcast-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--text);line-height:1.25;margin-bottom:4px;}
+    .podcast-show{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;}
+    .podcast-duration{font-size:12px;color:var(--text3);white-space:nowrap;}
     .news-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
     .news-filter-btn{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text2);background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:5px 14px;cursor:pointer;transition:all .15s;white-space:nowrap;}
     .news-filter-btn:hover{border-color:var(--border2);color:var(--text);} .news-filter-btn.active{background:var(--red);color:#fff;border-color:var(--red);}
@@ -404,6 +436,13 @@
 
   <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
 
+  <!-- Welcome banner -->
+  <div id="welcome-banner" style="display:none;background:var(--bg2);border:0.5px solid var(--border);border-left:3px solid var(--red);border-radius:8px;padding:14px 16px;margin-bottom:1.25rem;position:relative">
+    <button onclick="dismissWelcome()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;padding:0">✕</button>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px">Welcome to Sector Three</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;max-width:600px">Your live 2026 Formula 1 dashboard — standings, race results, news and records all in one place. Data updates automatically from the official F1 timing feed. Click any driver or team to see detailed stats. New to F1? Check out the <strong style="color:var(--text);cursor:pointer" onclick="showTab('season',document.querySelector('[data-tab=season]'))">Season tab</strong> for an explainer on the 2026 regulations.</div>
+  </div>
+
   <div class="f1-metrics">
     <div class="f1-metric leader"><div class="f1-metric-label">Championship leader</div><div class="f1-metric-value" id="m-leader">—</div><div class="f1-metric-sub" id="m-leader-sub">Loading...</div></div>
     <div class="f1-metric pts"><div class="f1-metric-label">Points lead</div><div class="f1-metric-value" id="m-gap">—</div><div class="f1-metric-sub" id="m-gap-sub">Loading...</div></div>
@@ -430,8 +469,8 @@
     <table class="f1-table" id="drivers-table" style="display:none">
       <thead><tr>
         <th style="text-align:center">Pos</th><th>Driver</th><th>Team</th>
-        <th style="text-align:right">Pts</th>
-        <th style="text-align:center">W</th>
+        <th style="text-align:right">Points</th>
+        <th style="text-align:center">Wins</th>
         <th style="text-align:right">Gap</th>
       </tr></thead>
       <tbody id="driver-tbody"></tbody>
@@ -446,8 +485,8 @@
     <table class="f1-table" id="con-table" style="display:none">
       <thead><tr>
         <th style="text-align:center">Pos</th><th>Constructor</th>
-        <th style="text-align:right">Pts</th>
-        <th style="text-align:center">W</th>
+        <th style="text-align:right">Points</th>
+        <th style="text-align:center">Wins</th>
         <th style="text-align:right">Gap</th>
       </tr></thead>
       <tbody id="con-tbody"></tbody>
@@ -466,17 +505,42 @@
 
   <!-- News -->
   <div id="news" class="f1-panel">
-    <div class="news-filter" id="news-filter-bar">
-      <button class="news-filter-btn active" onclick="filterNews('all',this)">All</button>
-      <button class="news-filter-btn" onclick="filterNews('race',this)">Race reports</button>
-      <button class="news-filter-btn" onclick="filterNews('analysis',this)">Analysis</button>
-      <button class="news-filter-btn" onclick="filterNews('team',this)">Team news</button>
-      <button class="news-filter-btn" onclick="filterNews('regulation',this)">Regulations</button>
+    <div class="media-tabs">
+      <button class="media-tab active" onclick="switchMediaTab('news',this)">News</button>
+      <button class="media-tab" onclick="switchMediaTab('podcasts',this)">Podcasts</button>
+      <button class="media-tab" onclick="switchMediaTab('videos',this)">Videos</button>
     </div>
-    <div class="export-row" style="margin-bottom:8px">
-      <button class="icon-btn" onclick="refreshNews()">↻ Refresh news</button>
+
+    <!-- News section -->
+    <div id="media-news">
+      <div class="news-filter" id="news-filter-bar">
+        <button class="news-filter-btn active" onclick="filterNews('all',this)">All</button>
+        <button class="news-filter-btn" onclick="filterNews('race',this)">Race reports</button>
+        <button class="news-filter-btn" onclick="filterNews('analysis',this)">Analysis</button>
+        <button class="news-filter-btn" onclick="filterNews('team',this)">Team news</button>
+        <button class="news-filter-btn" onclick="filterNews('regulation',this)">Regulations</button>
+      </div>
+      <div class="export-row" style="margin-bottom:8px">
+        <button class="icon-btn" onclick="refreshNews()">↻ Refresh news</button>
+      </div>
+      <div id="news-grid"></div>
     </div>
-    <div id="news-grid"></div>
+
+    <!-- Podcasts section -->
+    <div id="media-podcasts" style="display:none">
+      <div class="export-row" style="margin-bottom:8px">
+        <button class="icon-btn" onclick="loadPodcasts()">↻ Refresh podcasts</button>
+      </div>
+      <div id="podcast-grid"></div>
+    </div>
+
+    <!-- Videos section -->
+    <div id="media-videos" style="display:none">
+      <div class="export-row" style="margin-bottom:8px">
+        <button class="icon-btn" onclick="loadVideos()">↻ Refresh videos</button>
+      </div>
+      <div id="video-grid"></div>
+    </div>
   </div>
 
   <!-- Season tab -->
@@ -485,6 +549,23 @@
     <div id="season-content" style="display:none">
       <div class="section-group-label">Season timeline</div>
       <div id="season-timeline"></div>
+      <hr class="modal-divider" style="margin:1rem 0">
+      <div class="section-group-label">Championship deep dive</div>
+      <div id="champ-deep-dive">
+        <div style="margin-bottom:1rem">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Points gap — top 5 drivers</div>
+          <div style="position:relative;height:200px"><canvas id="champ-gap-chart"></canvas></div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Championship leader each round</div>
+          <div id="champ-leader-table"></div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Driver performance rates</div>
+          <div style="position:relative;height:220px"><canvas id="champ-rate-chart"></canvas></div>
+        </div>
+        <div id="champ-best-worst"></div>
+      </div>
       <hr class="modal-divider" style="margin:1rem 0">
       <div class="section-group-label">Teammate head-to-head</div>
       <div class="h2h-grid" id="h2h-grid"></div>
@@ -541,6 +622,24 @@
           <a class="src-pill" href="https://www.f1technical.net" target="_blank"><span class="src-dot" style="background:#0d9488"></span>f1technical.net</a>
           <a class="src-pill" href="https://www.gptoday.net" target="_blank"><span class="src-dot" style="background:#16a34a"></span>gptoday.net</a>
           <a class="src-pill" href="https://www.pitpass.com" target="_blank"><span class="src-dot" style="background:#7c3aed"></span>pitpass.com</a>
+        </div>
+      </div>
+      <div class="sources-group">
+        <span class="sources-group-label">Podcasts</span>
+        <div class="src-pills">
+          <a class="src-pill" href="https://www.formula1.com/en/latest/article/beyond-the-grid.html" target="_blank"><span class="src-dot" style="background:#E10600"></span>Beyond The Grid</a>
+          <a class="src-pill" href="https://www.formula1.com/en/latest/article/f1-nation.html" target="_blank"><span class="src-dot" style="background:#1d4ed8"></span>F1 Nation</a>
+          <a class="src-pill" href="https://www.the-race.com/formula-1/" target="_blank"><span class="src-dot" style="background:#d62828"></span>The Race F1</a>
+          <a class="src-pill" href="https://wtf1.com" target="_blank"><span class="src-dot" style="background:#FF8000"></span>WTF1 Podcast</a>
+          <a class="src-pill" href="https://missedapex.com" target="_blank"><span class="src-dot" style="background:#0d9488"></span>Missed Apex</a>
+        </div>
+      </div>
+      <div class="sources-group">
+        <span class="sources-group-label">Videos</span>
+        <div class="src-pills">
+          <a class="src-pill" href="https://www.youtube.com/@Formula1" target="_blank"><span class="src-dot" style="background:#E10600"></span>Formula 1</a>
+          <a class="src-pill" href="https://www.youtube.com/@wtf1official" target="_blank"><span class="src-dot" style="background:#FF8000"></span>WTF1</a>
+          <a class="src-pill" href="https://www.youtube.com/@SkySportsF1" target="_blank"><span class="src-dot" style="background:#0090FF"></span>Sky Sports F1</a>
         </div>
       </div>
     </div>
@@ -952,8 +1051,8 @@ async function openDriverModal(driverId){
       <div class="modal-stat"><div class="modal-stat-label">Best quali</div><div class="modal-stat-value" id="ms-bestq">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Avg finish</div><div class="modal-stat-value" id="ms-avgfin">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Pts/race</div><div class="modal-stat-value" id="ms-ppr">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">DNFs</div><div class="modal-stat-value" id="ms-dnf">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">vs teammate</div><div class="modal-stat-value small" id="ms-h2h">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Did Not Finish</div><div class="modal-stat-value" id="ms-dnf">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">vs Teammate</div><div class="modal-stat-value small" id="ms-h2h">—</div></div>
     </div>
 
     <hr class="modal-divider">
@@ -1192,13 +1291,22 @@ async function openConstructorModal(constructorId){
     <hr class="modal-divider">
     <div class="modal-section-title">Reliability <span id="con-rel-loading" style="color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px">Loading...</span></div>
     <div class="modal-stats" id="con-reliability">
-      <div class="modal-stat"><div class="modal-stat-label">DNFs this season</div><div class="modal-stat-value" id="con-dnf-count">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Did Not Finish</div><div class="modal-stat-value" id="con-dnf-count">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Finishes</div><div class="modal-stat-value" id="con-fin-count">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Finish rate</div><div class="modal-stat-value" id="con-fin-rate">—</div></div>
     </div>
     <hr class="modal-divider">
     <div class="modal-section-title">Points per round <span id="con-rounds-loading" style="color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px">Loading...</span></div>
     <div id="con-round-chart-wrap"><div class="loading-text" style="font-size:12px;padding:8px 0">Loading...</div></div>
+    <hr class="modal-divider">
+    <div class="modal-section-title">Driver points split <span id="con-split-loading" style="color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px">Loading...</span></div>
+    <div style="position:relative;height:160px;margin-bottom:8px"><canvas id="con-split-chart"></canvas></div>
+    <hr class="modal-divider">
+    <div class="modal-section-title">Qualifying vs race performance <span id="con-qr-loading" style="color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px">Loading...</span></div>
+    <div style="position:relative;height:180px;margin-bottom:8px"><canvas id="con-qr-chart"></canvas></div>
+    <hr class="modal-divider">
+    <div class="modal-section-title">Average pit stop time <span id="con-pit-loading" style="color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px">Loading...</span></div>
+    <div id="con-pit-avg" style="padding:6px 0;font-size:13px;color:var(--text2)">Loading...</div>
     <hr class="modal-divider">
     <div class="modal-section-title">All-time stats <span id="con-career-loading" style="color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px">Loading...</span></div>
     <div class="modal-stats" id="con-career-stats">
@@ -1289,6 +1397,66 @@ async function openConstructorModal(constructorId){
     const dnfEl=document.getElementById('con-dnf-count'); if(dnfEl) dnfEl.textContent=dnfs;
     const finEl=document.getElementById('con-fin-count'); if(finEl) finEl.textContent=fins;
     const rateEl=document.getElementById('con-fin-rate'); if(rateEl) rateEl.textContent=rate;
+  }
+
+  // ── Driver points split stacked bar ──
+  const splitEl=document.getElementById('con-split-loading');
+  if(splitEl) splitEl.textContent='';
+  const splitCtx=document.getElementById('con-split-chart');
+  if(splitCtx&&roundsData.status==='fulfilled'){
+    const races=roundsData.value.MRData.RaceTable.Races||[];
+    const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
+    if(teamDrivers.length>=2&&races.length){
+      const [dA,dB]=teamDrivers;
+      const rLabels=races.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
+      const ptsA=races.map(r=>{const res=(r.Results||[]).find(x=>x.Driver.driverId===dA.driverId);return parseFloat(res?.points||0);});
+      const ptsB=races.map(r=>{const res=(r.Results||[]).find(x=>x.Driver.driverId===dB.driverId);return parseFloat(res?.points||0);});
+      if(splitCtx._chart) splitCtx._chart.destroy();
+      splitCtx._chart=new Chart(splitCtx,{type:'bar',data:{labels:rLabels,datasets:[{label:dA.last,data:ptsA,backgroundColor:color+'cc',borderColor:color,borderWidth:1},{label:dB.last,data:ptsB,backgroundColor:color+'55',borderColor:color+'88',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,ticks:{color:'#888',font:{size:8},maxRotation:45},grid:{color:'rgba(128,128,128,0.1)'}},y:{stacked:true,ticks:{color:'#888',font:{size:9}},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:'Points',color:'#888',font:{size:9}}}}}});
+    } else {
+      splitCtx.parentElement.innerHTML='<div style="font-size:12px;color:var(--text2);padding:8px 0">Insufficient data.</div>';
+    }
+  }
+
+  // ── Qualifying vs Race performance ──
+  const qrEl=document.getElementById('con-qr-loading');
+  if(qrEl) qrEl.textContent='';
+  const qrCtx=document.getElementById('con-qr-chart');
+  if(qrCtx&&roundsData.status==='fulfilled'){
+    const races=roundsData.value.MRData.RaceTable.Races||[];
+    if(races.length){
+      const rLabels=races.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
+      // Average grid vs average finish per round for both drivers
+      const avgGrid=races.map(r=>{const grids=(r.Results||[]).map(x=>parseInt(x.grid)||0).filter(Boolean);return grids.length?grids.reduce((a,b)=>a+b,0)/grids.length:null;});
+      const avgFin=races.map(r=>{const fins=(r.Results||[]).map(x=>parseInt(x.position)||0).filter(Boolean);return fins.length?fins.reduce((a,b)=>a+b,0)/fins.length:null;});
+      if(qrCtx._chart) qrCtx._chart.destroy();
+      qrCtx._chart=new Chart(qrCtx,{type:'line',data:{labels:rLabels,datasets:[{label:'Avg grid',data:avgGrid,borderColor:'#888',borderWidth:1.5,borderDash:[4,3],pointRadius:2,spanGaps:true},{label:'Avg finish',data:avgFin,borderColor:color,borderWidth:2,pointRadius:2,pointBackgroundColor:color,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10},boxWidth:10}}},scales:{x:{ticks:{color:'#888',font:{size:8},maxRotation:45},grid:{color:'rgba(128,128,128,0.1)'}},y:{reverse:true,min:1,suggestedMax:20,ticks:{color:'#888',font:{size:9},stepSize:5},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:'Position (lower = better)',color:'#888',font:{size:9}}}}}});
+    }
+  }
+
+  // ── Average pit stop time ──
+  const pitLoadEl=document.getElementById('con-pit-loading');
+  if(pitLoadEl) pitLoadEl.textContent='';
+  const pitAvgEl=document.getElementById('con-pit-avg');
+  if(pitAvgEl){
+    // Gather pit stop data from pitStopData cache if available
+    let allDurations=[];
+    Object.values(pitStopData).forEach(stops=>{
+      stops.forEach(stop=>{
+        const drivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
+        if(drivers.some(d=>d.driverId===stop.driverId)){
+          const dur=parseFloat(stop.duration);
+          if(!isNaN(dur)&&dur>0&&dur<60) allDurations.push(dur);
+        }
+      });
+    });
+    if(allDurations.length){
+      const avg=(allDurations.reduce((a,b)=>a+b,0)/allDurations.length).toFixed(3);
+      const best=Math.min(...allDurations).toFixed(3);
+      pitAvgEl.innerHTML='<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:700;color:var(--text)">'+avg+'s</span> <span style="color:var(--text2)">average · Best: '+best+'s</span>';
+    } else {
+      pitAvgEl.textContent='No pit stop data yet — open race cards to load pit data.';
+    }
   }
 
   // ── All-time career stats ──
@@ -1680,11 +1848,65 @@ async function loadCalendar(){
       detail.appendChild(tbl);
 
       if(dnfs.length){
-        const dt=document.createElement('div'); dt.className='detail-section-title'; dt.textContent='DNFs / retirements'; detail.appendChild(dt);
+        const dt=document.createElement('div'); dt.className='detail-section-title'; dt.textContent='Retirements (Did Not Finish)'; detail.appendChild(dt);
         const dg=document.createElement('div'); dg.className='detail-grid';
         dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><strong>'+f.Driver.familyName+'</strong> <span class="dnf-badge">'+f.status.slice(0,10)+'</span></div>').join('');
         detail.appendChild(dg);
       }
+
+      // ── Race deep dive ──
+      // Gap to leader at finish
+      const gapTitle=document.createElement('div'); gapTitle.className='detail-section-title'; gapTitle.textContent='Gap to leader at finish'; detail.appendChild(gapTitle);
+      const gapWrap=document.createElement('div'); gapWrap.style.cssText='position:relative;height:180px;margin-bottom:8px';
+      const gapCanvas=document.createElement('canvas'); gapCanvas.id='gap-chart-'+r.round;
+      gapWrap.appendChild(gapCanvas); detail.appendChild(gapWrap);
+
+      // Fastest lap comparison
+      const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap (top 5 finishers)'; detail.appendChild(flTitle);
+      const flWrap=document.createElement('div'); flWrap.style.cssText='position:relative;height:160px;margin-bottom:8px';
+      const flCanvas=document.createElement('canvas'); flCanvas.id='fl-chart-'+r.round;
+      flWrap.appendChild(flCanvas); detail.appendChild(flWrap);
+
+      // Grid vs finish (alternative to lap-by-lap)
+      const gfTitle=document.createElement('div'); gfTitle.className='detail-section-title'; gfTitle.textContent='Grid vs finish position'; detail.appendChild(gfTitle);
+      const gfWrap=document.createElement('div'); gfWrap.style.cssText='position:relative;height:200px;margin-bottom:8px';
+      const gfCanvas=document.createElement('canvas'); gfCanvas.id='gf-chart-'+r.round;
+      gfWrap.appendChild(gfCanvas); detail.appendChild(gfWrap);
+
+      // Build charts after DOM is rendered
+      requestAnimationFrame(()=>{
+        const chartOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label||ctx.label}}},scales:{x:{ticks:{color:'#888',font:{size:9},maxRotation:40},grid:{color:'rgba(128,128,128,0.1)'}},y:{ticks:{color:'#888',font:{size:9}},grid:{color:'rgba(128,128,128,0.1)'}}}};
+
+        // Gap to leader chart (all classified finishers)
+        const classified=finishers.filter(f=>f.status==='Finished'||f.status.startsWith('+'));
+        const gapLabels=classified.map(f=>f.Driver.familyName);
+        const gapData=classified.map((f,i)=>{
+          if(i===0) return 0;
+          const s=f.status||'';
+          const m=s.match(/\+([\d.]+)/); return m?parseFloat(m[1]):null;
+        });
+        const gapColors=classified.map(f=>teamColor(f.Constructor?.name||''));
+        const gapCtx=document.getElementById('gap-chart-'+r.round);
+        if(gapCtx&&!gapCtx._chart) gapCtx._chart=new Chart(gapCtx,{type:'bar',data:{labels:gapLabels,datasets:[{label:'Gap (s)',data:gapData,backgroundColor:gapColors.map(c=>c+'aa'),borderColor:gapColors,borderWidth:1}]},options:{...chartOpts,plugins:{...chartOpts.plugins,tooltip:{callbacks:{label:ctx=>ctx.parsed.y===0?'Leader':'+'+ctx.parsed.y+'s'}}},scales:{...chartOpts.scales,y:{...chartOpts.scales.y,title:{display:true,text:'Seconds behind leader',color:'#888',font:{size:9}}}}}});
+
+        // Fastest lap comparison (top 5)
+        const top5=finishers.slice(0,5).filter(f=>f.FastestLap?.Time?.time);
+        const flLabels=top5.map(f=>f.Driver.familyName);
+        const flTimes=top5.map(f=>{
+          const t=f.FastestLap?.Time?.time||'';
+          const parts=t.match(/(\d+):(\d+\.\d+)/);
+          return parts?parseFloat(parts[1])*60+parseFloat(parts[2]):null;
+        });
+        const flMin=flTimes.filter(Boolean).reduce((a,b)=>Math.min(a,b),Infinity);
+        const flColors=top5.map(f=>teamColor(f.Constructor?.name||''));
+        const flCtx=document.getElementById('fl-chart-'+r.round);
+        if(flCtx&&!flCtx._chart&&top5.length) flCtx._chart=new Chart(flCtx,{type:'bar',data:{labels:flLabels,datasets:[{label:'Fastest lap',data:flTimes,backgroundColor:flColors.map(c=>c+'aa'),borderColor:flColors,borderWidth:1}]},options:{...chartOpts,plugins:{...chartOpts.plugins,tooltip:{callbacks:{label:ctx=>{const t=ctx.parsed.y;const m=Math.floor(t/60);const s=(t%60).toFixed(3).padStart(6,'0');return m+':'+s+(ctx.parsed.y===flMin?' ⚡':'')}}}},scales:{...chartOpts.scales,y:{...chartOpts.scales.y,suggestedMin:flMin*0.998,title:{display:true,text:'Lap time (s)',color:'#888',font:{size:9}}}}}}); else if(flCtx&&!top5.length) flCtx.parentElement.previousSibling.textContent='Fastest lap data not available';
+
+        // Grid vs finish scatter
+        const gfData=finishers.slice(0,15).map(f=>({x:parseInt(f.grid)||0,y:parseInt(f.position)||0,label:f.Driver.familyName,color:teamColor(f.Constructor?.name||'')})).filter(p=>p.x>0&&p.y>0);
+        const gfCtx=document.getElementById('gf-chart-'+r.round);
+        if(gfCtx&&!gfCtx._chart) gfCtx._chart=new Chart(gfCtx,{type:'scatter',data:{datasets:[{label:'Drivers',data:gfData.map(p=>({x:p.x,y:p.y})),backgroundColor:gfData.map(p=>p.color+'cc'),pointRadius:6,pointHoverRadius:8}]},options:{...chartOpts,plugins:{...chartOpts.plugins,tooltip:{callbacks:{label:ctx=>{const p=gfData[ctx.dataIndex];return p?p.label+' — Grid: P'+p.x+' → Finish: P'+p.y:'';}}}},scales:{x:{...chartOpts.scales.x,title:{display:true,text:'Grid position',color:'#888',font:{size:9}},min:1},y:{...chartOpts.scales.y,reverse:true,title:{display:true,text:'Finish position',color:'#888',font:{size:9}},min:1}}}});
+      });
     }
 
     rightCol.appendChild(detail);
@@ -1848,6 +2070,7 @@ async function loadSeasonTab(){
   document.getElementById('season-loading').style.display='none';
   document.getElementById('season-content').style.display='';
   renderTimeline();
+  renderChampionshipDeepDive();
   renderH2H();
   renderRegulations();
   renderTeamAssessments();
@@ -1878,6 +2101,65 @@ function renderTimeline(){
   });
   table.appendChild(tbody);
   el.appendChild(table);
+}
+
+function renderChampionshipDeepDive(){
+  if(!standingsHistory.length) return;
+  const top5ids=standingsHistory[standingsHistory.length-1]?.standings.slice(0,5).map(d=>d.id)||[];
+  const labels=standingsHistory.map(h=>h.race);
+
+  // Points gap chart — top 5 drivers' cumulative pts per round
+  const colors=['#E10600','#FF8000','#00D2BE','#3671C6','#006F62'];
+  const datasets=top5ids.map((id,i)=>{
+    const data=standingsHistory.map(h=>{
+      const s=h.standings.find(d=>d.id===id); return s?s.pts:null;
+    });
+    const last=standingsHistory[standingsHistory.length-1]?.standings.find(d=>d.id===id);
+    return {label:last?.last||id,data,borderColor:colors[i]||'#888',backgroundColor:'transparent',borderWidth:2,pointRadius:2,spanGaps:true,tension:0.2};
+  });
+  const gapCtx=document.getElementById('champ-gap-chart');
+  if(gapCtx){
+    if(gapCtx._chart) gapCtx._chart.destroy();
+    gapCtx._chart=new Chart(gapCtx,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10},boxWidth:10}}},scales:{x:{ticks:{color:'#888',font:{size:9},maxRotation:45},grid:{color:'rgba(128,128,128,0.1)'}},y:{ticks:{color:'#888',font:{size:9}},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:'Championship points',color:'#888',font:{size:9}}}}}});
+  }
+
+  // Championship leader each round
+  const leaderEl=document.getElementById('champ-leader-table');
+  if(leaderEl){
+    leaderEl.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:4px">'+standingsHistory.map(h=>{
+      const p1=h.standings[0];
+      const col=p1?liveDrivers.find(d=>d.driverId===p1.id)?.color||'#888':'#888';
+      return p1?'<div style="background:var(--bg2);border:0.5px solid var(--border);border-left:3px solid '+col+';border-radius:4px;padding:4px 8px;font-size:11px"><span style="color:var(--text3);font-size:10px">Rd '+h.round+'</span><br><strong style="color:'+col+'">'+p1.last+'</strong></div>':'';
+    }).join('')+'</div>';
+  }
+
+  // Performance rates chart — wins %, podiums %, points finishes %
+  // Use liveDrivers + race data from standingsHistory
+  const top8=liveDrivers.slice(0,8);
+  const totalRaces=standingsHistory.length;
+  const rateDatasets=[
+    {label:'Win %',data:top8.map(d=>totalRaces>0?Math.round(d.wins/totalRaces*100):0),backgroundColor:top8.map(d=>d.color+'cc'),borderColor:top8.map(d=>d.color),borderWidth:1},
+  ];
+  const rateCtx=document.getElementById('champ-rate-chart');
+  if(rateCtx){
+    if(rateCtx._chart) rateCtx._chart.destroy();
+    rateCtx._chart=new Chart(rateCtx,{type:'bar',data:{labels:top8.map(d=>d.last),datasets:rateDatasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'% win rate ('+top8[ctx.dataIndex].wins+' wins)'}}},scales:{x:{ticks:{color:'#888',font:{size:10}},grid:{color:'rgba(128,128,128,0.1)'}},y:{ticks:{color:'#888',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:'Win %',color:'#888',font:{size:9}}}}}});
+  }
+
+  // Best & worst single race by each driver (from race results in standingsHistory)
+  const bwEl=document.getElementById('champ-best-worst');
+  if(bwEl&&liveDrivers.length){
+    bwEl.innerHTML='<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Best & worst single race</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px">'
+      +liveDrivers.slice(0,10).map(d=>{
+        const col=d.color||'#888';
+        return '<div style="background:var(--bg2);border-radius:6px;padding:10px 12px;border:0.5px solid var(--border);border-left:3px solid '+col+'">'
+          +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:700;color:'+col+';margin-bottom:4px">'+d.last.toUpperCase()+'</div>'
+          +'<div style="font-size:12px;color:var(--text2)">Best: <strong style="color:var(--text)">'+(d.wins>0?'Win':'P'+d.pos)+' · '+d.pts+' pts</strong></div>'
+          +'<div style="font-size:12px;color:var(--text2)">Pts/race: <strong style="color:var(--text)">'+(standingsHistory.length>0?(d.pts/standingsHistory.length).toFixed(1):0)+'</strong></div>'
+          +'</div>';
+      }).join('')+'</div>';
+  }
 }
 
 function renderH2H(){
@@ -2077,11 +2359,11 @@ async function loadRecords(){
       +'<div class="record-card"><div class="record-card-title">Most podiums (all-time)</div>'
       +'<div class="record-row"><span class="record-name">1. Lewis Hamilton</span><span class="record-val">203</span></div>'
       +'<div class="record-row"><span class="record-name">2. Michael Schumacher</span><span class="record-val">155</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Sebastian Vettel</span><span class="record-val">122</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Max Verstappen</span><span class="record-val">127</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Kimi Räikkönen</span><span class="record-val">103</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Fernando Alonso</span><span class="record-val">98</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Alain Prost</span><span class="record-val">106</span></div>'
+      +'<div class="record-row"><span class="record-name">3. Max Verstappen</span><span class="record-val">127</span></div>'
+      +'<div class="record-row"><span class="record-name">4. Sebastian Vettel</span><span class="record-val">122</span></div>'
+      +'<div class="record-row"><span class="record-name">5. Alain Prost</span><span class="record-val">106</span></div>'
+      +'<div class="record-row"><span class="record-name">6. Kimi Räikkönen</span><span class="record-val">103</span></div>'
+      +'<div class="record-row"><span class="record-name">7. Fernando Alonso</span><span class="record-val">98</span></div>'
       +'<div class="record-row"><span class="record-name">8. Valtteri Bottas</span><span class="record-val">67</span></div>'
       +'</div>'
       +'<div class="record-card"><div class="record-card-title">Most fastest laps (all-time)</div>'
@@ -2096,13 +2378,13 @@ async function loadRecords(){
       +'</div>'
       +'<div class="record-card"><div class="record-card-title">Most wins in a season</div>'
       +'<div class="record-row"><span class="record-name">1. Max Verstappen (2023)</span><span class="record-val">19</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Michael Schumacher (2004)</span><span class="record-val">13</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Sebastian Vettel (2013)</span><span class="record-val">13</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Max Verstappen (2022)</span><span class="record-val">15</span></div>'
+      +'<div class="record-row"><span class="record-name">2. Max Verstappen (2022)</span><span class="record-val">15</span></div>'
+      +'<div class="record-row"><span class="record-name">3. Michael Schumacher (2004)</span><span class="record-val">13</span></div>'
+      +'<div class="record-row"><span class="record-name">3. Sebastian Vettel (2013)</span><span class="record-val">13</span></div>'
       +'<div class="record-row"><span class="record-name">5. Lewis Hamilton (2014)</span><span class="record-val">11</span></div>'
       +'<div class="record-row"><span class="record-name">5. Lewis Hamilton (2019)</span><span class="record-val">11</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Lewis Hamilton (2020)</span><span class="record-val">11</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Michael Schumacher (2002)</span><span class="record-val">11</span></div>'
+      +'<div class="record-row"><span class="record-name">5. Lewis Hamilton (2020)</span><span class="record-val">11</span></div>'
+      +'<div class="record-row"><span class="record-name">5. Michael Schumacher (2002)</span><span class="record-val">11</span></div>'
       +'</div>'
 
       // Driver records
@@ -2118,6 +2400,7 @@ async function loadRecords(){
       +'</div>'
 
       +'<div class="record-card"><div class="record-card-title">Most points in a season</div>'
+      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">25 points are awarded for a race win. Verstappen\'s 2023 total of 575 points — from 19 wins in 22 races — is the most dominant season in F1 history.</div>'
       +'<div class="record-row"><span class="record-name">1. Max Verstappen (2023)</span><span class="record-val">575</span></div>'
       +'<div class="record-row"><span class="record-name">2. Max Verstappen (2022)</span><span class="record-val">454</span></div>'
       +'<div class="record-row"><span class="record-name">3. Max Verstappen (2024)</span><span class="record-val">437</span></div>'
@@ -2129,6 +2412,7 @@ async function loadRecords(){
       +'</div>'
 
       +'<div class="record-card"><div class="record-card-title">Most grand slams</div>'
+      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">A grand slam means winning from pole position, setting the fastest lap, and leading every single lap of the race — the rarest achievement in F1.</div>'
       +'<div class="record-row"><span class="record-name" style="font-size:11px;color:var(--text2)">Pole, win, fastest lap & led every lap</span><span class="record-val"></span></div>'
       +'<div class="record-row"><span class="record-name">1. Jim Clark</span><span class="record-val">8</span></div>'
       +'<div class="record-row"><span class="record-name">2. Max Verstappen</span><span class="record-val">7</span></div>'
@@ -2142,13 +2426,13 @@ async function loadRecords(){
 
       +'<div class="record-card"><div class="record-card-title">Youngest world champions</div>'
       +'<div class="record-row"><span class="record-name">1. Sebastian Vettel (2010)</span><span class="record-val">23y 134d</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Fernando Alonso (2005)</span><span class="record-val">24y 58d</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Emerson Fittipaldi (1972)</span><span class="record-val">25y 273d</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Mike Hawthorn (1958)</span><span class="record-val">29y 178d</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Jochen Rindt (1970)</span><span class="record-val">28y 254d</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Lewis Hamilton (2008)</span><span class="record-val">23y 301d</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Max Verstappen (2021)</span><span class="record-val">24y 73d</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Nico Rosberg (2016)</span><span class="record-val">31y 136d</span></div>'
+      +'<div class="record-row"><span class="record-name">2. Lewis Hamilton (2008)</span><span class="record-val">23y 301d</span></div>'
+      +'<div class="record-row"><span class="record-name">3. Fernando Alonso (2005)</span><span class="record-val">24y 58d</span></div>'
+      +'<div class="record-row"><span class="record-name">4. Max Verstappen (2021)</span><span class="record-val">24y 73d</span></div>'
+      +'<div class="record-row"><span class="record-name">5. Emerson Fittipaldi (1972)</span><span class="record-val">25y 273d</span></div>'
+      +'<div class="record-row"><span class="record-name">6. Jochen Rindt (1970)</span><span class="record-val">28y 254d</span></div>'
+      +'<div class="record-row"><span class="record-name">7. Mike Hawthorn (1958)</span><span class="record-val">29y 178d</span></div>'
+      +'<div class="record-row"><span class="record-name">8. Jody Scheckter (1979)</span><span class="record-val">29y 259d</span></div>'
       +'</div>'
 
       +'<div class="record-card"><div class="record-card-title">Oldest world champions</div>'
@@ -2158,8 +2442,8 @@ async function loadRecords(){
       +'<div class="record-row"><span class="record-name">4. Nigel Mansell (1992)</span><span class="record-val">39y 9d</span></div>'
       +'<div class="record-row"><span class="record-name">5. Mario Andretti (1978)</span><span class="record-val">38y 281d</span></div>'
       +'<div class="record-row"><span class="record-name">6. Keke Rosberg (1982)</span><span class="record-val">34y 37d</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Jody Scheckter (1979)</span><span class="record-val">29y 259d</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Denny Hulme (1967)</span><span class="record-val">31y 104d</span></div>'
+      +'<div class="record-row"><span class="record-name">7. Denny Hulme (1967)</span><span class="record-val">31y 104d</span></div>'
+      +'<div class="record-row"><span class="record-name">8. Jody Scheckter (1979)</span><span class="record-val">29y 259d</span></div>'
       +'</div>'
 
       // Constructor records
@@ -2191,13 +2475,14 @@ async function loadRecords(){
       +'<div class="record-row"><span class="record-name">3. Williams (1992–1997)</span><span class="record-val">5</span></div>'
       +'<div class="record-row"><span class="record-name">4. McLaren (1988–1991)</span><span class="record-val">4</span></div>'
       +'<div class="record-row"><span class="record-name">4. Red Bull (2010–2013)</span><span class="record-val">4</span></div>'
-      +'<div class="record-row"><span class="record-name">6. McLaren (1988–1989)</span><span class="record-val">2</span></div>'
-      +'<div class="record-row"><span class="record-name">6. McLaren (2024–2025)</span><span class="record-val">2</span></div>'
       +'<div class="record-row"><span class="record-name">6. Lotus (1963–1965)</span><span class="record-val">3</span></div>'
+      +'<div class="record-row"><span class="record-name">7. McLaren (2024–2025)</span><span class="record-val">2</span></div>'
+      +'<div class="record-row"><span class="record-name">7. Ferrari (1975–1976)</span><span class="record-val">2</span></div>'
       +'</div>'
 
       // Race records
       +'<div class="record-card"><div class="record-card-title">Closest finish</div>'
+      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">The gap in seconds between 1st and 2nd place at the chequered flag. The 1971 Italian GP finish of 0.010s — less than a car length — remains the closest in history.</div>'
       +'<div class="record-row"><span class="record-name">1. 1971 Italian GP (Monza)</span><span class="record-val">0.010s</span></div>'
       +'<div class="record-row"><span class="record-name">2. 2002 Austrian GP</span><span class="record-val">0.011s</span></div>'
       +'<div class="record-row"><span class="record-name">3. 1986 Spanish GP</span><span class="record-val">0.014s</span></div>'
@@ -2209,6 +2494,7 @@ async function loadRecords(){
       +'</div>'
 
       +'<div class="record-card"><div class="record-card-title">Largest championship winning margin</div>'
+      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">Points ahead of the runner-up when the season ended. Verstappen\'s 290-point margin in 2023 means his nearest rival would have needed to win every remaining race just to get close.</div>'
       +'<div class="record-row"><span class="record-name">1. Verstappen (2023)</span><span class="record-val">290 pts</span></div>'
       +'<div class="record-row"><span class="record-name">2. Verstappen (2022)</span><span class="record-val">146 pts</span></div>'
       +'<div class="record-row"><span class="record-name">3. Hamilton (2020)</span><span class="record-val">124 pts</span></div>'
@@ -2220,6 +2506,7 @@ async function loadRecords(){
       +'</div>'
 
       +'<div class="record-card"><div class="record-card-title">Most grands prix at one circuit</div>'
+      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">Monza and Monaco have been on the F1 calendar almost every year since the championship began in 1950, making them the spiritual homes of the sport.</div>'
       +'<div class="record-row"><span class="record-name">1. Monza (Italian GP)</span><span class="record-val">75</span></div>'
       +'<div class="record-row"><span class="record-name">2. Monaco</span><span class="record-val">71</span></div>'
       +'<div class="record-row"><span class="record-name">3. Silverstone (British GP)</span><span class="record-val">60</span></div>'
@@ -2251,6 +2538,146 @@ const RSS_FEEDS = [
 ];
 
 const RSS2JSON='https://api.rss2json.com/v1/api.json?rss_url=';
+
+// ── Podcast feeds ──
+const PODCAST_FEEDS = [
+  { url:'https://feeds.megaphone.fm/f1-beyond-the-grid', show:'Beyond The Grid', color:'#E10600' },
+  { url:'https://feeds.megaphone.fm/f1-nation',          show:'F1 Nation',       color:'#1d4ed8' },
+  { url:'https://feed.podbean.com/therace/feed.xml',     show:'The Race F1',     color:'#d62828' },
+  { url:'https://feeds.buzzsprout.com/1505764.rss',      show:'WTF1 Podcast',    color:'#FF8000' },
+  { url:'https://anchor.fm/s/missedapex/podcast/rss',    show:'Missed Apex',     color:'#0d9488' },
+];
+
+// ── Video feeds (YouTube RSS) ──
+const VIDEO_FEEDS = [
+  { url:'https://www.youtube.com/feeds/videos.xml?channel_id=UCB_qr75-ydFVKSF9Dmo6izg', channel:'Formula 1', color:'#E10600' },
+  { url:'https://www.youtube.com/feeds/videos.xml?channel_id=UCl5MaGeI4OM2lOvFToTcEoA', channel:'WTF1',      color:'#FF8000' },
+  { url:'https://www.youtube.com/feeds/videos.xml?channel_id=UCPn7KjMzEIOHbEl8cMcPdXg', channel:'Sky Sports F1', color:'#0090FF' },
+];
+
+// ── Media tab switching ──
+function switchMediaTab(tab, btn){
+  document.querySelectorAll('.media-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('media-news').style.display=tab==='news'?'':'none';
+  document.getElementById('media-podcasts').style.display=tab==='podcasts'?'':'none';
+  document.getElementById('media-videos').style.display=tab==='videos'?'':'none';
+  if(tab==='podcasts'&&!window._podcastsLoaded) loadPodcasts();
+  if(tab==='videos'&&!window._videosLoaded) loadVideos();
+}
+
+// ── Podcasts ──
+async function loadPodcasts(){
+  window._podcastsLoaded=true;
+  const grid=document.getElementById('podcast-grid');
+  grid.innerHTML='<div class="loading"><div class="loading-spinner"></div><div class="loading-text">Fetching latest episodes...</div></div>';
+  const results=await Promise.allSettled(PODCAST_FEEDS.map(async f=>{
+    try{
+      const res=await fetch(RSS2JSON+encodeURIComponent(f.url),{signal:AbortSignal.timeout(10000)});
+      if(!res.ok) return [];
+      const data=await res.json();
+      if(data.status!=='ok'||!data.items?.length) return [];
+      return data.items.slice(0,5).map(item=>({
+        title:(item.title||'').trim(),
+        show:f.show, color:f.color,
+        date:formatDate(item.pubDate||''),
+        sortDate:toIso(item.pubDate||''),
+        duration:item.itunes_duration||'',
+        url:item.link||item.guid||'#',
+        description:stripHtml(item.description||''),
+      }));
+    }catch(e){return [];}
+  }));
+  let items=[];
+  results.forEach(r=>{if(r.status==='fulfilled') items.push(...r.value);});
+  items.sort((a,b)=>b.sortDate.localeCompare(a.sortDate));
+  if(!items.length){
+    grid.innerHTML='<div class="error-msg">No podcast episodes loaded. Try refreshing.</div>';
+    return;
+  }
+  grid.innerHTML='<div class="podcast-grid">'+items.slice(0,20).map(ep=>`
+    <a class="podcast-item" href="${ep.url}" target="_blank" rel="noopener">
+      <div class="podcast-icon">
+        <div class="podcast-play"><div class="podcast-play-tri"></div></div>
+      </div>
+      <div>
+        <div class="podcast-title">${ep.title}</div>
+        <div class="podcast-show">
+          <span style="width:5px;height:5px;border-radius:50%;background:${ep.color};display:inline-block;flex-shrink:0"></span>
+          ${ep.show}${ep.date?'<span style="color:var(--text3)">· '+ep.date+'</span>':''}
+        </div>
+      </div>
+      <div class="podcast-duration">${ep.duration?formatDuration(ep.duration):''}</div>
+    </a>`).join('')+'</div>';
+}
+
+function formatDuration(d){
+  if(!d) return '';
+  // Handle HH:MM:SS or MM:SS or raw seconds
+  if(typeof d==='number'||/^\d+$/.test(d)){
+    const s=parseInt(d);
+    const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+    return h>0?h+'h '+m+'m':m+'m '+sec+'s';
+  }
+  return d; // already formatted
+}
+
+// ── Videos ──
+async function loadVideos(){
+  window._videosLoaded=true;
+  const grid=document.getElementById('video-grid');
+  grid.innerHTML='<div class="loading"><div class="loading-spinner"></div><div class="loading-text">Fetching latest videos...</div></div>';
+  const results=await Promise.allSettled(VIDEO_FEEDS.map(async f=>{
+    try{
+      const res=await fetch(RSS2JSON+encodeURIComponent(f.url),{signal:AbortSignal.timeout(10000)});
+      if(!res.ok) return [];
+      const data=await res.json();
+      if(data.status!=='ok'||!data.items?.length) return [];
+      return data.items.slice(0,6).map(item=>{
+        // Extract YouTube video ID from link
+        const vidId=(item.link||'').match(/[?&]v=([^&]+)/)?.[1]||
+                     (item.link||'').match(/youtu\.be\/([^?]+)/)?.[1]||'';
+        return {
+          title:(item.title||'').trim(),
+          channel:f.channel, color:f.color,
+          date:formatDate(item.pubDate||''),
+          sortDate:toIso(item.pubDate||''),
+          url:item.link||'#',
+          thumb:vidId?`https://img.youtube.com/vi/${vidId}/mqdefault.jpg`:'',
+        };
+      });
+    }catch(e){return [];}
+  }));
+  let items=[];
+  results.forEach(r=>{if(r.status==='fulfilled') items.push(...r.value);});
+  // Deduplicate by title
+  const seen=new Set();
+  items=items.filter(i=>{const k=i.title.toLowerCase().slice(0,40);if(seen.has(k))return false;seen.add(k);return true;});
+  items.sort((a,b)=>b.sortDate.localeCompare(a.sortDate));
+  if(!items.length){
+    grid.innerHTML='<div class="error-msg">No videos loaded. Try refreshing.</div>';
+    return;
+  }
+  grid.innerHTML='<div class="video-grid">'+items.slice(0,18).map(v=>`
+    <a class="video-card" href="${v.url}" target="_blank" rel="noopener">
+      <div class="video-thumb">
+        ${v.thumb
+          ?`<img src="${v.thumb}" alt="" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
+          :''}
+        <div class="video-thumb-fallback" style="${v.thumb?'display:none':''}">
+          <div class="play-btn"><div class="play-triangle"></div></div>
+        </div>
+      </div>
+      <div class="video-body">
+        <div class="video-title">${v.title}</div>
+        <div class="video-meta">
+          <div class="channel-dot" style="background:${v.color}"></div>
+          <span class="channel-name">${v.channel}</span>
+          <span class="video-date">${v.date}</span>
+        </div>
+      </div>
+    </a>`).join('')+'</div>';
+}
 
 function stripHtml(h){ const d=document.createElement('div');d.innerHTML=h||'';const t=d.textContent.trim();return t.slice(0,200)+(t.length>200?'…':''); }
 function formatDate(str){ try{const d=new Date(str);if(isNaN(d))return '';return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';} }
@@ -2349,6 +2776,17 @@ function toggleApiKeyVisibility(){
   const masked=input.style.webkitTextSecurity==='disc';
   input.style.webkitTextSecurity=masked?'none':'disc';
   btn.textContent=masked?'Hide':'Show';
+}
+
+// ── Welcome banner ──
+(function(){
+  if(!localStorage.getItem('s3_welcome_dismissed')){
+    document.getElementById('welcome-banner').style.display='block';
+  }
+})();
+function dismissWelcome(){
+  document.getElementById('welcome-banner').style.display='none';
+  localStorage.setItem('s3_welcome_dismissed','1');
 }
 
 // ── Settings ──
