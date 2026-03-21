@@ -1898,6 +1898,8 @@ async function generateAssessments(){
 
   const prompt=`You are an expert Formula 1 analyst. Based on the following LIVE 2026 season standings data, write a short honest assessment (2-3 sentences) for each constructor. Be factual and direct — base your assessment entirely on the numbers provided, not on pre-season expectations. If a team has zero points or poor reliability, say so clearly.
 
+Important context: Cadillac is a brand new constructor in their debut F1 season in 2026. When assessing them, factor in that completing races, building experience, and developing their infrastructure are legitimate measures of success for a first-year team. Do not judge them by the same standards as established constructors.
+
 After each assessment, classify the team as exactly one of: Strong, Competitive, Midfield, Struggling, or Backmarker.
 
 Format your response as valid JSON only, no other text:
@@ -1974,28 +1976,24 @@ async function loadRecords(){
   const loadEl=document.getElementById('records-loading');
   const el=document.getElementById('records-content');
   try{
-    // Fetch championship wins per driver (all-time)
-    const champData=await fetchJSON(BASE+'/driverstandings/1.json?limit=100');
-    const champCounts={};
-    (champData.MRData.StandingsTable.StandingsLists||[]).forEach(sl=>{
-      const d=sl.DriverStandings?.[0]?.Driver;
-      if(d){ const k=d.familyName; champCounts[k]=(champCounts[k]||0)+1; }
-    });
-    const sortedChamps=Object.entries(champCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
-
     loadEl.style.display='none';
     el.style.display='';
     el.innerHTML='<div class="records-grid">'
-      // Championships
       +'<div class="record-card"><div class="record-card-title">Most championships</div>'
-      +sortedChamps.map(([n,c],i)=>'<div class="record-row"><span class="record-name">'+(i+1)+'. '+n+'</span><span class="record-val">'+c+'</span></div>').join('')
+      +'<div class="record-row"><span class="record-name">1. Lewis Hamilton</span><span class="record-val">7</span></div>'
+      +'<div class="record-row"><span class="record-name">1. Michael Schumacher</span><span class="record-val">7</span></div>'
+      +'<div class="record-row"><span class="record-name">3. Max Verstappen</span><span class="record-val">4</span></div>'
+      +'<div class="record-row"><span class="record-name">4. Alain Prost</span><span class="record-val">4</span></div>'
+      +'<div class="record-row"><span class="record-name">5. Sebastian Vettel</span><span class="record-val">4</span></div>'
+      +'<div class="record-row"><span class="record-name">6. Ayrton Senna</span><span class="record-val">3</span></div>'
+      +'<div class="record-row"><span class="record-name">6. Jack Brabham</span><span class="record-val">3</span></div>'
+      +'<div class="record-row"><span class="record-name">6. Jackie Stewart</span><span class="record-val">3</span></div>'
       +'</div>'
-      // Hardcoded all-time records (Jolpica can\'t easily aggregate these without hundreds of API calls)
       +'<div class="record-card"><div class="record-card-title">Most race wins (all-time)</div>'
       +'<div class="record-row"><span class="record-name">1. Lewis Hamilton</span><span class="record-val">105</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Michael Schumacher</span><span class="record-val">91</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Sebastian Vettel</span><span class="record-val">53</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Max Verstappen</span><span class="record-val">62+</span></div>'
+      +'<div class="record-row"><span class="record-name">2. Max Verstappen</span><span class="record-val">63+</span></div>'
+      +'<div class="record-row"><span class="record-name">3. Michael Schumacher</span><span class="record-val">91</span></div>'
+      +'<div class="record-row"><span class="record-name">4. Sebastian Vettel</span><span class="record-val">53</span></div>'
       +'<div class="record-row"><span class="record-name">5. Alain Prost</span><span class="record-val">51</span></div>'
       +'<div class="record-row"><span class="record-name">6. Ayrton Senna</span><span class="record-val">41</span></div>'
       +'<div class="record-row"><span class="record-name">7. Fernando Alonso</span><span class="record-val">32</span></div>'
@@ -2008,14 +2006,19 @@ async function loadRecords(){
       +'<div class="record-row"><span class="record-name">4. Sebastian Vettel</span><span class="record-val">57</span></div>'
       +'<div class="record-row"><span class="record-name">5. Max Verstappen</span><span class="record-val">40+</span></div>'
       +'<div class="record-row"><span class="record-name">6. Alain Prost</span><span class="record-val">33</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Nigel Mansell</span><span class="record-val">32</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Jim Clark</span><span class="record-val">33</span></div>'
+      +'<div class="record-row"><span class="record-name">7. Jim Clark</span><span class="record-val">33</span></div>'
+      +'<div class="record-row"><span class="record-name">8. Nigel Mansell</span><span class="record-val">32</span></div>'
       +'</div>'
       +'<div class="record-card"><div class="record-card-title">Most podiums (all-time)</div>'
       +'<div class="record-row"><span class="record-name">1. Lewis Hamilton</span><span class="record-val">201</span></div>'
       +'<div class="record-row"><span class="record-name">2. Michael Schumacher</span><span class="record-val">155</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Max Verstappen</span><span class="record-val">110+</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Sebastian Vettel</span><span class="record-val">122</span></div>'
+      +'<div class="record-row"><span class="record-name">3. Sebastian Vettel</span><span class="record-val">122</span></div>'
+      +'<div class="record-row"><span class="record-name">4. Max Verstappen</span><span class="record-val">110+</span></div>'
+      +'<div class="record-row"><span class="record-name">5. Fernando Alonso</span><span class="record-val">106</span></div>'
+      +'<div class="record-row"><span class="record-name">6. Valtteri Bottas</span><span class="record-val">67</span></div>'
+      +'<div class="record-row"><span class="record-name">7. Kimi Räikkönen</span><span class="record-val">103</span></div>'
+      +'<div class="record-row"><span class="record-name">8. Alain Prost</span><span class="record-val">106</span></div>'
+      +'</div>'
       +'<div class="record-row"><span class="record-name">5. Fernando Alonso</span><span class="record-val">106</span></div>'
       +'<div class="record-row"><span class="record-name">6. Alain Prost</span><span class="record-val">106</span></div>'
       +'<div class="record-row"><span class="record-name">7. Valtteri Bottas</span><span class="record-val">67</span></div>'
@@ -2061,18 +2064,7 @@ const RSS_FEEDS = [
   { url:'https://www.pitpass.com/rss/pitpass_fes_site_news.php', source:'pitpass.com', color:'#7c3aed' },
 ];
 
-// On file:// we use allorigins as a single lightweight proxy; on https:// we try direct first
-function proxyUrl(url){
-  if(location.protocol==='file:') return 'https://api.allorigins.win/raw?url='+encodeURIComponent(url);
-  return url; // direct fetch on https://
-}
-
-const STATIC_NEWS=[
-  {tag:'Race report',tagColor:'#DC0000',category:'race',sourceColor:'#E10600',headline:'Antonelli wins in Shanghai — second-youngest F1 race winner',summary:'The 19-year-old Italian took his maiden victory from pole, completing a Mercedes one-two with Russell.',source:'formula1.com',date:'15 Mar 2026',url:'https://www.formula1.com/en/latest'},
-  {tag:'Race report',tagColor:'#DC0000',category:'race',sourceColor:'#E10600',headline:'Russell wins season opener as new regulations bite across the grid',summary:'Mercedes locked out the front row and converted it into a one-two at Albert Park. Red Bull and McLaren both struggled.',source:'formula1.com',date:'8 Mar 2026',url:'https://www.formula1.com/en/latest'},
-  {tag:'Analysis',tagColor:'#1a3a6b',category:'analysis',sourceColor:'#1d4ed8',headline:'2026 car analysis: who has the best package after two races?',summary:'The new regulations have produced a clear pecking order surprisingly quickly. Mercedes lead, Ferrari are close, and Red Bull are in trouble.',source:'racefans.net',date:'16 Mar 2026',url:'https://www.racefans.net'},
-  {tag:'Regulation',tagColor:'#006F62',category:'regulation',sourceColor:'#888',headline:'2026 regulations explained: Overtake Mode, 50/50 power split, new aero',summary:'The most sweeping overhaul in F1 history — active aero replaces DRS, and power units split output equally between combustion and electrical.',source:'the-race.com',date:'Jan 2026',url:'https://www.the-race.com/formula-1'},
-];
+const RSS2JSON='https://api.rss2json.com/v1/api.json?rss_url=';
 
 function stripHtml(h){ const d=document.createElement('div');d.innerHTML=h||'';const t=d.textContent.trim();return t.slice(0,200)+(t.length>200?'…':''); }
 function formatDate(str){ try{const d=new Date(str);if(isNaN(d))return '';return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';} }
@@ -2089,18 +2081,15 @@ function categorise(title,desc){
 
 async function fetchFeed(feed){
   try{
-    const res=await fetch(proxyUrl(feed.url),{signal:AbortSignal.timeout(8000)});
+    const res=await fetch(RSS2JSON+encodeURIComponent(feed.url),{signal:AbortSignal.timeout(10000)});
     if(!res.ok) return [];
-    const text=await res.text();
-    const parser=new DOMParser();
-    const xml=parser.parseFromString(text,'text/xml');
-    if(xml.querySelector('parsererror')) return [];
-    return [...xml.querySelectorAll('item')].slice(0,12).map(item=>{
-      const get=tag=>item.querySelector(tag)?.textContent?.trim()||'';
-      const title=get('title').replace(/<[^>]+>/g,'').trim();
-      const desc=get('description')||get('content\\:encoded')||'';
-      const link=get('link')||item.querySelector('guid')?.textContent||'#';
-      const pubDate=get('pubDate');
+    const data=await res.json();
+    if(data.status!=='ok'||!data.items?.length) return [];
+    return data.items.slice(0,12).map(item=>{
+      const title=(item.title||'').trim();
+      const desc=item.description||item.content||'';
+      const link=item.link||item.guid||'#';
+      const pubDate=item.pubDate||'';
       const {tag,color,cat}=categorise(title,desc);
       return {tag,tagColor:color,category:cat,headline:title,summary:stripHtml(desc),
               source:feed.source,sourceColor:feed.color,date:formatDate(pubDate),sortDate:toIso(pubDate),url:link};
@@ -2144,7 +2133,10 @@ async function loadNews(){
   const seen=new Set();
   items=items.filter(i=>{ const k=i.headline.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,50); if(seen.has(k))return false;seen.add(k);return true; });
   items.sort((a,b)=>b.sortDate.localeCompare(a.sortDate));
-  if(!items.length) items=STATIC_NEWS;
+  if(!items.length){
+    renderNewsItems([]);
+    return;
+  }
   renderNewsItems(items);
 }
 
