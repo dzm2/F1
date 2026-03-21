@@ -382,25 +382,23 @@
   </div>
 
   <!-- Settings modal -->
-  <div id="settings-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeSettings()">
-    <div class="modal-box" style="max-width:420px" onclick="event.stopPropagation()">
-      <div class="modal-header">
+  <div id="settings-modal" class="modal-overlay hidden">
+    <div onclick="event.stopPropagation()" style="background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:1.5rem;width:100%;max-width:420px;box-sizing:border-box;position:relative;z-index:201">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
         <div>
-          <div class="modal-title">Settings</div>
-          <div class="modal-sub">Stored locally in your browser only</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:.5px;color:var(--text)">Settings</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">Stored locally in your browser only</div>
         </div>
-        <button class="modal-close" onclick="closeSettings()">✕</button>
+        <button onclick="closeSettings()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:18px;padding:0;line-height:1">✕</button>
       </div>
-      <div style="margin-top:1rem">
-        <label style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px">Anthropic API Key</label>
-        <div style="position:relative">
-          <input id="api-key-input" type="text" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box;background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;padding:9px 36px 9px 12px;color:var(--text);font-size:13px;font-family:monospace;outline:none;-webkit-text-security:disc">
-          <button onclick="toggleApiKeyVisibility()" id="api-key-toggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text2);font-size:13px;padding:2px 4px">Show</button>
-        </div>
-        <div style="font-size:12px;color:var(--text3);margin-top:6px">Required for AI team assessments. Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--info)">console.anthropic.com</a>. Your key is never sent anywhere except the Anthropic API.</div>
-        <button onclick="saveApiKey()" style="margin-top:14px;width:100%;justify-content:center;display:flex;align-items:center;background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer">Save key</button>
-        <div id="api-key-status" style="font-size:12px;color:var(--text2);margin-top:8px;text-align:center;min-height:16px"></div>
+      <label style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px">Anthropic API Key</label>
+      <div style="position:relative">
+        <input id="api-key-input" type="text" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box;background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;padding:9px 48px 9px 12px;color:var(--text);font-size:13px;font-family:monospace;outline:none;-webkit-text-security:disc">
+        <button onclick="toggleApiKeyVisibility()" id="api-key-toggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text2);font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.5px;padding:2px 4px">Show</button>
       </div>
+      <div style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5">Required for AI team assessments. Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--info)">console.anthropic.com</a>. Your key is never sent anywhere except the Anthropic API.</div>
+      <button onclick="saveApiKey()" style="margin-top:14px;width:100%;display:flex;align-items:center;justify-content:center;background:#E10600;color:#fff;border:none;border-radius:8px;padding:11px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">Save Key</button>
+      <div id="api-key-status" style="font-size:12px;color:var(--text2);margin-top:8px;text-align:center;min-height:16px"></div>
     </div>
   </div>
 
