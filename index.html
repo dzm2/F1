@@ -6,7 +6,7 @@
   <title>Sector Three · F1 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,700;0,900;1,900&family=Barlow+Condensed:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -24,20 +24,25 @@
       --info:#85b7eb; --shadow:rgba(0,0,0,0.3);
     }
     html { scroll-behavior:smooth; }
-    body { font-family:'Barlow',sans-serif; background:var(--bg3); color:var(--text); min-height:100vh; padding:2rem 1rem; transition:background .2s,color .2s; }
+    body { font-family:'Space Grotesk',sans-serif; background:var(--bg3); color:var(--text); min-height:100vh; padding:2rem 1rem; transition:background .2s,color .2s; }
     .container { max-width:960px; margin:0 auto; }
-    .dash { background:var(--bg); border-radius:12px; padding:1.75rem 2rem; border:0.5px solid var(--border); }
+    .dash { background:var(--bg3); border-radius:12px; padding:0; border:0.5px solid var(--border); overflow:hidden; }
+    .dash-inner { padding:1.5rem 2rem; background:var(--bg3); }
 
     /* Header */
-    .f1-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:0.5px solid var(--border); flex-wrap:wrap; }
-    .f1-header-left { display:flex; align-items:flex-end; gap:14px; flex:1; flex-wrap:wrap; }
-    .f1-wordmark { font-family:'Barlow Condensed',sans-serif; font-size:34px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text); line-height:1; }
+    .f1-header { display:grid; grid-template-columns:1fr auto; align-items:stretch; margin-bottom:0; padding:0; border-bottom:3px solid var(--red); background:var(--bg); border-radius:12px 12px 0 0; }
+    .f1-header-left { display:flex; align-items:center; padding:16px 24px; gap:0; }
+    .f1-wordmark { font-family:'Barlow',sans-serif; font-weight:900; font-size:32px; letter-spacing:2px; text-transform:uppercase; line-height:1; color:var(--text); }
     .f1-wordmark span { color:var(--red); }
-    .f1-season { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--text2); padding-bottom:4px; }
-    .f1-header-right { display:flex; align-items:center; gap:8px; flex-shrink:0; margin-left:auto; flex-wrap:wrap; }
-    .icon-btn { background:var(--bg2); border:0.5px solid var(--border); border-radius:8px; padding:7px 10px; cursor:pointer; color:var(--text2); display:flex; align-items:center; gap:5px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; transition:all .15s; white-space:nowrap; }
+    .f1-season { display:none; }
+    .f1-header-right { display:flex; align-items:center; gap:20px; padding:0 24px; border-left:0.5px solid var(--border); flex-shrink:0; flex-wrap:wrap; }
+    .header-stat { text-align:center; }
+    .header-stat-val { font-family:'Barlow',sans-serif; font-weight:900; font-size:22px; letter-spacing:-0.5px; color:var(--text); line-height:1; }
+    .header-stat-label { font-family:'Space Grotesk',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text2); margin-top:3px; }
+    .header-divider { width:0.5px; height:28px; background:var(--border); }
+    .icon-btn { background:var(--bg2); border:0.5px solid var(--border); border-radius:8px; padding:7px 10px; cursor:pointer; color:var(--text2); display:flex; align-items:center; gap:5px; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; transition:all .15s; white-space:nowrap; }
     .icon-btn:hover { border-color:var(--border2); color:var(--text); }
-    .live-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg2); border:0.5px solid var(--border); border-radius:20px; padding:3px 10px; font-size:10px; color:var(--text3); white-space:nowrap; }
+    .live-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg2); border:0.5px solid var(--border); border-radius:20px; padding:3px 10px; font-size:10px; color:var(--text3); white-space:nowrap; font-family:'Space Grotesk',sans-serif; }
     .live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
     .stale-dot { background:var(--gold); }
 
@@ -55,11 +60,11 @@
     .f1-metric-sub { font-size:11px; color:var(--text2); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
     /* Tabs */
-    .f1-tabs { display:flex; width:100%; margin-bottom:1.25rem; border-bottom:1px solid var(--border); }
-    .f1-tab { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text3); flex:1 1 0; min-width:0; padding:8px 4px; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; text-align:center; white-space:nowrap; transition:color .15s; }
-    .f1-tab:hover{color:var(--text2);} .f1-tab.active{color:var(--red);border-bottom-color:var(--red);}
+    .f1-tabs { display:flex; width:100%; margin-bottom:0; border-bottom:1px solid var(--border); background:var(--bg); }
+    .f1-tab { font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text3); flex:1 1 0; min-width:0; padding:11px 4px 9px; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; text-align:center; white-space:nowrap; transition:color .15s; }
+    .f1-tab:hover{color:var(--text2);} .f1-tab.active{color:var(--text);border-bottom-color:var(--red);}
     .f1-tab.wide{flex:1.5 1 0;}
-    .f1-panel{display:none;} .f1-panel.active{display:block;}
+    .f1-panel{display:none; padding:1.5rem 2rem;} .f1-panel.active{display:block;}
 
     /* Search */
     .search-wrap { margin-bottom:12px; }
@@ -78,25 +83,34 @@
 
     /* Tables */
     .f1-table { width:100%; border-collapse:collapse; font-size:14px; }
-    .f1-table th { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--text2); padding:6px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
-    .f1-table th:hover { color:var(--text2); }
-    .f1-table td { padding:9px 10px; border-bottom:0.5px solid var(--border); color:var(--text); vertical-align:middle; }
-    .f1-table tr:last-child td{border-bottom:none;} .f1-table tr.p1 td{background:var(--bg2);} .f1-table tr:hover td{background:var(--bg2); cursor:pointer;}
-    .f1-pos { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:var(--text2); width:32px; text-align:center; }
-    .f1-table tr.p1 .f1-pos{color:var(--red);}
+    .f1-table th { font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text2); padding:6px 10px 8px; border-bottom:0.5px solid var(--border); white-space:nowrap; }
+    .f1-table td { padding:10px 10px; border-bottom:0.5px solid var(--border); color:var(--text); vertical-align:middle; }
+    .f1-table tr:last-child td{border-bottom:none;}
+    .f1-table tr:hover td{background:var(--bg2); cursor:pointer;}
+    .f1-table tr.p1 td { background:var(--bg); padding-top:14px; padding-bottom:14px; }
+    .f1-pos { font-family:'Barlow',sans-serif; font-size:15px; font-weight:900; color:var(--text3); width:32px; text-align:right; }
+    .f1-table tr.p1 .f1-pos { color:#B8922A; font-size:22px; }
     .driver-col{display:flex;align-items:center;gap:10px;}
     .driver-flag{font-size:15px;}
-    .driver-info-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;color:var(--text);line-height:1.1;}
-    .driver-info-first{font-size:13px;color:var(--text2);}
+    .driver-info-wrap { display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .driver-info-name { font-family:'Barlow',sans-serif; font-size:18px; font-weight:900; letter-spacing:0.3px; text-transform:uppercase; color:var(--text); line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .f1-table tr.p1 .driver-info-name { font-size:26px; letter-spacing:-0.3px; }
+    .driver-info-first { font-family:'Space Grotesk',sans-serif; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text2); margin-top:2px; }
+    .driver-pts-bar { height:2px; background:var(--border); margin-top:4px; }
+    .f1-table tr.p1 .driver-pts-bar { height:3px; margin-top:6px; }
+    .driver-pts-bar-fill { height:100%; }
     .team-col{display:flex;align-items:center;gap:8px;}
-    .team-pip{width:4px;height:22px;border-radius:2px;flex-shrink:0;}
-    .team-name-cell{font-size:13px;color:var(--text2);}
-    .pts-cell{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;text-align:right;color:var(--text);position:relative;}
-    .pts-shade{position:absolute;right:0;top:0;bottom:0;pointer-events:none;z-index:0;}
+    .team-pip{width:4px;height:38px;border-radius:0;flex-shrink:0;}
+    .f1-table tr.p1 .team-pip { height:52px; }
+    .team-name-cell{font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);}
+    .pts-cell{font-family:'Barlow',sans-serif;font-size:20px;font-weight:900;letter-spacing:-0.5px;text-align:right;color:var(--text);position:relative;}
+    .f1-table tr.p1 .pts-cell { font-size:28px; color:var(--red); }
+    .pts-shade{display:none;}
     .pts-num{position:relative;z-index:1;}
-    .wins-cell{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;text-align:center;color:var(--text);}
-    .gap-cell{font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--text2);text-align:right;white-space:nowrap;}
-    .con-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;}
+    .wins-cell{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;text-align:center;color:var(--text3);}
+    .wins-cell.has-wins { color:#B8922A; }
+    .gap-cell{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--text2);text-align:right;white-space:nowrap;}
+    .con-name{font-family:'Barlow',sans-serif;font-size:16px;font-weight:900;letter-spacing:.3px;}
     .export-row { display:flex; justify-content:flex-end; margin-bottom:8px; }
 
     /* Driver modal */
@@ -261,11 +275,7 @@
     .news-arrow{font-size:14px;color:var(--text2);align-self:center;flex-shrink:0;}
 
     /* Chart */
-    .chart-section{position:relative;width:100%;height:300px;}
     .chart-caption{font-size:11px;color:var(--text3);text-align:center;margin-top:8px;}
-    .chart-tabs { display:flex; gap:6px; margin-bottom:12px; }
-    .chart-tab-btn { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text2); background:var(--bg2); border:0.5px solid var(--border); border-radius:20px; padding:4px 12px; cursor:pointer; transition:all .15s; }
-    .chart-tab-btn.active { background:var(--red); color:#fff; border-color:var(--red); }
 
     /* Sources */
     .f1-sources{margin-top:1.5rem;padding-top:1rem;border-top:0.5px solid var(--border);}
@@ -292,7 +302,7 @@
 
     /* New feature styles */
     /* Rookie/status badges in driver table */
-    .rookie-badge{display:inline-block;background:#0ea5e9;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:4px;}
+    .rookie-badge{display:inline-block;color:#4A7FA5;border:0.5px solid #4A7FA5;font-family:'Space Grotesk',sans-serif;font-size:7px;font-weight:700;letter-spacing:1.5px;padding:1px 3px;vertical-align:middle;margin-left:5px;}
     .fl-badge{display:inline-block;background:var(--gold);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:4px;}
     .champ-badge{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:4px;}
     .champ-winner{background:var(--gold);color:#fff;}
@@ -400,10 +410,24 @@
 
   <div class="f1-header">
     <div class="f1-header-left">
-      <div class="f1-wordmark">Sector <span>Three</span></div>
-      <div class="f1-season">F1 2026 Season</div>
+      <div class="f1-wordmark"><span style="color:var(--text)">SECTOR </span><span>THREE</span></div>
     </div>
     <div class="f1-header-right">
+      <div class="header-stat">
+        <div class="header-stat-val" id="h-rounds-done">—</div>
+        <div class="header-stat-label">Rounds done</div>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-stat">
+        <div class="header-stat-val" id="h-rounds-left">—</div>
+        <div class="header-stat-label">Remaining</div>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-stat">
+        <div class="header-stat-val" id="h-next-race">—</div>
+        <div class="header-stat-label">Next race</div>
+      </div>
+      <div class="header-divider"></div>
       <div class="live-badge"><span class="live-dot" id="live-dot"></span><span id="fetch-status">Fetching...</span></div>
       <button class="icon-btn" id="refresh-btn">↻ Refresh</button>
       <button class="icon-btn" id="share-btn">⎘ Share</button>
@@ -436,19 +460,20 @@
 
   <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
 
-  <!-- Welcome banner -->
-  <div id="welcome-banner" style="display:none;background:var(--bg2);border:0.5px solid var(--border);border-left:3px solid var(--red);border-radius:8px;padding:14px 16px;margin-bottom:1.25rem;position:relative">
-    <button onclick="dismissWelcome()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;padding:0">✕</button>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px">Welcome to Sector Three</div>
-    <div style="font-size:13px;color:var(--text2);line-height:1.6;max-width:600px">Your live 2026 Formula 1 dashboard — standings, race results, news and records all in one place. Data updates automatically from the official F1 timing feed. Click any driver or team to see detailed stats. New to F1? Check out the <strong style="color:var(--text);cursor:pointer" onclick="showTab('season',document.querySelector('[data-tab=season]'))">Season tab</strong> for an explainer on the 2026 regulations.</div>
+  <!-- Hidden metrics kept for JS compatibility -->
+  <div style="display:none">
+    <div id="m-leader"></div><div id="m-leader-sub"></div>
+    <div id="m-gap"></div><div id="m-gap-sub"></div>
+    <div id="m-con"></div><div id="m-con-sub"></div>
+    <div id="m-round"></div><div id="m-round-sub"></div>
+    <div id="m-prog"></div><div id="m-prog-sub"></div>
   </div>
 
-  <div class="f1-metrics">
-    <div class="f1-metric leader"><div class="f1-metric-label">Championship leader</div><div class="f1-metric-value" id="m-leader">—</div><div class="f1-metric-sub" id="m-leader-sub">Loading...</div></div>
-    <div class="f1-metric pts"><div class="f1-metric-label">Points lead</div><div class="f1-metric-value" id="m-gap">—</div><div class="f1-metric-sub" id="m-gap-sub">Loading...</div></div>
-    <div class="f1-metric con"><div class="f1-metric-label">Constructors leader</div><div class="f1-metric-value" id="m-con">—</div><div class="f1-metric-sub" id="m-con-sub">Loading...</div></div>
-    <div class="f1-metric"><div class="f1-metric-label">Last race</div><div class="f1-metric-value" id="m-round">—</div><div class="f1-metric-sub" id="m-round-sub">Loading...</div></div>
-    <div class="f1-metric prog"><div class="f1-metric-label">Season progress</div><div class="f1-metric-value" id="m-prog">—</div><div class="f1-metric-sub" id="m-prog-sub">Loading...</div></div>
+  <!-- Welcome banner -->
+  <div id="welcome-banner" style="display:none;background:var(--bg);border:0.5px solid var(--border);border-left:3px solid var(--red);border-radius:0;padding:14px 24px;position:relative">
+    <button onclick="dismissWelcome()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;padding:0">✕</button>
+    <div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;color:var(--text);margin-bottom:6px">Welcome to Sector Three</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;max-width:600px">Your 2026 Formula 1 dashboard — standings, race results, news and records all in one place. Data is sourced from the Jolpica F1 API and updates after each race weekend. Click any driver or team to see detailed stats. New to F1? Check out the <strong style="color:var(--text);cursor:pointer" onclick="showTab('season',document.querySelector('[data-tab=season]'))">Season tab</strong> for an explainer on the 2026 regulations.</div>
   </div>
 
   <div class="f1-tabs" id="tab-bar" role="tablist">
@@ -458,7 +483,6 @@
     <button class="f1-tab"        onclick="showTab('season',this)" data-tab="season">Season</button>
     <button class="f1-tab"        onclick="showTab('records',this)" data-tab="records">Records</button>
     <button class="f1-tab"        onclick="showTab('news',this)" data-tab="news">News</button>
-    <button class="f1-tab"        onclick="showTab('chart',this)" data-tab="chart">Points</button>
   </div>
 
   <!-- Drivers -->
@@ -468,7 +492,7 @@
     <div class="loading" id="drivers-loading"><div class="loading-spinner"></div><div class="loading-text">Fetching driver standings...</div></div>
     <table class="f1-table" id="drivers-table" style="display:none">
       <thead><tr>
-        <th style="text-align:center">Pos</th><th>Driver</th><th>Team</th>
+        <th style="text-align:right">#</th><th colspan="2">Driver</th>
         <th style="text-align:right">Points</th>
         <th style="text-align:center">Wins</th>
         <th style="text-align:right">Gap</th>
@@ -484,7 +508,7 @@
     <div class="loading" id="con-loading"><div class="loading-spinner"></div><div class="loading-text">Fetching constructor standings...</div></div>
     <table class="f1-table" id="con-table" style="display:none">
       <thead><tr>
-        <th style="text-align:center">Pos</th><th>Constructor</th>
+        <th style="text-align:right">#</th><th colspan="2">Constructor</th>
         <th style="text-align:right">Points</th>
         <th style="text-align:center">Wins</th>
         <th style="text-align:right">Gap</th>
@@ -586,16 +610,6 @@
   <div id="records" class="f1-panel">
     <div class="loading" id="records-loading"><div class="loading-spinner"></div><div class="loading-text">Fetching all-time records...</div></div>
     <div id="records-content" style="display:none"></div>
-  </div>
-
-  <!-- Chart -->
-  <div id="chart" class="f1-panel">
-    <div class="chart-tabs">
-      <button class="chart-tab-btn active" onclick="setChartMode('points',this)">Championship points</button>
-      <button class="chart-tab-btn" onclick="setChartMode('trend',this)">Season trend</button>
-    </div>
-    <div class="chart-section"><canvas id="pts-chart"></canvas></div>
-    <div class="chart-caption" id="chart-caption">Top 10 drivers by championship points. Click a bar to view driver profile.</div>
   </div>
 
   <div class="f1-sources">
@@ -725,8 +739,7 @@ function flag(n){ return flagMap[n]||'🏁'; }
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
   localStorage.setItem('f1theme',t);
-  // Rebuild chart with correct colours if already built
-  if(window._chartInstance) rebuildChart();
+
 }
 (function(){
   const saved=localStorage.getItem('f1theme');
@@ -738,7 +751,7 @@ document.getElementById('theme-btn').onclick=()=>{
 };
 
 // ── Tab routing ──
-const TAB_ORDER=['drivers','constructors','calendar','season','records','news','chart'];
+const TAB_ORDER=['drivers','constructors','calendar','season','records','news'];
 function showTab(id,btn){
   document.querySelectorAll('.f1-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.f1-tab').forEach(t=>t.classList.remove('active'));
@@ -746,7 +759,6 @@ function showTab(id,btn){
   const b=btn||document.querySelector(`[data-tab="${id}"]`);
   if(b) b.classList.add('active');
   location.hash=id;
-  if(id==='chart') rebuildChart();
   if(id==='season'&&!window._seasonLoaded) loadSeasonTab();
   if(id==='records'&&!window._recordsLoaded) loadRecords();
 }
@@ -926,23 +938,24 @@ async function loadDriverStandings(){
   liveDrivers.forEach(d=>{
     const gap=d.pos===1?'—':'–'+(liveDrivers[0].pts-d.pts);
     const pct=Math.round(d.pts/maxPts*100);
-    const fl=fastestLapCounts[d.driverId]||0;
     const isRookie=ROOKIES.has(d.driverId);
-    // Championship status
     const maxFromHere=d.pts+maxPossible;
     const eliminated=maxFromHere<leaderPts&&d.pos!==1;
     const statusBadge=eliminated
       ? '<span class="champ-badge champ-eliminated" title="Mathematically eliminated">OUT</span>'
       : (d.pos===1&&racesLeft===0?'<span class="champ-badge champ-winner">✓ Champion</span>':'');
+    const rookieBadge=isRookie?'<span class="rookie-badge">R</span>':'';
+    const winsClass=d.wins>0?'wins-cell has-wins':'wins-cell';
     dtb.innerHTML+=`<tr class="${d.pos===1?'p1':''}" data-search="${d.first} ${d.last} ${d.team}" onclick="openDriverModal('${d.driverId}')">
       <td class="f1-pos">${d.pos}</td>
-      <td><div class="driver-col"><div>
-        <div class="driver-info-name">${d.last.toUpperCase()}${isRookie?'<span class="rookie-badge">R</span>':''}</div>
-        <div class="driver-info-first">${d.first}</div>
-      </div></div></td>
-      <td><div class="team-col"><div class="team-pip" style="background:${d.color}"></div><span class="team-name-cell">${d.team}</span></div></td>
-      <td class="pts-cell" data-val="${d.pts}"><div class="pts-shade" style="width:${pct}%;background:${d.color}28"></div><div class="pts-num">${d.pts}</div></td>
-      <td class="wins-cell" data-val="${d.wins}">${d.wins}</td>
+      <td style="padding-right:0;width:4px"><div class="team-pip" style="background:${d.color}"></div></td>
+      <td><div class="driver-info-wrap">
+        <div class="driver-info-name">${d.last.toUpperCase()}${rookieBadge}</div>
+        <div class="driver-info-first">${d.team}</div>
+        <div class="driver-pts-bar"><div class="driver-pts-bar-fill" style="width:${pct}%;background:${d.color}"></div></div>
+      </div></td>
+      <td class="pts-cell" data-val="${d.pts}"><div class="pts-num">${d.pts}</div></td>
+      <td class="${winsClass}" data-val="${d.wins}">${d.wins}</td>
       <td class="gap-cell">${gap}${statusBadge}</td>
     </tr>`;
   });
@@ -1554,11 +1567,16 @@ async function loadConstructorStandings(){
     const pos=parseInt(c.position),pts=parseFloat(c.points),name=cleanConstructorName(c.Constructor.name),color=teamColor(c.Constructor.name);
     const gap=pos===1?'—':'–'+(parseFloat(list[0].points)-pts);
     const pct=Math.round(pts/maxPts*100);
+    const winsClass=parseInt(c.wins)>0?'wins-cell has-wins':'wins-cell';
     ctb.innerHTML+=`<tr class="${pos===1?'p1':''}" data-search="${name}" onclick="openConstructorModal('${c.Constructor.constructorId}')" style="cursor:pointer">
       <td class="f1-pos">${pos}</td>
-      <td><div class="team-col"><div class="team-pip" style="background:${color}"></div><span class="con-name">${name.toUpperCase()}</span></div></td>
-      <td class="pts-cell" data-val="${pts}"><div class="pts-shade" style="width:${pct}%;background:${color}28"></div><div class="pts-num">${pts}</div></td>
-      <td class="wins-cell" data-val="${c.wins}">${c.wins}</td>
+      <td style="padding-right:0;width:4px"><div class="team-pip" style="background:${color}"></div></td>
+      <td><div class="driver-info-wrap">
+        <div class="driver-info-name">${name.toUpperCase()}</div>
+        <div class="driver-pts-bar"><div class="driver-pts-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      </div></td>
+      <td class="pts-cell" data-val="${pts}"><div class="pts-num">${pts}</div></td>
+      <td class="${winsClass}" data-val="${c.wins}">${c.wins}</td>
       <td class="gap-cell">${gap}</td>
     </tr>`;
   });
@@ -1693,6 +1711,10 @@ async function loadCalendar(){
   const upcoming=allRaces.filter(r=>new Date(r.date)>today);
   const nextRace=upcoming[0];
 
+  // Expose schedule globally so auto-refresh can make smart decisions
+  window._allRaces=allRaces;
+  window._nextRaceDate=nextRace?new Date(nextRace.date):null;
+
   document.getElementById('m-prog').textContent=`${completed.length}/${allRaces.length}`;
   document.getElementById('m-prog-sub').textContent='Rounds completed';
   if(completed.length>0){
@@ -1700,6 +1722,22 @@ async function loadCalendar(){
     document.getElementById('m-round').textContent='Rd '+last.round;
     document.getElementById('m-round-sub').textContent=last.raceName.replace(' Grand Prix','').replace('Grand Prix','')+' GP';
   }
+
+  // Populate new header stats
+  const hDone=document.getElementById('h-rounds-done');
+  const hLeft=document.getElementById('h-rounds-left');
+  const hNext=document.getElementById('h-next-race');
+  if(hDone) hDone.textContent=completed.length;
+  if(hLeft) hLeft.textContent=upcoming.length;
+  if(hNext&&nextRace){
+    // 3-letter abbreviation from circuit country or race name
+    const abbr=nextRace.Circuit?.Location?.country?.slice(0,3).toUpperCase()||
+      nextRace.raceName.replace(' Grand Prix','').slice(0,3).toUpperCase();
+    hNext.textContent=abbr;
+  } else if(hNext){
+    hNext.textContent='—';
+  }
+
   // Start countdown to next race in the metrics bar
   if(nextRace){
     const shortName=nextRace.raceName.replace(' Grand Prix','').replace('Grand Prix','');
@@ -2119,69 +2157,6 @@ document.getElementById('race-list').addEventListener('click', e=>{
 });
 
 // ── Chart ──
-let chartMode='points';
-function setChartMode(mode,btn){
-  chartMode=mode;
-  document.querySelectorAll('.chart-tab-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  rebuildChart();
-}
-function rebuildChart(){
-  if(window._chartInstance){ window._chartInstance.destroy(); window._chartInstance=null; }
-  if(!liveDrivers.length) return;
-  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
-  const gridColor=isDark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)';
-  const tickColor=isDark?'#6b6963':'#9c9a92';
-
-  if(chartMode==='trend'&&standingsHistory.length>=2){
-    // Line chart: points over rounds for top 5 drivers
-    const rounds=standingsHistory.map(h=>h.race);
-    const top5ids=standingsHistory[standingsHistory.length-1].standings.slice(0,5).map(d=>d.id);
-    const datasets=top5ids.map(id=>{
-      const driver=liveDrivers.find(d=>d.driverId===id);
-      const color=driver?.color||'#888';
-      const last=driver?.last||id;
-      return {
-        label:last,
-        data:standingsHistory.map(h=>h.standings.find(s=>s.id===id)?.pts??null),
-        borderColor:color,backgroundColor:color+'33',
-        tension:0.3,pointRadius:4,pointHoverRadius:6,fill:false,
-      };
-    });
-    document.getElementById('chart-caption').textContent='Championship points by round for top 5 drivers.';
-    window._chartInstance=new Chart(document.getElementById('pts-chart'),{
-      type:'line',
-      data:{labels:rounds,datasets},
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:true,labels:{color:tickColor,font:{family:"'Barlow Condensed', sans-serif",size:12}}}},
-        scales:{
-          x:{grid:{color:gridColor},ticks:{color:tickColor,font:{family:"'Barlow Condensed',sans-serif",size:11}}},
-          y:{grid:{color:gridColor},ticks:{color:tickColor,font:{family:"'Barlow Condensed',sans-serif",size:11}},beginAtZero:true}
-        }
-      }
-    });
-  } else {
-    const top10=liveDrivers.slice(0,10);
-    document.getElementById('chart-caption').textContent='Top 10 drivers by championship points. Click a bar to view driver profile.';
-    window._chartInstance=new Chart(document.getElementById('pts-chart'),{
-      type:'bar',
-      data:{
-        labels:top10.map(d=>d.last.toUpperCase()),
-        datasets:[{data:top10.map(d=>d.pts),backgroundColor:top10.map(d=>d.color+'cc'),borderColor:top10.map(d=>d.color),borderWidth:1,borderRadius:3,borderSkipped:false}]
-      },
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        onClick:(e,els)=>{if(els.length)openDriverModal(liveDrivers[els[0].index].driverId);},
-        plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>liveDrivers[ctx[0].dataIndex].first+' '+liveDrivers[ctx[0].dataIndex].last,label:ctx=>`  ${ctx.raw} pts · ${liveDrivers[ctx[0].dataIndex].team} · ${liveDrivers[ctx[0].dataIndex].wins} wins`}}},
-        scales:{
-          x:{grid:{display:false},ticks:{color:tickColor,font:{family:"'Barlow Condensed',sans-serif",size:12,weight:'600'}}},
-          y:{grid:{color:gridColor},ticks:{color:tickColor,font:{family:"'Barlow Condensed',sans-serif",size:12}},beginAtZero:true}
-        }
-      }
-    });
-  }
-}
 
 // ── Table helpers ──
 function filterTable(tbodyId,q){
@@ -2968,7 +2943,6 @@ async function loadAll(){
   _loadTotal=4;
   document.getElementById('fetch-status').textContent='Fetching...';
   document.getElementById('live-dot').classList.remove('stale-dot');
-  window._chartInstance&&(window._chartInstance.destroy(),window._chartInstance=null);
   ['drivers-loading','con-loading','cal-loading'].forEach(id=>document.getElementById(id).style.display='');
   ['drivers-table','con-table','race-list'].forEach(id=>document.getElementById(id).style.display='none');
   await Promise.allSettled([loadDriverStandings(),loadConstructorStandings(),loadCalendar(),loadNews()]);
@@ -2976,9 +2950,84 @@ async function loadAll(){
   document.getElementById('fetch-status').textContent=(stale?'Cached':'Live')+' · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   if(stale)document.getElementById('live-dot').classList.add('stale-dot');
   document.getElementById('progress-bar').style.width='100%';
-  if(document.querySelector('[data-tab="chart"]')?.classList.contains('active'))rebuildChart();
+  scheduleAutoRefresh();
 }
-document.getElementById('refresh-btn').onclick=loadAll;
+document.getElementById('refresh-btn').onclick=()=>{ loadAll(); };
+
+// ── Smart auto-refresh ──
+// Schedules a single fetch shortly after each session is expected to end.
+// Makes at most 4-5 fetches per race weekend per user — only when new data
+// is likely to exist. No polling outside race weekends.
+let _autoRefreshTimer=null;
+
+// Approximate session durations in minutes (including a buffer for overruns)
+const SESSION_DURATION={
+  'Practice 1':75,'Practice 2':75,'Practice 3':75,
+  'Qualifying':90,'Race':120,
+  'Sprint Qualifying':60,'Sprint Race':45,
+};
+// Extra buffer after session end before fetching (minutes) — gives Jolpica time to publish
+const FETCH_DELAY_MINS=15;
+
+function getNextSessionFetch(){
+  // Returns {ms, label} for the next scheduled fetch, or null if none upcoming.
+  if(!window._allRaces) return null;
+  const now=Date.now();
+
+  for(const r of window._allRaces){
+    const raceDay=new Date(r.date);
+    // Only consider races within the next 7 days or currently ongoing weekend
+    const daysUntil=(raceDay-now)/(1000*60*60*24);
+    if(daysUntil>7||daysUntil<-1) continue;
+
+    const isSprint=SPRINT_ROUNDS.has(parseInt(r.round));
+    const sessions=isSprint?SESSIONS_SPRINT:SESSIONS_NORMAL;
+
+    for(const s of sessions){
+      // Reconstruct session start time using same dayOffset logic as calendar
+      const sessionStart=new Date(raceDay);
+      sessionStart.setDate(raceDay.getDate()-(6-s.dayOffset));
+      const [h,m]=s.time.split(':').map(Number);
+      sessionStart.setHours(h,m,0,0);
+
+      const durMins=SESSION_DURATION[s.name]||90;
+      const fetchAt=new Date(sessionStart.getTime()+(durMins+FETCH_DELAY_MINS)*60*1000);
+
+      if(fetchAt.getTime()>now){
+        return {ms:fetchAt.getTime()-now, label:s.name+' ('+r.raceName.replace(' Grand Prix','')+')'};
+      }
+    }
+  }
+  return null;
+}
+
+function updateRefreshIndicator(next){
+  const statusEl=document.getElementById('fetch-status');
+  if(!statusEl) return;
+  const base=statusEl.textContent.replace(/\s·\s⟳.*/,'');
+  if(next){
+    const mins=Math.round(next.ms/60000);
+    const label=mins<60?`⟳ ${mins}m`:`⟳ ${Math.round(mins/60)}h`;
+    statusEl.textContent=base+' · '+label;
+    statusEl.title=`Auto-refresh scheduled after ${next.label} ends`;
+  } else {
+    statusEl.textContent=base;
+    statusEl.title='No upcoming sessions — refresh manually for updates';
+  }
+}
+
+function scheduleAutoRefresh(){
+  if(_autoRefreshTimer){ clearTimeout(_autoRefreshTimer); _autoRefreshTimer=null; }
+  const next=getNextSessionFetch();
+  updateRefreshIndicator(next);
+  if(next){
+    // Cap at 24h to avoid stale timers on long-open tabs; will reschedule after loadAll
+    const delay=Math.min(next.ms,24*60*60*1000);
+    _autoRefreshTimer=setTimeout(async()=>{
+      await loadAll(); // loadAll calls scheduleAutoRefresh on completion
+    },delay);
+  }
+}
 
 // ── Boot ──
 loadAll();
