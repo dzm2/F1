@@ -34,7 +34,7 @@
     /* Header */
     .f1-header { display:grid; grid-template-columns:1fr auto; align-items:stretch; margin-bottom:0; padding:0; border-bottom:3px solid var(--red); background:var(--bg); border-radius:12px 12px 0 0; }
     .f1-header-left { display:flex; align-items:center; padding:16px 24px; gap:0; }
-    .f1-wordmark { font-family:'Barlow',sans-serif; font-weight:900; font-size:32px; letter-spacing:2px; text-transform:uppercase; line-height:1; color:var(--text); }
+    .f1-wordmark { font-family:'Barlow',sans-serif; font-weight:900; font-size:32px; letter-spacing:2px; text-transform:uppercase; line-height:1; color:var(--text); white-space:nowrap; }
     .f1-wordmark span { color:var(--red); }
     .f1-season { display:none; }
     .f1-header-right { display:flex; align-items:center; gap:20px; padding:0 24px; border-left:0.5px solid var(--border); flex-shrink:0; flex-wrap:wrap; }
@@ -306,12 +306,6 @@
     #back-top{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:8px 12px;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);cursor:pointer;display:none;transition:all .15s;z-index:100;}
     #back-top.show{display:block;} #back-top:hover{color:var(--text);border-color:var(--border2);}
 
-    @media print {
-      body{background:#fff!important;padding:0;} .dash{box-shadow:none;border:none;padding:1rem;}
-      .icon-btn,#back-top,.news-filter,.export-row,.modal-overlay{display:none!important;}
-      .f1-tab{display:none;} .f1-panel{display:block!important;}
-    }
-
     /* New feature styles */
     /* Rookie/status badges in driver table */
     .rookie-badge{display:inline-block;color:#4A7FA5;border:0.5px solid #4A7FA5;font-family:'Space Grotesk',sans-serif;font-size:7px;font-weight:700;letter-spacing:1.5px;padding:1px 3px;vertical-align:middle;margin-left:5px;}
@@ -433,7 +427,6 @@
       <button class="icon-btn" id="refresh-btn">↻ Refresh</button>
       <button class="icon-btn" id="share-btn">⎘ Share</button>
       <button class="icon-btn" id="theme-btn">◐ Theme</button>
-      <button class="icon-btn" onclick="window.print()">⎙ Print</button>
       <button class="icon-btn" onclick="openSettings()">⚙ Settings</button>
     </div>
   </div>
@@ -462,7 +455,7 @@
   <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
 
   <!-- Welcome banner -->
-  <div id="welcome-banner" style="display:none;background:var(--bg);border:0.5px solid var(--border);border-left:3px solid var(--red);border-radius:0;padding:20px 32px;position:relative">
+  <div id="welcome-banner" style="display:none;background:var(--bg);border:0.5px solid var(--border);border-radius:0;padding:20px 32px;position:relative">
     <button onclick="dismissWelcome()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;padding:0">✕</button>
     <div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;color:var(--text);margin-bottom:6px">Welcome to Sector Three</div>
     <div style="font-size:13px;color:var(--text2);line-height:1.6;padding-right:24px">Your 2026 Formula 1 dashboard — standings, race results, news and records all in one place. Data is sourced from the Jolpica F1 API and updates after each race weekend. Click any driver or team to see detailed stats. New to F1? Check out the <strong style="color:var(--text);cursor:pointer" onclick="showTab('season',document.querySelector('[data-tab=season]'))">Season tab</strong> for an explainer on the 2026 regulations.</div>
