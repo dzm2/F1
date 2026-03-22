@@ -578,10 +578,10 @@
     <div class="loading" id="season-loading"><div class="loading-spinner"></div><div class="loading-text">Loading season data...</div></div>
     <div id="season-content" style="display:none">
       <div class="section-group-label">Season timeline</div>
-      <div id="season-timeline"></div>
+      <div id="season-timeline" style="background:var(--bg);border-radius:8px;border:0.5px solid var(--border);padding:14px 16px;margin-bottom:4px"></div>
       <hr class="modal-divider" style="margin:1rem 0">
       <div class="section-group-label">Championship deep dive</div>
-      <div id="champ-deep-dive">
+      <div id="champ-deep-dive" style="background:var(--bg);border-radius:8px;border:0.5px solid var(--border);padding:14px 16px">
         <div style="margin-bottom:1rem">
           <div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Points gap — top 5 drivers</div>
           <div style="position:relative;height:200px"><canvas id="champ-gap-chart"></canvas></div>
@@ -2388,10 +2388,12 @@ function exportCSV(type){
 }
 
 // ── Season Tab ──
-async function loadSeasonTab(){
+async function loadSeasonTab(background=false){
   window._seasonLoaded=true;
-  document.getElementById('season-loading').style.display='none';
-  document.getElementById('season-content').style.display='';
+  if(!background){
+    document.getElementById('season-loading').style.display='none';
+    document.getElementById('season-content').style.display='';
+  }
   renderTimeline();
   renderChampionshipDeepDive();
   renderH2H();
@@ -3022,6 +3024,8 @@ async function loadAll(){
   if(stale)document.getElementById('live-dot').classList.add('stale-dot');
   document.getElementById('progress-bar').style.width='100%';
   scheduleAutoRefresh();
+  // Preload Season tab in background so it feels instant when the user clicks it
+  if(!window._seasonLoaded) setTimeout(()=>loadSeasonTab(true),4000);
 }
 document.getElementById('refresh-btn').onclick=()=>{ loadAll(); };
 
