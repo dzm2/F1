@@ -405,12 +405,24 @@
 
     /* Records panel */
     .records-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
-    .record-card{background:var(--bg2);border-radius:8px;padding:16px 18px;border:0.5px solid var(--border);}
-    .record-card-title{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;}
-    .record-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);font-size:13px;}
-    .record-row:last-child{border-bottom:none;}
-    .record-name{font-family:'Space Grotesk',sans-serif;color:var(--text2);}
-    .record-val{font-family:'Barlow',sans-serif;font-weight:900;font-size:18px;color:var(--text);}
+    .rc{background:var(--bg2);border-radius:8px;border:0.5px solid var(--border);overflow:hidden;}
+    .rc-head{padding:16px 18px 14px;border-bottom:0.5px solid var(--border);}
+    .rc-category{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;}
+    .rc-hero-num{font-family:'Barlow',sans-serif;font-weight:900;font-size:52px;letter-spacing:-2px;color:var(--red);line-height:1;}
+    .rc-hero-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:18px;text-transform:uppercase;letter-spacing:-0.2px;color:var(--text);margin-top:4px;line-height:1;}
+    .rc-hero-context{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--text2);margin-top:5px;}
+    .rc-note{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--text2);line-height:1.55;padding:10px 18px;border-bottom:0.5px solid var(--border);}
+    .rc-list{padding:0 0 10px;}
+    .rc-row{display:grid;grid-template-columns:20px 1fr auto;gap:6px;align-items:start;padding:8px 18px 0;}
+    .rc-bar-wrap{padding:4px 18px 0;}
+    .rc-bar-track{height:2px;background:var(--border);border-radius:0;}
+    .rc-bar-fill{height:2px;border-radius:0;}
+    .rc-pos{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:var(--text3);}
+    .rc-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:12px;text-transform:uppercase;color:var(--text);letter-spacing:0.2px;line-height:1.2;}
+    .rc-val{font-family:'Barlow',sans-serif;font-weight:900;font-size:15px;letter-spacing:-0.5px;color:var(--text);text-align:right;white-space:nowrap;}
+    .rc-row.p1 .rc-pos{color:#B8922A;}
+    .rc-row.p1 .rc-name{font-size:13px;}
+    .rc-row.p1 .rc-val{color:var(--red);font-size:17px;}
 
     /* Regs + Team assessments */
     .reg-card{background:var(--bg2);border-radius:8px;padding:16px 18px;border:0.5px solid var(--border);border-left:4px solid var(--red);margin-bottom:8px;}
@@ -2514,204 +2526,150 @@ async function loadRecords(){
   try{
     loadEl.style.display='none';
     el.style.display='';
+
+    function rc(title, rows, context='', note=''){
+      const firstVal=rows[0].val;
+      const tiedFirst=rows.filter(r=>r.val===firstVal);
+      const heroName=tiedFirst.map(r=>r.name.split(' ').pop().toUpperCase()).join(' · ');
+      const heroContext=tiedFirst.length>1?'Joint record holders':context;
+      const topNum=parseFloat(String(firstVal).replace(/[^0-9.]/g,''))||1;
+      let html='<div class="rc">';
+      html+='<div class="rc-head">';
+      html+='<div class="rc-category">'+title+'</div>';
+      html+='<div class="rc-hero-num">'+firstVal+'</div>';
+      html+='<div class="rc-hero-name">'+heroName+'</div>';
+      if(heroContext) html+='<div class="rc-hero-context">'+heroContext+'</div>';
+      html+='</div>';
+      if(note) html+='<div class="rc-note">'+note+'</div>';
+      html+='<div class="rc-list">';
+      rows.forEach(r=>{
+        const isFirst=r.val===firstVal;
+        const numVal=parseFloat(String(r.val).replace(/[^0-9.]/g,''))||0;
+        const pct=topNum>0?Math.round(numVal/topNum*100):100;
+        const barColor=isFirst?'#E10600':'var(--text3)';
+        html+='<div class="rc-row'+(isFirst?' p1':'')+'">'+
+          '<div class="rc-pos">'+r.pos+'</div>'+
+          '<div class="rc-name">'+r.name+'</div>'+
+          '<div class="rc-val">'+r.val+'</div>'+
+          '</div>'+
+          '<div class="rc-bar-wrap"><div class="rc-bar-track"><div class="rc-bar-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div></div>';
+      });
+      html+='</div></div>';
+      return html;
+    }
+
     el.innerHTML='<div class="records-grid">'
-      +'<div class="record-card"><div class="record-card-title">Most championships</div>'
-      +'<div class="record-row"><span class="record-name">1. Lewis Hamilton</span><span class="record-val">7</span></div>'
-      +'<div class="record-row"><span class="record-name">1. Michael Schumacher</span><span class="record-val">7</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Max Verstappen</span><span class="record-val">4</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Alain Prost</span><span class="record-val">4</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Sebastian Vettel</span><span class="record-val">4</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Ayrton Senna</span><span class="record-val">3</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Jack Brabham</span><span class="record-val">3</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Jackie Stewart</span><span class="record-val">3</span></div>'
-      +'</div>'
-      +'<div class="record-card"><div class="record-card-title">Most race wins (all-time)</div>'
-      +'<div class="record-row"><span class="record-name">1. Lewis Hamilton</span><span class="record-val">105</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Michael Schumacher</span><span class="record-val">91</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Max Verstappen</span><span class="record-val">71</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Sebastian Vettel</span><span class="record-val">53</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Alain Prost</span><span class="record-val">51</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Ayrton Senna</span><span class="record-val">41</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Fernando Alonso</span><span class="record-val">32</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Nigel Mansell</span><span class="record-val">31</span></div>'
-      +'</div>'
-      +'<div class="record-card"><div class="record-card-title">Most pole positions (all-time)</div>'
-      +'<div class="record-row"><span class="record-name">1. Lewis Hamilton</span><span class="record-val">104</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Michael Schumacher</span><span class="record-val">68</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Ayrton Senna</span><span class="record-val">65</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Sebastian Vettel</span><span class="record-val">57</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Max Verstappen</span><span class="record-val">48</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Alain Prost</span><span class="record-val">33</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Jim Clark</span><span class="record-val">33</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Nigel Mansell</span><span class="record-val">32</span></div>'
-      +'</div>'
-      +'<div class="record-card"><div class="record-card-title">Most podiums (all-time)</div>'
-      +'<div class="record-row"><span class="record-name">1. Lewis Hamilton</span><span class="record-val">203</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Michael Schumacher</span><span class="record-val">155</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Max Verstappen</span><span class="record-val">127</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Sebastian Vettel</span><span class="record-val">122</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Alain Prost</span><span class="record-val">106</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Kimi Räikkönen</span><span class="record-val">103</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Fernando Alonso</span><span class="record-val">98</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Valtteri Bottas</span><span class="record-val">67</span></div>'
-      +'</div>'
-      +'<div class="record-card"><div class="record-card-title">Most fastest laps (all-time)</div>'
-      +'<div class="record-row"><span class="record-name">1. Michael Schumacher</span><span class="record-val">77</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Lewis Hamilton</span><span class="record-val">68</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Kimi Räikkönen</span><span class="record-val">46</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Alain Prost</span><span class="record-val">41</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Sebastian Vettel</span><span class="record-val">38</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Max Verstappen</span><span class="record-val">37</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Nigel Mansell</span><span class="record-val">30</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Jim Clark</span><span class="record-val">28</span></div>'
-      +'</div>'
-      +'<div class="record-card"><div class="record-card-title">Most wins in a season</div>'
-      +'<div class="record-row"><span class="record-name">1. Max Verstappen (2023)</span><span class="record-val">19</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Max Verstappen (2022)</span><span class="record-val">15</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Michael Schumacher (2004)</span><span class="record-val">13</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Sebastian Vettel (2013)</span><span class="record-val">13</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Lewis Hamilton (2014)</span><span class="record-val">11</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Lewis Hamilton (2019)</span><span class="record-val">11</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Lewis Hamilton (2020)</span><span class="record-val">11</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Michael Schumacher (2002)</span><span class="record-val">11</span></div>'
-      +'</div>'
-
-      // Driver records
-      +'<div class="record-card"><div class="record-card-title">Most races started</div>'
-      +'<div class="record-row"><span class="record-name">1. Fernando Alonso</span><span class="record-val">427</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Lewis Hamilton</span><span class="record-val">352</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Kimi Räikkönen</span><span class="record-val">349</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Rubens Barrichello</span><span class="record-val">326</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Michael Schumacher</span><span class="record-val">308</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Jenson Button</span><span class="record-val">306</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Sebastian Vettel</span><span class="record-val">299</span></div>'
-      +'<div class="record-row"><span class="record-name">8. David Coulthard</span><span class="record-val">246</span></div>'
-      +'</div>'
-
-      +'<div class="record-card"><div class="record-card-title">Most points in a season</div>'
-      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">25 points are awarded for a race win. Verstappen\'s 2023 total of 575 points — from 19 wins in 22 races — is the most dominant season in F1 history.</div>'
-      +'<div class="record-row"><span class="record-name">1. Max Verstappen (2023)</span><span class="record-val">575</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Max Verstappen (2022)</span><span class="record-val">454</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Max Verstappen (2024)</span><span class="record-val">437</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Lewis Hamilton (2019)</span><span class="record-val">413</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Sebastian Vettel (2013)</span><span class="record-val">397</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Nico Rosberg (2016)</span><span class="record-val">385</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Lewis Hamilton (2014)</span><span class="record-val">384</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Lewis Hamilton (2020)</span><span class="record-val">347</span></div>'
-      +'</div>'
-
-      +'<div class="record-card"><div class="record-card-title">Most grand slams</div>'
-      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">A grand slam means winning from pole position, setting the fastest lap, and leading every single lap of the race — the rarest achievement in F1.</div>'
-      +'<div class="record-row"><span class="record-name" style="font-size:11px;color:var(--text2)">Pole, win, fastest lap & led every lap</span><span class="record-val"></span></div>'
-      +'<div class="record-row"><span class="record-name">1. Jim Clark</span><span class="record-val">8</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Max Verstappen</span><span class="record-val">7</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Lewis Hamilton</span><span class="record-val">6</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Michael Schumacher</span><span class="record-val">5</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Ayrton Senna</span><span class="record-val">5</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Nigel Mansell</span><span class="record-val">5</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Alberto Ascari</span><span class="record-val">4</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Sebastian Vettel</span><span class="record-val">4</span></div>'
-      +'</div>'
-
-      +'<div class="record-card"><div class="record-card-title">Youngest world champions</div>'
-      +'<div class="record-row"><span class="record-name">1. Sebastian Vettel (2010)</span><span class="record-val">23y 134d</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Lewis Hamilton (2008)</span><span class="record-val">23y 301d</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Fernando Alonso (2005)</span><span class="record-val">24y 58d</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Max Verstappen (2021)</span><span class="record-val">24y 73d</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Emerson Fittipaldi (1972)</span><span class="record-val">25y 273d</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Jochen Rindt (1970)</span><span class="record-val">28y 254d</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Mike Hawthorn (1958)</span><span class="record-val">29y 178d</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Jody Scheckter (1979)</span><span class="record-val">29y 259d</span></div>'
-      +'</div>'
-
-      +'<div class="record-card"><div class="record-card-title">Oldest world champions</div>'
-      +'<div class="record-row"><span class="record-name">1. Juan Manuel Fangio (1957)</span><span class="record-val">46y 41d</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Giuseppe Farina (1950)</span><span class="record-val">44y 59d</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Jack Brabham (1966)</span><span class="record-val">40y 40d</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Nigel Mansell (1992)</span><span class="record-val">39y 9d</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Mario Andretti (1978)</span><span class="record-val">38y 281d</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Keke Rosberg (1982)</span><span class="record-val">34y 37d</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Denny Hulme (1967)</span><span class="record-val">31y 104d</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Jody Scheckter (1979)</span><span class="record-val">29y 259d</span></div>'
-      +'</div>'
-
-      // Constructor records
-      +'<div class="record-card"><div class="record-card-title">Most constructors\' championships</div>'
-      +'<div class="record-row"><span class="record-name">1. Ferrari</span><span class="record-val">16</span></div>'
-      +'<div class="record-row"><span class="record-name">2. McLaren</span><span class="record-val">10</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Williams</span><span class="record-val">9</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Mercedes</span><span class="record-val">8</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Lotus</span><span class="record-val">7</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Red Bull</span><span class="record-val">6</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Brabham</span><span class="record-val">2</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Renault</span><span class="record-val">2</span></div>'
-      +'</div>'
-
-      +'<div class="record-card"><div class="record-card-title">Most constructor race wins</div>'
-      +'<div class="record-row"><span class="record-name">1. Ferrari</span><span class="record-val">245</span></div>'
-      +'<div class="record-row"><span class="record-name">2. McLaren</span><span class="record-val">183</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Mercedes</span><span class="record-val">128</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Red Bull</span><span class="record-val">122</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Williams</span><span class="record-val">114</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Lotus</span><span class="record-val">79</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Renault / Alpine</span><span class="record-val">35</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Brabham</span><span class="record-val">35</span></div>'
-      +'</div>'
-
-      +'<div class="record-card"><div class="record-card-title">Most consecutive constructors\' titles</div>'
-      +'<div class="record-row"><span class="record-name">1. Mercedes (2014–2021)</span><span class="record-val">8</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Ferrari (1999–2004)</span><span class="record-val">6</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Williams (1992–1997)</span><span class="record-val">5</span></div>'
-      +'<div class="record-row"><span class="record-name">4. McLaren (1988–1991)</span><span class="record-val">4</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Red Bull (2010–2013)</span><span class="record-val">4</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Lotus (1963–1965)</span><span class="record-val">3</span></div>'
-      +'<div class="record-row"><span class="record-name">7. McLaren (2024–2025)</span><span class="record-val">2</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Ferrari (1975–1976)</span><span class="record-val">2</span></div>'
-      +'</div>'
-
-      // Race records
-      +'<div class="record-card"><div class="record-card-title">Closest finish</div>'
-      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">The gap in seconds between 1st and 2nd place at the chequered flag. The 1971 Italian GP finish of 0.010s — less than a car length — remains the closest in history.</div>'
-      +'<div class="record-row"><span class="record-name">1. 1971 Italian GP (Monza)</span><span class="record-val">0.010s</span></div>'
-      +'<div class="record-row"><span class="record-name">2. 2002 Austrian GP</span><span class="record-val">0.011s</span></div>'
-      +'<div class="record-row"><span class="record-name">3. 1986 Spanish GP</span><span class="record-val">0.014s</span></div>'
-      +'<div class="record-row"><span class="record-name">4. 1969 Italian GP</span><span class="record-val">0.080s</span></div>'
-      +'<div class="record-row"><span class="record-name">5. 2008 Brazilian GP</span><span class="record-val">0.086s</span></div>'
-      +'<div class="record-row"><span class="record-name">6. 1967 Italian GP</span><span class="record-val">0.200s</span></div>'
-      +'<div class="record-row"><span class="record-name">7. 2005 San Marino GP</span><span class="record-val">0.215s</span></div>'
-      +'<div class="record-row"><span class="record-name">8. 2020 Bahrain GP</span><span class="record-val">0.415s</span></div>'
-      +'</div>'
-
-      +'<div class="record-card"><div class="record-card-title">Largest championship winning margin</div>'
-      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">Points ahead of the runner-up when the season ended. Verstappen\'s 290-point margin in 2023 means his nearest rival would have needed to win every remaining race just to get close.</div>'
-      +'<div class="record-row"><span class="record-name">1. Verstappen (2023)</span><span class="record-val">290 pts</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Verstappen (2022)</span><span class="record-val">146 pts</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Hamilton (2020)</span><span class="record-val">124 pts</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Hamilton (2019)</span><span class="record-val">87 pts</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Mansell (1992)</span><span class="record-val">52 pts</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Schumacher (2002)</span><span class="record-val">67 pts</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Senna (1988)</span><span class="record-val">36 pts</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Schumacher (2004)</span><span class="record-val">34 pts</span></div>'
-      +'</div>'
-
-      +'<div class="record-card"><div class="record-card-title">Most grands prix at one circuit</div>'
-      +'<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">Monza and Monaco have been on the F1 calendar almost every year since the championship began in 1950, making them the spiritual homes of the sport.</div>'
-      +'<div class="record-row"><span class="record-name">1. Monza (Italian GP)</span><span class="record-val">75</span></div>'
-      +'<div class="record-row"><span class="record-name">2. Monaco</span><span class="record-val">71</span></div>'
-      +'<div class="record-row"><span class="record-name">3. Silverstone (British GP)</span><span class="record-val">60</span></div>'
-      +'<div class="record-row"><span class="record-name">4. Spa-Francorchamps</span><span class="record-val">55</span></div>'
-      +'<div class="record-row"><span class="record-name">5. Interlagos</span><span class="record-val">42</span></div>'
-      +'<div class="record-row"><span class="record-name">6. Nürburgring</span><span class="record-val">37</span></div>'
-      +'<div class="record-row"><span class="record-name">7. Hockenheimring</span><span class="record-val">36</span></div>'
-      +'<div class="record-row"><span class="record-name">8. Suzuka</span><span class="record-val">35</span></div>'
-      +'</div>'
-
+      +rc('Most championships',[
+        {pos:1,name:'Lewis Hamilton',val:'7'},{pos:1,name:'Michael Schumacher',val:'7'},
+        {pos:3,name:'Max Verstappen',val:'4'},{pos:4,name:'Alain Prost',val:'4'},
+        {pos:5,name:'Sebastian Vettel',val:'4'},{pos:6,name:'Ayrton Senna',val:'3'},
+        {pos:6,name:'Jack Brabham',val:'3'},{pos:6,name:'Jackie Stewart',val:'3'}])
+      +rc('Most race wins (all-time)',[
+        {pos:1,name:'Lewis Hamilton',val:'105'},{pos:2,name:'Michael Schumacher',val:'91'},
+        {pos:3,name:'Max Verstappen',val:'71'},{pos:4,name:'Sebastian Vettel',val:'53'},
+        {pos:5,name:'Alain Prost',val:'51'},{pos:6,name:'Ayrton Senna',val:'41'},
+        {pos:7,name:'Fernando Alonso',val:'32'},{pos:8,name:'Nigel Mansell',val:'31'}],
+        '34 more than Schumacher in 2nd')
+      +rc('Most pole positions (all-time)',[
+        {pos:1,name:'Lewis Hamilton',val:'104'},{pos:2,name:'Michael Schumacher',val:'68'},
+        {pos:3,name:'Ayrton Senna',val:'65'},{pos:4,name:'Sebastian Vettel',val:'57'},
+        {pos:5,name:'Max Verstappen',val:'48'},{pos:6,name:'Alain Prost',val:'33'},
+        {pos:7,name:'Jim Clark',val:'33'},{pos:8,name:'Nigel Mansell',val:'32'}],
+        '36 clear of Schumacher in 2nd')
+      +rc('Most podiums (all-time)',[
+        {pos:1,name:'Lewis Hamilton',val:'203'},{pos:2,name:'Michael Schumacher',val:'155'},
+        {pos:3,name:'Max Verstappen',val:'127'},{pos:4,name:'Sebastian Vettel',val:'122'},
+        {pos:5,name:'Alain Prost',val:'106'},{pos:6,name:'Kimi Räikkönen',val:'103'},
+        {pos:7,name:'Fernando Alonso',val:'98'},{pos:8,name:'Valtteri Bottas',val:'67'}],
+        'More than anyone in history')
+      +rc('Most fastest laps (all-time)',[
+        {pos:1,name:'Michael Schumacher',val:'77'},{pos:2,name:'Lewis Hamilton',val:'68'},
+        {pos:3,name:'Kimi Räikkönen',val:'46'},{pos:4,name:'Alain Prost',val:'41'},
+        {pos:5,name:'Sebastian Vettel',val:'38'},{pos:6,name:'Max Verstappen',val:'37'},
+        {pos:7,name:'Nigel Mansell',val:'30'},{pos:8,name:'Jim Clark',val:'28'}],
+        '9 clear of Hamilton in 2nd')
+      +rc('Most wins in a season',[
+        {pos:1,name:'Max Verstappen (2023)',val:'19'},{pos:2,name:'Max Verstappen (2022)',val:'15'},
+        {pos:3,name:'Michael Schumacher (2004)',val:'13'},{pos:3,name:'Sebastian Vettel (2013)',val:'13'},
+        {pos:5,name:'Lewis Hamilton (2014)',val:'11'},{pos:5,name:'Lewis Hamilton (2019)',val:'11'},
+        {pos:5,name:'Lewis Hamilton (2020)',val:'11'},{pos:5,name:'Michael Schumacher (2002)',val:'11'}],
+        '19 wins from 22 races in 2023')
+      +rc('Most races started',[
+        {pos:1,name:'Fernando Alonso',val:'427'},{pos:2,name:'Lewis Hamilton',val:'352'},
+        {pos:3,name:'Kimi Räikkönen',val:'349'},{pos:4,name:'Rubens Barrichello',val:'326'},
+        {pos:5,name:'Michael Schumacher',val:'308'},{pos:6,name:'Jenson Button',val:'306'},
+        {pos:7,name:'David Coulthard',val:'246'},{pos:8,name:'Nico Rosberg',val:'206'}],
+        '75 more than Hamilton in 2nd')
+      +rc('Most points in a season',[
+        {pos:1,name:'Max Verstappen (2023)',val:'575'},{pos:2,name:'Max Verstappen (2022)',val:'454'},
+        {pos:3,name:'Lewis Hamilton (2019)',val:'413'},{pos:4,name:'Lewis Hamilton (2018)',val:'408'},
+        {pos:5,name:'Sebastian Vettel (2013)',val:'397'},{pos:6,name:'Nico Rosberg (2016)',val:'385'},
+        {pos:7,name:'Lewis Hamilton (2015)',val:'381'},{pos:8,name:'Lewis Hamilton (2020)',val:'347'}],
+        '575 pts — 19 wins from 22 races',
+        '25 pts per win. The 2023 total of 575 — from 19 wins in 22 races — is the most dominant season in F1 history.')
+      +rc('Most grand slams',[
+        {pos:1,name:'Jim Clark',val:'8'},{pos:2,name:'Max Verstappen',val:'7'},
+        {pos:3,name:'Lewis Hamilton',val:'6'},{pos:4,name:'Michael Schumacher',val:'5'},
+        {pos:4,name:'Ayrton Senna',val:'5'},{pos:4,name:'Nigel Mansell',val:'5'},
+        {pos:7,name:'Alberto Ascari',val:'4'},{pos:7,name:'Sebastian Vettel',val:'4'}],
+        'Pole, win, fastest lap & led every lap',
+        'A grand slam means winning from pole, setting the fastest lap, and leading every single lap — the rarest achievement in F1.')
+      +rc('Youngest world champions',[
+        {pos:1,name:'Sebastian Vettel (2010)',val:'23y 134d'},{pos:2,name:'Lewis Hamilton (2008)',val:'23y 301d'},
+        {pos:3,name:'Fernando Alonso (2005)',val:'24y 58d'},{pos:4,name:'Max Verstappen (2021)',val:'24y 73d'},
+        {pos:5,name:'Emerson Fittipaldi (1972)',val:'25y 273d'},{pos:6,name:'Jochen Rindt (1970)',val:'28y 254d'},
+        {pos:7,name:'Mike Hawthorn (1958)',val:'29y 178d'},{pos:8,name:'Jody Scheckter (1979)',val:'29y 259d'}],
+        'Vettel: 23 years old at his first title')
+      +rc('Oldest world champions',[
+        {pos:1,name:'Juan Manuel Fangio (1957)',val:'46y 41d'},{pos:2,name:'Giuseppe Farina (1950)',val:'44y 59d'},
+        {pos:3,name:'Jack Brabham (1966)',val:'40y 40d'},{pos:4,name:'Nigel Mansell (1992)',val:'39y 9d'},
+        {pos:5,name:'Mario Andretti (1978)',val:'38y 281d'},{pos:6,name:'Keke Rosberg (1982)',val:'34y 37d'},
+        {pos:7,name:'Denny Hulme (1967)',val:'31y 104d'},{pos:8,name:'Jody Scheckter (1979)',val:'29y 259d'}],
+        'Fangio won his 5th title at 46')
+      +rc('Most constructors championships',[
+        {pos:1,name:'Ferrari',val:'16'},{pos:2,name:'McLaren',val:'10'},
+        {pos:3,name:'Williams',val:'9'},{pos:4,name:'Mercedes',val:'8'},
+        {pos:5,name:'Lotus',val:'7'},{pos:6,name:'Red Bull',val:'6'},
+        {pos:7,name:'Brabham',val:'2'},{pos:7,name:'Renault',val:'2'}],
+        'Ferrari have more than anyone')
+      +rc('Most constructor race wins',[
+        {pos:1,name:'Ferrari',val:'245'},{pos:2,name:'McLaren',val:'183'},
+        {pos:3,name:'Mercedes',val:'128'},{pos:4,name:'Red Bull',val:'122'},
+        {pos:5,name:'Williams',val:'114'},{pos:6,name:'Lotus',val:'79'},
+        {pos:7,name:'Renault / Alpine',val:'35'},{pos:7,name:'Brabham',val:'35'}],
+        '62 more wins than McLaren in 2nd')
+      +rc('Most consecutive constructors titles',[
+        {pos:1,name:'Mercedes (2014–2021)',val:'8'},{pos:2,name:'Ferrari (1999–2004)',val:'6'},
+        {pos:3,name:'Williams (1992–1997)',val:'5'},{pos:4,name:'McLaren (1988–1991)',val:'4'},
+        {pos:4,name:'Red Bull (2010–2013)',val:'4'},{pos:6,name:'Lotus (1963–1965)',val:'3'},
+        {pos:7,name:'McLaren (2024–2025)',val:'2'},{pos:7,name:'Ferrari (1975–1976)',val:'2'}],
+        'Mercedes: 8 in a row 2014–2021')
+      +rc('Closest finish',[
+        {pos:1,name:'1971 Italian GP (Monza)',val:'0.010s'},{pos:2,name:'2002 Austrian GP',val:'0.011s'},
+        {pos:3,name:'1986 Spanish GP',val:'0.014s'},{pos:4,name:'1969 Italian GP',val:'0.080s'},
+        {pos:5,name:'2008 Brazilian GP',val:'0.086s'},{pos:6,name:'1967 Italian GP',val:'0.200s'},
+        {pos:7,name:'2005 San Marino GP',val:'0.215s'},{pos:8,name:'2020 Bahrain GP',val:'0.415s'}],
+        'Less than a car length in 1971',
+        'The 1971 Italian GP finish of 0.010s — less than a car length — remains the closest in history.')
+      +rc('Largest championship winning margin',[
+        {pos:1,name:'Verstappen (2023)',val:'290 pts'},{pos:2,name:'Verstappen (2022)',val:'146 pts'},
+        {pos:3,name:'Hamilton (2020)',val:'124 pts'},{pos:4,name:'Hamilton (2019)',val:'87 pts'},
+        {pos:5,name:'Schumacher (2002)',val:'67 pts'},{pos:6,name:'Mansell (1992)',val:'52 pts'},
+        {pos:7,name:'Senna (1988)',val:'36 pts'},{pos:8,name:'Schumacher (2004)',val:'34 pts'}],
+        '290 points clear in 2023',
+        'The 290-point margin in 2023 means the nearest rival would have needed to win every remaining race just to get close.')
+      +rc('Most grands prix at one circuit',[
+        {pos:1,name:'Monza (Italian GP)',val:'75'},{pos:2,name:'Monaco',val:'71'},
+        {pos:3,name:'Silverstone (British GP)',val:'60'},{pos:4,name:'Spa-Francorchamps',val:'55'},
+        {pos:5,name:'Interlagos',val:'42'},{pos:6,name:'Nürburgring',val:'37'},
+        {pos:7,name:'Hockenheimring',val:'36'},{pos:8,name:'Suzuka',val:'35'}],
+        'Monza has hosted F1 since 1950',
+        'Monza and Monaco have been on the F1 calendar almost every year since 1950, making them the spiritual homes of the sport.')
       +'</div>';
   }catch(e){
     loadEl.innerHTML='<div class="error-msg">Could not load records data.</div>';
   }
 }
-
 // ── News (live RSS — works on https:// hosts; falls back to static on file://) ──
 const RSS_FEEDS = [
   { url:'https://www.racefans.net/feed/',          source:'racefans.net',    color:'#1d4ed8' },
