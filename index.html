@@ -49,15 +49,6 @@
     .progress-bar-wrap { height:3px; background:var(--border); border-radius:2px; margin-bottom:1.5rem; overflow:hidden; }
     .progress-bar-fill { height:100%; background:var(--red); border-radius:2px; width:0; transition:width .4s ease; }
 
-    /* Metrics */
-    .f1-metrics { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; margin-bottom:1.5rem; }
-    @media(max-width:700px){ .f1-metrics{grid-template-columns:repeat(2,1fr);} }
-    .f1-metric { background:var(--bg2); border-radius:6px; padding:12px 14px; border-left:3px solid transparent; }
-    .f1-metric.leader{border-left-color:var(--red);} .f1-metric.pts{border-left-color:var(--gold);} .f1-metric.con{border-left-color:#00D2BE;} .f1-metric.prog{border-left-color:var(--green);}
-    .f1-metric-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text3); margin-bottom:5px; }
-    .f1-metric-value { font-family:'Barlow',sans-serif; font-size:22px; font-weight:700; color:var(--text); line-height:1; letter-spacing:0.5px; }
-    .f1-metric-sub { font-size:11px; color:var(--text2); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
     /* Season stats strip */
     .season-stats-strip { display:grid; grid-template-columns:repeat(4,1fr); background:var(--bg); border-bottom:0.5px solid var(--border); }
     .season-stat { text-align:center; padding:16px 12px; border-right:0.5px solid var(--border); }
@@ -66,7 +57,6 @@
     .season-stat-val.season-stat-countdown { font-size:20px; letter-spacing:-0.5px; color:var(--red); }
     .season-stat-val.race-on { color:var(--red); font-size:16px; letter-spacing:0; }
     .season-stat-label { font-family:'Space Grotesk',sans-serif; font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text2); margin-top:6px; }
-    .season-stat-div { display:none; }
 
     /* Tabs */
     .f1-tabs { display:flex; width:100%; margin-bottom:0; border-bottom:1px solid var(--border); background:var(--bg); }
@@ -75,17 +65,11 @@
     .f1-tab.wide{flex:1.5 1 0;}
     .f1-panel{display:none; padding:1.5rem 2rem;} .f1-panel.active{display:block;}
 
-    /* Search */
-    .search-wrap { margin-bottom:12px; }
-    .search-input { width:100%; background:var(--bg2); border:0.5px solid var(--border); border-radius:8px; padding:8px 12px; font-size:13px; color:var(--text); font-family:'Barlow',sans-serif; outline:none; transition:border-color .15s; }
-    .search-input:focus { border-color:var(--border2); }
-    .search-input::placeholder { color:var(--text3); }
-
     /* Loading / error */
     .loading { padding:2rem; text-align:center; }
     .loading-spinner { width:28px; height:28px; border:2px solid var(--border); border-top-color:var(--red); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 12px; }
     @keyframes spin{to{transform:rotate(360deg);}}
-    .loading-text { font-family:'Barlow',sans-serif; font-size:14px; letter-spacing:1px; color:var(--text2); }
+    .loading-text { font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; color:var(--text2); }
     .error-msg { padding:1.5rem; text-align:center; font-size:14px; color:var(--text2); background:var(--bg2); border-radius:8px; }
     .stale-banner { background:var(--bg2); border:0.5px solid var(--border); border-radius:6px; padding:6px 12px; font-size:12px; color:var(--text2); margin-bottom:10px; display:none; }
     .stale-banner.show { display:block; }
@@ -324,20 +308,20 @@
 
     @media print {
       body{background:#fff!important;padding:0;} .dash{box-shadow:none;border:none;padding:1rem;}
-      .icon-btn,#back-top,.news-filter,.export-row,.search-wrap,.modal-overlay{display:none!important;}
+      .icon-btn,#back-top,.news-filter,.export-row,.modal-overlay{display:none!important;}
       .f1-tab{display:none;} .f1-panel{display:block!important;}
     }
 
     /* New feature styles */
     /* Rookie/status badges in driver table */
     .rookie-badge{display:inline-block;color:#4A7FA5;border:0.5px solid #4A7FA5;font-family:'Space Grotesk',sans-serif;font-size:7px;font-weight:700;letter-spacing:1.5px;padding:1px 3px;vertical-align:middle;margin-left:5px;}
-    .fl-badge{display:inline-block;background:var(--gold);color:#fff;font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:4px;}
-    .champ-badge{display:inline-block;font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:4px;}
+    .fl-badge{display:inline-block;background:var(--gold);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:4px;}
+    .champ-badge{display:inline-block;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:4px;}
     .champ-winner{background:var(--gold);color:#fff;}
     .champ-eliminated{background:var(--bg3);color:var(--text3);border:0.5px solid var(--border);}
     .champ-contender{background:#22c55e22;color:#16a34a;border:0.5px solid #22c55e55;}
     .max-pts-cell{font-size:11px;color:var(--text3);}
-    .fl-col{text-align:center;font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;color:var(--gold);}
+    .fl-col{text-align:center;font-family:'Barlow',sans-serif;font-size:14px;font-weight:900;color:var(--text2);}
 
     /* Session schedule */
     .session-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;}
@@ -382,15 +366,6 @@
     .tl-pip{width:3px;height:16px;border-radius:0;flex-shrink:0;}
     .tl-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text);}
     .tl-pts{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--text3);}
-
-    /* Season timeline old card styles — kept for fallback */
-    .timeline-scroll{overflow-x:auto;padding-bottom:8px;}
-    .timeline-wrap{display:flex;gap:6px;min-width:max-content;padding:2px;}
-    .tl-card{background:var(--bg2);border-radius:8px;padding:10px 12px;min-width:96px;border:0.5px solid var(--border);flex-shrink:0;}
-    .tl-rnd-lbl{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
-    .tl-name-lbl{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);margin:2px 0;}
-    .tl-winner{font-size:11px;color:var(--text2);}
-    .tl-winner strong{font-family:'Barlow',sans-serif;font-weight:900;color:var(--text);}
 
     /* H2H */
     .h2h-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:4px;}
@@ -468,32 +443,23 @@
     <div onclick="event.stopPropagation()" style="background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:1.5rem;width:100%;max-width:420px;box-sizing:border-box;position:relative;z-index:201">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
         <div>
-          <div style="font-family:'Barlow',sans-serif;font-size:22px;font-weight:700;letter-spacing:.5px;color:var(--text)">Settings</div>
+          <div style="font-family:'Barlow',sans-serif;font-size:22px;font-weight:900;letter-spacing:-0.3px;color:var(--text)">Settings</div>
           <div style="font-size:12px;color:var(--text2);margin-top:2px">Stored locally in your browser only</div>
         </div>
         <button onclick="closeSettings()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:18px;padding:0;line-height:1">✕</button>
       </div>
-      <label style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px">Anthropic API Key</label>
+      <label style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px">Anthropic API Key</label>
       <div style="position:relative">
         <input id="api-key-input" type="text" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box;background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;padding:9px 48px 9px 12px;color:var(--text);font-size:13px;font-family:monospace;outline:none;-webkit-text-security:disc">
-        <button onclick="toggleApiKeyVisibility()" id="api-key-toggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text2);font-size:12px;font-family:'Barlow',sans-serif;font-weight:600;letter-spacing:.5px;padding:2px 4px">Show</button>
+        <button onclick="toggleApiKeyVisibility()" id="api-key-toggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text2);font-size:11px;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.5px;padding:2px 4px">Show</button>
       </div>
       <div style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5">Required for AI team assessments. Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--info)">console.anthropic.com</a>. Your key is never sent anywhere except the Anthropic API.</div>
-      <button onclick="saveApiKey()" style="margin-top:14px;width:100%;display:flex;align-items:center;justify-content:center;background:#E10600;color:#fff;border:none;border-radius:8px;padding:11px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">Save Key</button>
+      <button onclick="saveApiKey()" style="margin-top:14px;width:100%;display:flex;align-items:center;justify-content:center;background:#E10600;color:#fff;border:none;border-radius:8px;padding:11px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">Save Key</button>
       <div id="api-key-status" style="font-size:12px;color:var(--text2);margin-top:8px;text-align:center;min-height:16px"></div>
     </div>
   </div>
 
   <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
-
-  <!-- Hidden metrics kept for JS compatibility -->
-  <div style="display:none">
-    <div id="m-leader"></div><div id="m-leader-sub"></div>
-    <div id="m-gap"></div><div id="m-gap-sub"></div>
-    <div id="m-con"></div><div id="m-con-sub"></div>
-    <div id="m-round"></div><div id="m-round-sub"></div>
-    <div id="m-prog"></div><div id="m-prog-sub"></div>
-  </div>
 
   <!-- Welcome banner -->
   <div id="welcome-banner" style="display:none;background:var(--bg);border:0.5px solid var(--border);border-left:3px solid var(--red);border-radius:0;padding:20px 32px;position:relative">
@@ -508,17 +474,14 @@
       <div class="season-stat-val" id="h-rounds-done">—</div>
       <div class="season-stat-label">Rounds done</div>
     </div>
-    <div class="season-stat-div"></div>
     <div class="season-stat">
       <div class="season-stat-val" id="h-rounds-left">—</div>
       <div class="season-stat-label">Remaining</div>
     </div>
-    <div class="season-stat-div"></div>
     <div class="season-stat">
       <div class="season-stat-val" id="h-next-race">—</div>
       <div class="season-stat-label">Next race</div>
     </div>
-    <div class="season-stat-div"></div>
     <div class="season-stat">
       <div class="season-stat-val season-stat-countdown" id="h-countdown">—</div>
       <div class="season-stat-label">Countdown</div>
@@ -627,15 +590,15 @@
       <div class="section-group-label">Championship deep dive</div>
       <div id="champ-deep-dive">
         <div style="margin-bottom:1rem">
-          <div style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Points gap — top 5 drivers</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Points gap — top 5 drivers</div>
           <div style="position:relative;height:200px"><canvas id="champ-gap-chart"></canvas></div>
         </div>
         <div style="margin-bottom:1rem">
-          <div style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Championship leader each round</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Championship leader each round</div>
           <div id="champ-leader-table"></div>
         </div>
         <div style="margin-bottom:1rem">
-          <div style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Driver performance rates</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Driver performance rates</div>
           <div style="position:relative;height:220px"><canvas id="champ-rate-chart"></canvas></div>
         </div>
         <div id="champ-best-worst"></div>
@@ -870,6 +833,22 @@ async function fetchJSON(url,retries=2){
 }
 
 // ── State ──
+// Chart colour helper — reads CSS variables at render time so charts adapt to theme
+function chartDefaults(yTitle=''){
+  const cs=getComputedStyle(document.documentElement);
+  const tick=cs.getPropertyValue('--text2').trim()||'#73726c';
+  const grid=cs.getPropertyValue('--border').trim()||'rgba(0,0,0,0.1)';
+  const f={family:"'Space Grotesk',sans-serif"};
+  return {
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:tick,font:{...f,size:10},boxWidth:10,padding:12}}},
+    scales:{
+      x:{ticks:{color:tick,font:{...f,size:9},maxRotation:45},grid:{color:grid}},
+      y:{ticks:{color:tick,font:{...f,size:9}},grid:{color:grid},
+         title:yTitle?{display:true,text:yTitle,color:tick,font:{...f,size:9}}:{display:false}}
+    }
+  };
+}
 let liveDrivers=[], liveConstructors=[], standingsHistory=[];
 let fastestLapCounts={};  // driverId -> FL count for 2026
 let pitStopData={};       // round -> {driverId -> [{lap,duration}]}
@@ -946,18 +925,15 @@ function startCountdown(dateStr,name){
   const raceStart=new Date(raceDay); raceStart.setUTCHours(13,0,0,0); // conservative: 1pm UTC
   const raceEnd=new Date(raceDay);   raceEnd.setUTCHours(17,0,0,0);   // generous: 5pm UTC
   const el=document.getElementById('h-countdown');
-  const elSub=document.getElementById('m-round-sub'); // keep legacy element updated too
   function tick(){
     const now=Date.now();
     const diffToStart=raceStart.getTime()-now;
     if(now>=raceStart.getTime()&&now<=raceEnd.getTime()){
       if(el){ el.textContent='Race on'; el.className='season-stat-val season-stat-countdown race-on'; }
-      if(elSub) elSub.textContent=name+' · Race in progress';
       return;
     }
     if(now>raceEnd.getTime()){
       if(el){ el.textContent='Results soon'; el.className='season-stat-val season-stat-countdown'; }
-      if(elSub) elSub.textContent=name+' · Awaiting results';
       clearInterval(_cdInterval);
       return;
     }
@@ -968,7 +944,6 @@ function startCountdown(dateStr,name){
     const s=Math.floor((diff%60000)/1000);
     const str=d>0?`${d}d ${h}h ${m}m`:`${h}h ${m}m ${s}s`;
     if(el){ el.textContent=str; el.className='season-stat-val season-stat-countdown'; }
-    if(elSub) elSub.textContent=name+' · '+str;
   }
   tick(); _cdInterval=setInterval(tick,1000);
 }
@@ -1053,12 +1028,10 @@ async function loadDriverStandings(){
   document.getElementById('drivers-stale').classList.toggle('show',stale);
   if(liveDrivers.length>=2){
     const p1=liveDrivers[0],p2=liveDrivers[1];
-    document.getElementById('m-leader').textContent=p1.last;
-    document.getElementById('m-leader-sub').textContent=p1.first+' '+p1.last+' · '+p1.team;
-    document.getElementById('m-gap').textContent='+'+(p1.pts-p2.pts)+' pts';
+
     // Points needed to clinch
     const ptsNeeded=Math.max(0,Math.ceil((p2.pts+maxPossible-p1.pts)/2)+1);
-    document.getElementById('m-gap-sub').textContent='Over '+p2.last+' · '+ptsNeeded+' pts to clinch';
+
   }
   tickProgress();
 }
@@ -1312,23 +1285,19 @@ async function openDriverModal(driverId){
         return isDNF?null:parseInt(res?.position||0)||null;
       });
 
-      const chartDefaults={
-        responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{labels:{color:'#888',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y}}},
-        scales:{
-          x:{ticks:{color:'#888',font:{size:9},maxRotation:45},grid:{color:'rgba(128,128,128,0.1)'}},
-          y:{ticks:{color:'#888',font:{size:10}},grid:{color:'rgba(128,128,128,0.1)'}}
-        }
-      };
+      const dOpts=chartDefaults();
+      dOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y}};
 
       // Points chart
       const ptsCtx=document.getElementById('modal-pts-chart');
       if(ptsCtx){
         if(ptsCtx._chart) ptsCtx._chart.destroy();
+        const pOpts=chartDefaults('Points');
+        pOpts.scales.y={...pOpts.scales.y,beginAtZero:true};
         ptsCtx._chart=new Chart(ptsCtx,{
           type:'line',
           data:{labels,datasets:[{label:'Cumulative pts',data:ptsData,borderColor:d.color,backgroundColor:d.color+'22',borderWidth:2,pointRadius:3,pointBackgroundColor:d.color,fill:true,tension:0.3}]},
-          options:{...chartDefaults,scales:{...chartDefaults.scales,y:{...chartDefaults.scales.y,beginAtZero:true}}}
+          options:pOpts
         });
       }
 
@@ -1336,13 +1305,17 @@ async function openDriverModal(driverId){
       const posCtx=document.getElementById('modal-pos-chart');
       if(posCtx){
         if(posCtx._chart) posCtx._chart.destroy();
+        const cs=getComputedStyle(document.documentElement);
+        const tick=cs.getPropertyValue('--text2').trim()||'#73726c';
+        const posOpts=chartDefaults('Position');
+        posOpts.scales.y={...posOpts.scales.y,reverse:true,min:1,suggestedMax:20,ticks:{...posOpts.scales.y.ticks,stepSize:5}};
         posCtx._chart=new Chart(posCtx,{
           type:'line',
           data:{labels,datasets:[
-            {label:'Qualifying',data:qualiData,borderColor:'#888',backgroundColor:'transparent',borderWidth:1.5,pointRadius:3,borderDash:[4,3],spanGaps:true},
+            {label:'Qualifying',data:qualiData,borderColor:tick,backgroundColor:'transparent',borderWidth:1.5,pointRadius:3,borderDash:[4,3],spanGaps:true},
             {label:'Race finish',data:raceData2,borderColor:d.color,backgroundColor:'transparent',borderWidth:2,pointRadius:3,pointBackgroundColor:d.color,spanGaps:true}
           ]},
-          options:{...chartDefaults,scales:{...chartDefaults.scales,y:{...chartDefaults.scales.y,reverse:true,min:1,suggestedMax:20,ticks:{...chartDefaults.scales.y.ticks,stepSize:5}}}}
+          options:posOpts
         });
       }
     }
@@ -1532,7 +1505,10 @@ async function openConstructorModal(constructorId){
       const ptsA=races.map(r=>{const res=(r.Results||[]).find(x=>x.Driver.driverId===dA.driverId);return parseFloat(res?.points||0);});
       const ptsB=races.map(r=>{const res=(r.Results||[]).find(x=>x.Driver.driverId===dB.driverId);return parseFloat(res?.points||0);});
       if(splitCtx._chart) splitCtx._chart.destroy();
-      splitCtx._chart=new Chart(splitCtx,{type:'bar',data:{labels:rLabels,datasets:[{label:dA.last,data:ptsA,backgroundColor:color+'cc',borderColor:color,borderWidth:1},{label:dB.last,data:ptsB,backgroundColor:color+'55',borderColor:color+'88',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,ticks:{color:'#888',font:{size:8},maxRotation:45},grid:{color:'rgba(128,128,128,0.1)'}},y:{stacked:true,ticks:{color:'#888',font:{size:9}},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:'Points',color:'#888',font:{size:9}}}}}});
+      const splitOpts=chartDefaults('Points');
+      splitOpts.scales.x={...splitOpts.scales.x,stacked:true};
+      splitOpts.scales.y={...splitOpts.scales.y,stacked:true,title:{display:true,text:'Points',color:getComputedStyle(document.documentElement).getPropertyValue('--text2').trim(),font:{family:"'Space Grotesk',sans-serif",size:9}}};
+      splitCtx._chart=new Chart(splitCtx,{type:'bar',data:{labels:rLabels,datasets:[{label:dA.last,data:ptsA,backgroundColor:color+'cc',borderColor:color,borderWidth:1},{label:dB.last,data:ptsB,backgroundColor:color+'55',borderColor:color+'88',borderWidth:1}]},options:splitOpts});
     } else {
       splitCtx.parentElement.innerHTML='<div style="font-size:12px;color:var(--text2);padding:8px 0">Insufficient data.</div>';
     }
@@ -1550,7 +1526,10 @@ async function openConstructorModal(constructorId){
       const avgGrid=races.map(r=>{const grids=(r.Results||[]).map(x=>parseInt(x.grid)||0).filter(Boolean);return grids.length?grids.reduce((a,b)=>a+b,0)/grids.length:null;});
       const avgFin=races.map(r=>{const fins=(r.Results||[]).map(x=>parseInt(x.position)||0).filter(Boolean);return fins.length?fins.reduce((a,b)=>a+b,0)/fins.length:null;});
       if(qrCtx._chart) qrCtx._chart.destroy();
-      qrCtx._chart=new Chart(qrCtx,{type:'line',data:{labels:rLabels,datasets:[{label:'Avg grid',data:avgGrid,borderColor:'#888',borderWidth:1.5,borderDash:[4,3],pointRadius:2,spanGaps:true},{label:'Avg finish',data:avgFin,borderColor:color,borderWidth:2,pointRadius:2,pointBackgroundColor:color,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10},boxWidth:10}}},scales:{x:{ticks:{color:'#888',font:{size:8},maxRotation:45},grid:{color:'rgba(128,128,128,0.1)'}},y:{reverse:true,min:1,suggestedMax:20,ticks:{color:'#888',font:{size:9},stepSize:5},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:'Position (lower = better)',color:'#888',font:{size:9}}}}}});
+      const qrOpts=chartDefaults('Position (lower = better)');
+      const qrTick=getComputedStyle(document.documentElement).getPropertyValue('--text2').trim()||'#73726c';
+      qrOpts.scales.y={...qrOpts.scales.y,reverse:true,min:1,suggestedMax:20,ticks:{...qrOpts.scales.y.ticks,stepSize:5}};
+      qrCtx._chart=new Chart(qrCtx,{type:'line',data:{labels:rLabels,datasets:[{label:'Avg grid',data:avgGrid,borderColor:qrTick,borderWidth:1.5,borderDash:[4,3],pointRadius:2,spanGaps:true},{label:'Avg finish',data:avgFin,borderColor:color,borderWidth:2,pointRadius:2,pointBackgroundColor:color,spanGaps:true}]},options:qrOpts});
     }
   }
 
@@ -1683,8 +1662,7 @@ async function loadConstructorStandings(){
   document.getElementById('con-stale').classList.toggle('show',stale);
   if(list.length>=2){
     const p1=list[0],p2=list[1];
-    document.getElementById('m-con').textContent=cleanConstructorName(p1.Constructor.name).split(' ')[0];
-    document.getElementById('m-con-sub').textContent=p1.points+' pts · +'+(parseFloat(p1.points)-parseFloat(p2.points))+' over '+cleanConstructorName(p2.Constructor.name).split(' ')[0];
+
   }
   tickProgress();
 }
@@ -1826,12 +1804,10 @@ async function loadCalendar(){
   window._allRaces=allRaces;
   window._nextRaceDate=nextRace?new Date(nextRace.date):null;
 
-  document.getElementById('m-prog').textContent=`${completed.length}/${allRaces.length}`;
-  document.getElementById('m-prog-sub').textContent='Rounds completed';
+
   if(completed.length>0){
     const last=completed[completed.length-1];
-    document.getElementById('m-round').textContent='Rd '+last.round;
-    document.getElementById('m-round-sub').textContent=last.raceName.replace(' Grand Prix','').replace('Grand Prix','')+' GP';
+
   }
 
   // Populate new header stats
@@ -1921,7 +1897,7 @@ async function loadCalendar(){
           +'<span style="font-size:10px;color:var(--text3);margin-left:3px">'+team+'</span>'
           +'</span>';
       };
-      pod.innerHTML='<span class="podium-pos" style="color:var(--red);margin-right:4px">GP</span>'
+      pod.innerHTML='<span class="podium-pos" style="color:var(--text2);margin-right:4px">GP</span>'
         +podItem(p1,'P1')+podItem(p2,'P2')+podItem(p3,'P3');
       rightCol.appendChild(pod);
     }
@@ -1941,11 +1917,11 @@ async function loadCalendar(){
             +'<span style="font-size:10px;color:var(--text3);margin-left:3px">'+team+'</span>'
             +'</span>';
         };
-        spod.innerHTML='<span class="podium-pos" style="color:var(--gold);margin-right:4px">SPR</span>'
+        spod.innerHTML='<span class="podium-pos" style="color:var(--text2);margin-right:4px">SPR</span>'
           +spodItem(s1,'P1')+spodItem(s2,'P2')+spodItem(s3,'P3');
       } else {
         spod.className='race-extra';
-        spod.innerHTML='<span style="color:var(--gold)">SPR</span> Sprint results not yet available';
+        spod.innerHTML='<span style="color:var(--text2)">SPR</span> Sprint results not yet available';
       }
       rightCol.appendChild(spod);
     }
@@ -2097,7 +2073,9 @@ async function loadCalendar(){
 
       // Build charts after DOM is rendered
       requestAnimationFrame(()=>{
-        const chartOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label||ctx.label}}},scales:{x:{ticks:{color:'#888',font:{size:9},maxRotation:40},grid:{color:'rgba(128,128,128,0.1)'}},y:{ticks:{color:'#888',font:{size:9}},grid:{color:'rgba(128,128,128,0.1)'}}}};
+        const cOpts=chartDefaults();
+        cOpts.plugins.legend={display:false};
+        cOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.dataset.label||ctx.label}};
 
         // Gap to leader chart (all classified finishers)
         const classified=finishers.filter(f=>f.status==='Finished'||f.status.startsWith('+'));
@@ -2109,7 +2087,10 @@ async function loadCalendar(){
         });
         const gapColors=classified.map(f=>teamColor(f.Constructor?.name||''));
         const gapCtx=document.getElementById('gap-chart-'+r.round);
-        if(gapCtx&&!gapCtx._chart) gapCtx._chart=new Chart(gapCtx,{type:'bar',data:{labels:gapLabels,datasets:[{label:'Gap (s)',data:gapData,backgroundColor:gapColors.map(c=>c+'aa'),borderColor:gapColors,borderWidth:1}]},options:{...chartOpts,plugins:{...chartOpts.plugins,tooltip:{callbacks:{label:ctx=>ctx.parsed.y===0?'Leader':'+'+ctx.parsed.y+'s'}}},scales:{...chartOpts.scales,y:{...chartOpts.scales.y,title:{display:true,text:'Seconds behind leader',color:'#888',font:{size:9}}}}}});
+        const gapOpts=chartDefaults('Seconds behind leader');
+        gapOpts.plugins.legend={display:false};
+        gapOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.parsed.y===0?'Leader':'+'+ctx.parsed.y+'s'}};
+        if(gapCtx&&!gapCtx._chart) gapCtx._chart=new Chart(gapCtx,{type:'bar',data:{labels:gapLabels,datasets:[{label:'Gap (s)',data:gapData,backgroundColor:gapColors.map(c=>c+'aa'),borderColor:gapColors,borderWidth:1}]},options:gapOpts});
 
         // Fastest lap comparison (top 5)
         const top5=finishers.slice(0,5).filter(f=>f.FastestLap?.Time?.time);
@@ -2122,7 +2103,12 @@ async function loadCalendar(){
         const flMin=flTimes.filter(Boolean).reduce((a,b)=>Math.min(a,b),Infinity);
         const flColors=top5.map(f=>teamColor(f.Constructor?.name||''));
         const flCtx=document.getElementById('fl-chart-'+r.round);
-        if(flCtx&&!flCtx._chart&&top5.length) flCtx._chart=new Chart(flCtx,{type:'bar',data:{labels:flLabels,datasets:[{label:'Fastest lap',data:flTimes,backgroundColor:flColors.map(c=>c+'aa'),borderColor:flColors,borderWidth:1}]},options:{...chartOpts,plugins:{...chartOpts.plugins,tooltip:{callbacks:{label:ctx=>{const t=ctx.parsed.y;const m=Math.floor(t/60);const s=(t%60).toFixed(3).padStart(6,'0');return m+':'+s+(ctx.parsed.y===flMin?' ⚡':'')}}}},scales:{...chartOpts.scales,y:{...chartOpts.scales.y,suggestedMin:flMin*0.998,title:{display:true,text:'Lap time (s)',color:'#888',font:{size:9}}}}}}); else if(flCtx&&!top5.length) flCtx.parentElement.previousSibling.textContent='Fastest lap data not available';
+        const flOpts=chartDefaults('Lap time (s)');
+        flOpts.plugins.legend={display:false};
+        flOpts.plugins.tooltip={callbacks:{label:ctx=>{const t=ctx.parsed.y;const m=Math.floor(t/60);const s=(t%60).toFixed(3).padStart(6,'0');return m+':'+s+(ctx.parsed.y===flMin?' ⚡':'');}}};
+        flOpts.scales.y={...flOpts.scales.y,suggestedMin:flMin*0.998};
+        if(flCtx&&!flCtx._chart&&top5.length) flCtx._chart=new Chart(flCtx,{type:'bar',data:{labels:flLabels,datasets:[{label:'Fastest lap',data:flTimes,backgroundColor:flColors.map(c=>c+'aa'),borderColor:flColors,borderWidth:1}]},options:flOpts});
+        else if(flCtx&&!top5.length) flCtx.parentElement.previousSibling.textContent='Fastest lap data not available';
 
         // ── Lap-by-lap position changes ──
         (async()=>{
@@ -2169,25 +2155,13 @@ async function loadCalendar(){
               };
             });
 
-            posCtx._chart=new Chart(posCtx,{
-              type:'line',
-              data:{labels:lapNums,datasets},
-              options:{
-                responsive:true,maintainAspectRatio:false,
-                interaction:{mode:'index',intersect:false},
-                plugins:{
-                  legend:{display:false},
-                  tooltip:{callbacks:{
-                    title:items=>'Lap '+items[0].label,
-                    label:ctx=>ctx.dataset.label+': P'+ctx.parsed.y
-                  }}
-                },
-                scales:{
-                  x:{ticks:{color:'#888',font:{size:9},maxTicksLimit:15},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:'Lap',color:'#888',font:{size:9}}},
-                  y:{reverse:true,min:1,max:20,ticks:{color:'#888',font:{size:9},stepSize:5},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:'Position',color:'#888',font:{size:9}}}
-                }
-              }
-            });
+            const lapOpts=chartDefaults('Position');
+            lapOpts.interaction={mode:'index',intersect:false};
+            lapOpts.plugins.legend={display:false};
+            lapOpts.plugins.tooltip={callbacks:{title:items=>'Lap '+items[0].label,label:ctx=>ctx.dataset.label+': P'+ctx.parsed.y}};
+            lapOpts.scales.x={...lapOpts.scales.x,ticks:{...lapOpts.scales.x.ticks,maxTicksLimit:15},title:{display:true,text:'Lap',color:getComputedStyle(document.documentElement).getPropertyValue('--text2').trim(),font:{family:"'Space Grotesk',sans-serif",size:9}}};
+            lapOpts.scales.y={...lapOpts.scales.y,reverse:true,min:1,max:20,ticks:{...lapOpts.scales.y.ticks,stepSize:5}};
+            posCtx._chart=new Chart(posCtx,{type:'line',data:{labels:lapNums,datasets},options:lapOpts});
             posNote.textContent='Top 10 finishers · '+lapNums.length+' laps';
           }catch(e){
             posNote.textContent='Could not load lap data.';
@@ -2258,7 +2232,7 @@ document.getElementById('race-list').addEventListener('click', e=>{
         topDrivers.forEach(did=>{
           const dObj=liveDrivers.find(x=>x.driverId===did)||{last:did};
           const dStops=byDriver[did];
-          html+='<tr><td style="font-weight:500;color:var(--text);font-size:12px">'+dObj.last+'</td>'
+          html+='<tr><td style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;color:var(--text)">'+dObj.last+'</td>'
             +'<td class="pit-lap">'+dStops.length+' stop'+(dStops.length>1?'s':'')+'</td>'
             +'<td style="font-size:11px;color:var(--text3)">Laps: '+dStops.map(s=>s.lap).join(', ')+'</td></tr>';
         });
@@ -2272,9 +2246,6 @@ document.getElementById('race-list').addEventListener('click', e=>{
 // ── Chart ──
 
 // ── Table helpers ──
-function filterTable(tbodyId,q){
-  document.querySelectorAll(`#${tbodyId} tr`).forEach(r=>{r.style.display=(!q||r.dataset.search?.toLowerCase().includes(q.toLowerCase()))?'':'none';});
-}
 // ── CSV export ──
 function exportCSV(type){
   if(type==='drivers'&&!liveDrivers.length) return;
@@ -2333,6 +2304,22 @@ function renderTimeline(){
 
 function renderChampionshipDeepDive(){
   if(!standingsHistory.length) return;
+
+  // Read CSS variables at render time so charts adapt to light/dark mode
+  const cs=getComputedStyle(document.documentElement);
+  const tickColor=cs.getPropertyValue('--text2').trim()||'#73726c';
+  const gridColor=cs.getPropertyValue('--border').trim()||'rgba(0,0,0,0.1)';
+  const chartFont={family:"'Space Grotesk', sans-serif"};
+  const baseOpts=(yTitle='')=>({
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:tickColor,font:{...chartFont,size:10},boxWidth:10,padding:12}}},
+    scales:{
+      x:{ticks:{color:tickColor,font:{...chartFont,size:9},maxRotation:45},grid:{color:gridColor}},
+      y:{ticks:{color:tickColor,font:{...chartFont,size:9}},grid:{color:gridColor},
+         title:yTitle?{display:true,text:yTitle,color:tickColor,font:{...chartFont,size:9}}:{display:false}}
+    }
+  });
+
   const top5ids=standingsHistory[standingsHistory.length-1]?.standings.slice(0,5).map(d=>d.id)||[];
   const labels=standingsHistory.map(h=>h.race);
 
@@ -2348,7 +2335,7 @@ function renderChampionshipDeepDive(){
   const gapCtx=document.getElementById('champ-gap-chart');
   if(gapCtx){
     if(gapCtx._chart) gapCtx._chart.destroy();
-    gapCtx._chart=new Chart(gapCtx,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10},boxWidth:10}}},scales:{x:{ticks:{color:'#888',font:{size:9},maxRotation:45},grid:{color:'rgba(128,128,128,0.1)'}},y:{ticks:{color:'#888',font:{size:9}},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:'Championship points',color:'#888',font:{size:9}}}}}});
+    gapCtx._chart=new Chart(gapCtx,{type:'line',data:{labels,datasets},options:baseOpts('Championship points')});
   }
 
   // Championship leader each round
@@ -2357,12 +2344,14 @@ function renderChampionshipDeepDive(){
     leaderEl.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:4px">'+standingsHistory.map(h=>{
       const p1=h.standings[0];
       const col=p1?liveDrivers.find(d=>d.driverId===p1.id)?.color||'#888':'#888';
-      return p1?'<div style="background:var(--bg2);border:0.5px solid var(--border);border-left:3px solid '+col+';border-radius:4px;padding:4px 8px;font-size:11px"><span style="color:var(--text3);font-size:10px">Rd '+h.round+'</span><br><strong style="color:'+col+'">'+p1.last+'</strong></div>':'';
+      return p1?'<div style="background:var(--bg2);border:0.5px solid var(--border);border-left:3px solid '+col+';border-radius:4px;padding:4px 8px">'
+        +'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Rd '+h.round+'</div>'
+        +'<div style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:'+col+';text-transform:uppercase;letter-spacing:0.2px">'+p1.last+'</div>'
+        +'</div>':'';
     }).join('')+'</div>';
   }
 
-  // Performance rates chart — wins %, podiums %, points finishes %
-  // Use liveDrivers + race data from standingsHistory
+  // Win rate bar chart — top 8 drivers
   const top8=liveDrivers.slice(0,8);
   const totalRaces=standingsHistory.length;
   const rateDatasets=[
@@ -2371,7 +2360,9 @@ function renderChampionshipDeepDive(){
   const rateCtx=document.getElementById('champ-rate-chart');
   if(rateCtx){
     if(rateCtx._chart) rateCtx._chart.destroy();
-    rateCtx._chart=new Chart(rateCtx,{type:'bar',data:{labels:top8.map(d=>d.last),datasets:rateDatasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'% win rate ('+top8[ctx.dataIndex].wins+' wins)'}}},scales:{x:{ticks:{color:'#888',font:{size:10}},grid:{color:'rgba(128,128,128,0.1)'}},y:{ticks:{color:'#888',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:'Win %',color:'#888',font:{size:9}}}}}});
+    const rateOpts={...baseOpts('Win %'),plugins:{...baseOpts().plugins,legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'% win rate ('+top8[ctx.dataIndex].wins+' wins)'}}}};
+    rateOpts.scales.y={...baseOpts('Win %').scales.y,ticks:{...baseOpts().scales.y.ticks,callback:v=>v+'%'}};
+    rateCtx._chart=new Chart(rateCtx,{type:'bar',data:{labels:top8.map(d=>d.last),datasets:rateDatasets},options:rateOpts});
   }
 
   // Driver season snapshot — best race, worst race, pts/race average
