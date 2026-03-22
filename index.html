@@ -1321,7 +1321,7 @@ async function openDriverModal(driverId){
         out+='<span style="display:flex;align-items:center;gap:6px">';
         if(isDNF) out+='<span class="dnf-badge">'+status.toUpperCase().slice(0,6)+'</span>';
         out+='<span class="modal-result-pos'+(isDNF?' dnf':'')+'">'+(!isDNF?(pos==='1'?'🏆 P1':'P'+pos):'DNF')+'</span>';
-        if(totalRoundPts>0) out+='<span class="modal-result-pts">+'+totalRoundPts+' pts</span>';
+        if(totalRoundPts>0) out+='<span class="modal-result-pts">'+(!isDNF&&racePts>0?'+'+racePts+' pts':'')+'</span>';
         out+='</span></div>';
 
         // Meta row: quali pos, grid, places gained, laps, fastest lap
