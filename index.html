@@ -382,7 +382,7 @@
 
     /* Records panel */
     .records-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
-    .rc{background:var(--bg2);border-radius:8px;border:0.5px solid var(--border);overflow:hidden;}
+    .rc{background:var(--bg);border-radius:8px;border:0.5px solid var(--border);overflow:hidden;}
     .rc-head{padding:16px 18px 14px;border-bottom:0.5px solid var(--border);}
     .rc-category{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;}
     .rc-hero-num{font-family:'Barlow',sans-serif;font-weight:900;font-size:52px;letter-spacing:-2px;color:var(--red);line-height:1;}
@@ -2689,10 +2689,10 @@ async function loadRecords(){
     loadEl.style.display='none';
     el.style.display='';
 
-    function rc(title, rows, context='', note=''){
+    function rc(title, rows, context='', note='', heroOverride=''){
       const firstVal=rows[0].val;
       const tiedFirst=rows.filter(r=>r.val===firstVal);
-      const heroName=tiedFirst.map(r=>r.name.split(' ').pop().toUpperCase()).join(' · ');
+      const heroName=heroOverride||tiedFirst.map(r=>r.name.split(' ').pop().toUpperCase()).join(' · ');
       const heroContext=tiedFirst.length>1?'Joint record holders':context;
       const topNum=parseFloat(String(firstVal).replace(/[^0-9.]/g,''))||1;
       let html='<div class="rc">';
@@ -2755,7 +2755,7 @@ async function loadRecords(){
         {pos:3,name:'Michael Schumacher (2004)',val:'13'},{pos:3,name:'Sebastian Vettel (2013)',val:'13'},
         {pos:5,name:'Lewis Hamilton (2014)',val:'11'},{pos:5,name:'Lewis Hamilton (2019)',val:'11'},
         {pos:5,name:'Lewis Hamilton (2020)',val:'11'},{pos:5,name:'Michael Schumacher (2002)',val:'11'}],
-        '19 wins from 22 races in 2023')
+        '19 wins from 22 races in 2023','','VERSTAPPEN')
       +rc('Most races started',[
         {pos:1,name:'Fernando Alonso',val:'427'},{pos:2,name:'Lewis Hamilton',val:'352'},
         {pos:3,name:'Kimi Räikkönen',val:'349'},{pos:4,name:'Rubens Barrichello',val:'326'},
