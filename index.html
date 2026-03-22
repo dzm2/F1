@@ -1077,12 +1077,12 @@ const TEAM_INFO = {
   'ferrari':       { base:'Maranello, Italy',        principal:'Frédéric Vasseur',    power:'Ferrari',    founded:1929, f1Since:1950  },
   'mclaren':       { base:'Woking, England',         principal:'Andrea Stella',       power:'Mercedes',   founded:1963, f1Since:1966  },
   'red_bull':      { base:'Milton Keynes, England',  principal:'Laurent Mekies',      power:'Honda RBPT', founded:2004, f1Since:2005  },
-  'alpine':        { base:'Enstone, England',        principal:'Oliver Oakes',        power:'Renault',    founded:2020, f1Since:2021  },
-  'aston_martin':  { base:'Silverstone, England',    principal:'Andy Cowell',         power:'Mercedes',   founded:2018, f1Since:2021  },
+  'alpine':        { base:'Enstone, England',        principal:'Flavio Briatore',     power:'Mercedes',   founded:2020, f1Since:2021  },
+  'aston_martin':  { base:'Silverstone, England',    principal:'Adrian Newey',        power:'Honda',      founded:2018, f1Since:2021  },
   'williams':      { base:'Grove, England',          principal:'James Vowles',        power:'Mercedes',   founded:1977, f1Since:1977  },
   'haas':          { base:'Kannapolis, USA',         principal:'Ayao Komatsu',        power:'Ferrari',    founded:2014, f1Since:2016  },
-  'rb':            { base:'Faenza, Italy',           principal:'Laurent Mekies',      power:'Honda RBPT', founded:1985, f1Since:1985  },
-  'racing_bulls':  { base:'Faenza, Italy',           principal:'Laurent Mekies',      power:'Honda RBPT', founded:1985, f1Since:1985  },
+  'rb':            { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Honda RBPT', founded:1985, f1Since:1985  },
+  'racing_bulls':  { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Honda RBPT', founded:1985, f1Since:1985  },
   'kick_sauber':   { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993  },
   'sauber':        { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993  },
   'cadillac':      { base:'Concord, USA',            principal:'Graeme Lowdon',       power:'GM/Ferrari', founded:2024, f1Since:2026  },
@@ -2548,11 +2548,11 @@ function renderH2H(){
 function renderRegulations(){
   const regs=[
     {title:'Overtake Mode replaces DRS',body:'The active aerodynamic "Overtake Mode" lets drivers deploy a pre-set drag reduction configuration anywhere on track — not just in designated zones. Unlike DRS, both leading and trailing drivers can use it simultaneously, creating more complex strategic and racing scenarios.'},
-    {title:'50/50 power split — MGU-H removed',body:'New power unit regulations require an equal 550kW split between the internal combustion engine and electrical systems. The complex MGU-H (Motor Generator Unit — Heat) has been eliminated, reducing costs and enabling new manufacturers. The MGU-K is significantly more powerful.'},
+    {title:'50/50 power split — MGU-H removed',body:'New power unit regulations require an approximately equal split between the internal combustion engine and electrical systems, with the MGU-K producing around 350kW. The complex MGU-H (Motor Generator Unit — Heat) has been eliminated, reducing costs and enabling new manufacturers. The result is a simpler, more powerful hybrid system with greater emphasis on electrical energy recovery.'},
     {title:'Revised aerodynamic regulations',body:'Completely redesigned bodywork reduces car sensitivity to dirty air, making it easier to follow closely through corners. The floor generates less downforce proportionally, and the front wing is simpler. The goal is sustained wheel-to-wheel racing throughout entire laps.'},
     {title:'100% sustainable fuels mandatory',body:'All cars must run on fully sustainable fuel meeting F1\'s net-zero carbon criteria. Fuel suppliers developed compounds matching fossil fuel energy density. This applies to both the F1 cars and the broader event logistics under F1\'s sustainability programme.'},
     {title:'New team: Cadillac F1',body:'General Motors\' Cadillac brand joined as the 11th constructor — the first new F1 entry in over a decade. Based in Concord, North Carolina, the team uses a Ferrari customer power unit. Cadillac represents F1\'s expanding presence in the American market alongside Miami, Austin, and Las Vegas races.'},
-    {title:'Cars lighter and narrower',body:'The 2026 cars are lighter (minimum weight reduced) and 100mm narrower than the 2022–2025 generation. The narrower width creates more space for side-by-side racing and simplifies the aerodynamic challenge of following another car.'},
+    {title:'Cars lighter and narrower',body:'The 2026 cars are 32kg lighter (minimum weight down from 800kg to 768kg) and 100mm narrower than the 2022–2025 generation. The wheelbase is also 200mm shorter. The narrower width creates more space for side-by-side racing and the lower weight improves handling and agility, particularly at slow-speed corners.'},
   ];
   const el=document.getElementById('regs-list');
   regs.forEach(reg=>{
@@ -2689,7 +2689,7 @@ async function loadRecords(){
     loadEl.style.display='none';
     el.style.display='';
 
-    function rc(title, rows, context='', note='', heroOverride=''){
+    function rc(title, rows, context='', note='', heroOverride='', heroNum=''){
       const firstVal=rows[0].val;
       const tiedFirst=rows.filter(r=>r.val===firstVal);
       const heroName=heroOverride||tiedFirst.map(r=>r.name.split(' ').pop().toUpperCase()).join(' · ');
@@ -2698,7 +2698,7 @@ async function loadRecords(){
       let html='<div class="rc">';
       html+='<div class="rc-head">';
       html+='<div class="rc-category">'+title+'</div>';
-      html+='<div class="rc-hero-num">'+firstVal+'</div>';
+      html+='<div class="rc-hero-num">'+(heroNum||firstVal)+'</div>';
       html+='<div class="rc-hero-name">'+heroName+'</div>';
       if(heroContext) html+='<div class="rc-hero-context">'+heroContext+'</div>';
       html+='</div>';
@@ -2723,15 +2723,15 @@ async function loadRecords(){
     el.innerHTML='<div class="records-grid">'
       +rc('Most championships',[
         {pos:1,name:'Lewis Hamilton',val:'7'},{pos:1,name:'Michael Schumacher',val:'7'},
-        {pos:3,name:'Max Verstappen',val:'4'},{pos:4,name:'Alain Prost',val:'4'},
-        {pos:5,name:'Sebastian Vettel',val:'4'},{pos:6,name:'Ayrton Senna',val:'3'},
+        {pos:3,name:'Max Verstappen',val:'4'},{pos:3,name:'Alain Prost',val:'4'},
+        {pos:3,name:'Sebastian Vettel',val:'4'},{pos:6,name:'Ayrton Senna',val:'3'},
         {pos:6,name:'Jack Brabham',val:'3'},{pos:6,name:'Jackie Stewart',val:'3'}])
       +rc('Most race wins (all-time)',[
         {pos:1,name:'Lewis Hamilton',val:'105'},{pos:2,name:'Michael Schumacher',val:'91'},
         {pos:3,name:'Max Verstappen',val:'71'},{pos:4,name:'Sebastian Vettel',val:'53'},
         {pos:5,name:'Alain Prost',val:'51'},{pos:6,name:'Ayrton Senna',val:'41'},
         {pos:7,name:'Fernando Alonso',val:'32'},{pos:8,name:'Nigel Mansell',val:'31'}],
-        '34 more than Schumacher in 2nd')
+        '14 more than Schumacher in 2nd')
       +rc('Most pole positions (all-time)',[
         {pos:1,name:'Lewis Hamilton',val:'104'},{pos:2,name:'Michael Schumacher',val:'68'},
         {pos:3,name:'Ayrton Senna',val:'65'},{pos:4,name:'Sebastian Vettel',val:'57'},
@@ -2768,12 +2768,13 @@ async function loadRecords(){
         {pos:5,name:'Sebastian Vettel (2013)',val:'397'},{pos:6,name:'Nico Rosberg (2016)',val:'385'},
         {pos:7,name:'Lewis Hamilton (2015)',val:'381'},{pos:8,name:'Lewis Hamilton (2020)',val:'347'}],
         '575 pts — 19 wins from 22 races',
-        '25 pts per win. The 2023 total of 575 — from 19 wins in 22 races — is the most dominant season in F1 history.')
+        '25 pts per win. The 2023 total of 575 — from 19 wins in 22 races — is the most dominant season in F1 history.',
+        'VERSTAPPEN')
       +rc('Most grand slams',[
-        {pos:1,name:'Jim Clark',val:'8'},{pos:2,name:'Max Verstappen',val:'7'},
-        {pos:3,name:'Lewis Hamilton',val:'6'},{pos:4,name:'Michael Schumacher',val:'5'},
-        {pos:4,name:'Ayrton Senna',val:'5'},{pos:4,name:'Nigel Mansell',val:'5'},
-        {pos:7,name:'Alberto Ascari',val:'4'},{pos:7,name:'Sebastian Vettel',val:'4'}],
+        {pos:1,name:'Jim Clark',val:'8'},{pos:2,name:'Lewis Hamilton',val:'6'},
+        {pos:2,name:'Max Verstappen',val:'6'},{pos:4,name:'Alberto Ascari',val:'5'},
+        {pos:4,name:'Michael Schumacher',val:'5'},{pos:6,name:'Ayrton Senna',val:'4'},
+        {pos:6,name:'Nigel Mansell',val:'4'},{pos:6,name:'Sebastian Vettel',val:'4'}],
         'Pole, win, fastest lap & led every lap',
         'A grand slam means winning from pole, setting the fastest lap, and leading every single lap — the rarest achievement in F1.')
       +rc('Youngest world champions',[
@@ -2781,13 +2782,13 @@ async function loadRecords(){
         {pos:3,name:'Fernando Alonso (2005)',val:'24y 58d'},{pos:4,name:'Max Verstappen (2021)',val:'24y 73d'},
         {pos:5,name:'Emerson Fittipaldi (1972)',val:'25y 273d'},{pos:6,name:'Jochen Rindt (1970)',val:'28y 254d'},
         {pos:7,name:'Mike Hawthorn (1958)',val:'29y 178d'},{pos:8,name:'Jody Scheckter (1979)',val:'29y 259d'}],
-        'Vettel: 23 years old at his first title')
+        '23y 134d at his first title','','','VETTEL')
       +rc('Oldest world champions',[
         {pos:1,name:'Juan Manuel Fangio (1957)',val:'46y 41d'},{pos:2,name:'Giuseppe Farina (1950)',val:'44y 59d'},
         {pos:3,name:'Jack Brabham (1966)',val:'40y 40d'},{pos:4,name:'Nigel Mansell (1992)',val:'39y 9d'},
         {pos:5,name:'Mario Andretti (1978)',val:'38y 281d'},{pos:6,name:'Keke Rosberg (1982)',val:'34y 37d'},
         {pos:7,name:'Denny Hulme (1967)',val:'31y 104d'},{pos:8,name:'Jody Scheckter (1979)',val:'29y 259d'}],
-        'Fangio won his 5th title at 46')
+        '46y 41d at his final title','','','FANGIO')
       +rc('Most constructors championships',[
         {pos:1,name:'Ferrari',val:'16'},{pos:2,name:'McLaren',val:'10'},
         {pos:3,name:'Williams',val:'9'},{pos:4,name:'Mercedes',val:'8'},
@@ -2795,17 +2796,17 @@ async function loadRecords(){
         {pos:7,name:'Brabham',val:'2'},{pos:7,name:'Renault',val:'2'}],
         'Ferrari have more than anyone')
       +rc('Most constructor race wins',[
-        {pos:1,name:'Ferrari',val:'245'},{pos:2,name:'McLaren',val:'183'},
-        {pos:3,name:'Mercedes',val:'128'},{pos:4,name:'Red Bull',val:'122'},
+        {pos:1,name:'Ferrari',val:'248'},{pos:2,name:'McLaren',val:'203'},
+        {pos:3,name:'Mercedes',val:'133'},{pos:4,name:'Red Bull',val:'122'},
         {pos:5,name:'Williams',val:'114'},{pos:6,name:'Lotus',val:'79'},
         {pos:7,name:'Renault / Alpine',val:'35'},{pos:7,name:'Brabham',val:'35'}],
-        '62 more wins than McLaren in 2nd')
+        '45 more wins than McLaren in 2nd')
       +rc('Most consecutive constructors titles',[
         {pos:1,name:'Mercedes (2014–2021)',val:'8'},{pos:2,name:'Ferrari (1999–2004)',val:'6'},
         {pos:3,name:'Williams (1992–1997)',val:'5'},{pos:4,name:'McLaren (1988–1991)',val:'4'},
         {pos:4,name:'Red Bull (2010–2013)',val:'4'},{pos:6,name:'Lotus (1963–1965)',val:'3'},
         {pos:7,name:'McLaren (2024–2025)',val:'2'},{pos:7,name:'Ferrari (1975–1976)',val:'2'}],
-        'Mercedes: 8 in a row 2014–2021')
+        'Mercedes: 8 in a row 2014–2021','','MERCEDES')
       +rc('Closest finish',[
         {pos:1,name:'1971 Italian GP (Monza)',val:'0.010s'},{pos:2,name:'2002 Austrian GP',val:'0.011s'},
         {pos:3,name:'1986 Spanish GP',val:'0.014s'},{pos:4,name:'1969 Italian GP',val:'0.080s'},
@@ -2819,14 +2820,16 @@ async function loadRecords(){
         {pos:5,name:'Schumacher (2002)',val:'67 pts'},{pos:6,name:'Mansell (1992)',val:'52 pts'},
         {pos:7,name:'Senna (1988)',val:'36 pts'},{pos:8,name:'Schumacher (2004)',val:'34 pts'}],
         '290 points clear in 2023',
-        'The 290-point margin in 2023 means the nearest rival would have needed to win every remaining race just to get close.')
+        'The 290-point margin in 2023 means the nearest rival would have needed to win every remaining race just to get close.',
+        'VERSTAPPEN')
       +rc('Most grands prix at one circuit',[
-        {pos:1,name:'Monza (Italian GP)',val:'75'},{pos:2,name:'Monaco',val:'71'},
+        {pos:1,name:'Monza (Italian GP)',val:'76'},{pos:2,name:'Monaco',val:'72'},
         {pos:3,name:'Silverstone (British GP)',val:'60'},{pos:4,name:'Spa-Francorchamps',val:'55'},
         {pos:5,name:'Interlagos',val:'42'},{pos:6,name:'Nürburgring',val:'37'},
         {pos:7,name:'Hockenheimring',val:'36'},{pos:8,name:'Suzuka',val:'35'}],
-        'Monza has hosted F1 since 1950',
-        'Monza and Monaco have been on the F1 calendar almost every year since 1950, making them the spiritual homes of the sport.')
+        '76 times since 1950 — more than any other circuit',
+        'Monza and Monaco have been on the F1 calendar almost every year since 1950, making them the spiritual homes of the sport.',
+        'MONZA')
       +'</div>';
   }catch(e){
     loadEl.innerHTML='<div class="error-msg">Could not load records data.</div>';
