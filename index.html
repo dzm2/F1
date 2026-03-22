@@ -2850,7 +2850,7 @@ const RSS_FEEDS = [
   { url:'https://www.pitpass.com/rss/pitpass_fes_site_news.php', source:'pitpass.com', color:'#7c3aed' },
 ];
 
-const RSS2JSON='https://api.rss2json.com/v1/api.json?rss_url=';
+const RSS2JSON=`https://api.rss2json.com/v1/api.json?_=${Math.floor(Date.now()/3600000)}&rss_url=`;
 
 // ── Podcast feeds ──
 const PODCAST_FEEDS = [
