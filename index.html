@@ -126,12 +126,20 @@
     .modal-section-title { font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--text2); margin-bottom:8px; }
     .modal-loading-tag { font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:400; letter-spacing:0; text-transform:none; color:var(--text3); margin-left:6px; }
     .modal-results { display:flex; flex-direction:column; gap:4px; }
-    .modal-result-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:6px 0; border-bottom:0.5px solid var(--border); }
+    .modal-result-row { padding:10px 0; border-bottom:0.5px solid var(--border); }
     .modal-result-row:last-child { border-bottom:none; }
-    .modal-result-race { font-family:'Space Grotesk',sans-serif; color:var(--text); }
+    .modal-result-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+    .modal-result-race { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text); text-transform:uppercase; letter-spacing:0.2px; }
     .modal-result-pos { font-family:'Barlow',sans-serif; font-weight:900; font-size:15px; color:var(--text); }
     .modal-result-pos.dnf { color:var(--text2); }
     .modal-result-pts { font-family:'Space Grotesk',sans-serif; font-size:12px; color:var(--text2); }
+    .modal-result-meta { display:flex; gap:10px; flex-wrap:wrap; }
+    .modal-result-chip { font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; color:var(--text3); display:flex; align-items:center; gap:3px; }
+    .modal-result-chip.highlight { color:var(--text2); }
+    .modal-result-chip.fl { color:var(--gold); }
+    .modal-result-chip.gain { color:#22c55e; }
+    .modal-result-chip.loss { color:var(--red); }
+    .modal-result-sprint { background:var(--bg3); border-radius:4px; padding:4px 8px; margin-top:5px; display:flex; justify-content:space-between; align-items:center; }
 
     /* Constructor modal specifics */
     .con-modal-hero { border-radius:8px; padding:16px; margin-bottom:1rem; display:flex; align-items:center; gap:14px; }
@@ -637,7 +645,6 @@
           <a class="src-pill" href="https://www.motorsport.com/f1/news" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#e63946"></span>motorsport.com</a>
           <a class="src-pill" href="https://www.gpfans.com/en" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#6b21a8"></span>gpfans.com</a>
           <a class="src-pill" href="https://racer.com/f1" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#b45309"></span>racer.com</a>
-          <a class="src-pill" href="https://joesaward.wordpress.com" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#0f766e"></span>joesaward</a>
           <a class="src-pill" href="https://www.f1technical.net" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#0d9488"></span>f1technical.net</a>
           <a class="src-pill" href="https://www.gptoday.net" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#16a34a"></span>gptoday.net</a>
           <a class="src-pill" href="https://www.pitpass.com" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#7c3aed"></span>pitpass.com</a>
@@ -1127,13 +1134,16 @@ async function openDriverModal(driverId){
     <div class="modal-stats">
       <div class="modal-stat"><div class="modal-stat-label">Points</div><div class="modal-stat-value">${d.pts}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value">${d.wins}</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="ms-podiums">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Position</div><div class="modal-stat-value">P${d.pos}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Fastest laps</div><div class="modal-stat-value">${fastestLapCounts[driverId]||0}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Best quali</div><div class="modal-stat-value" id="ms-bestq">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Avg finish</div><div class="modal-stat-value" id="ms-avgfin">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Quali delta</div><div class="modal-stat-value small" id="ms-qdelta">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Pts/race</div><div class="modal-stat-value" id="ms-ppr">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Last 3 races</div><div class="modal-stat-value" id="ms-last3">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Did Not Finish</div><div class="modal-stat-value" id="ms-dnf">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">vs Teammate</div><div class="modal-stat-value small" id="ms-h2h">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Laps led</div><div class="modal-stat-value" id="ms-lapsled">—</div></div>
+      <div class="modal-stat" style="grid-column:span 2"><div class="modal-stat-label">vs Teammate</div><div class="modal-stat-value small" id="ms-h2h">—</div></div>
     </div>
 
     <hr class="modal-divider">
@@ -1178,9 +1188,12 @@ async function openDriverModal(driverId){
     }catch(e){ return []; }
   }
 
-  const [careerRaces, raceData] = await Promise.allSettled([
+  const [careerRaces, raceData, lapsData, sprintData, qualiData] = await Promise.allSettled([
     fetchAllCareerRaces(driverId),
     fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/results.json?limit=30`),
+    fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/laps.json?limit=1000`),
+    fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/sprint.json?limit=30`),
+    fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/qualifying.json?limit=30`),
   ]);
 
   // Career stats
@@ -1220,54 +1233,130 @@ async function openDriverModal(driverId){
   if(!mrEl) return;
   if(raceData.status==='fulfilled'){
     const results=raceData.value.MRData?.RaceTable?.Races||[];
+
+    // Build sprint points map: round -> {pts, pos}
+    const sprintPtsMap={};
+    if(sprintData.status==='fulfilled'){
+      (sprintData.value.MRData?.RaceTable?.Races||[]).forEach(r=>{
+        const sr=r.SprintResults?.[0];
+        if(sr) sprintPtsMap[r.round]={pts:parseFloat(sr.points||0),pos:sr.position,status:sr.status||''};
+      });
+    }
+
+    // Build qualifying map: round -> {q1,q2,q3,pos}
+    const qualiMap={};
+    if(qualiData.status==='fulfilled'){
+      (qualiData.value.MRData?.RaceTable?.Races||[]).forEach(r=>{
+        const qr=r.QualifyingResults?.[0];
+        if(qr) qualiMap[r.round]={pos:qr.position,q1:qr.Q1||'',q2:qr.Q2||'',q3:qr.Q3||''};
+      });
+    }
+
     if(!results.length){ mrEl.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 0">No results yet this season.</div>'; }
     else{
-      // Compute per-season stats
-      let finPositions=[],qualiPositions=[],dnfCount=0,totalPts=0;
+      // Compute per-season stats — include sprint points in totals
+      let finPositions=[],qualiPositions=[],dnfCount=0,totalPts=0,podiums=0;
       results.forEach(r=>{
         const res=r.Results[0]; if(!res) return;
         const pos=parseInt(res.position||0);
         const status=res.status||'';
         const isDNF=status&&status!=='Finished'&&!status.startsWith('+');
-        if(isDNF) dnfCount++; else if(pos>0) finPositions.push(pos);
+        if(isDNF) dnfCount++; else if(pos>0){ finPositions.push(pos); if(pos<=3) podiums++; }
         const grid=parseInt(res.grid||0);
         if(grid>0) qualiPositions.push(grid);
-        totalPts+=parseFloat(res.points||0);
+        totalPts+=parseFloat(res.points||0)+(sprintPtsMap[r.round]?.pts||0);
       });
       const bestQ=qualiPositions.length?'P'+Math.min(...qualiPositions):'—';
-      const avgFin=finPositions.length?(finPositions.reduce((a,b)=>a+b,0)/finPositions.length).toFixed(1):'—';
       const ppr=results.length?(totalPts/results.length).toFixed(1):'—';
+      // Quali delta — average places gained from grid to finish (positive = gains places)
+      const deltas=results.map(r=>{
+        const res=r.Results[0]; if(!res) return null;
+        const grid=parseInt(res.grid||0);
+        const pos=parseInt(res.position||0);
+        const isDNF=(res.status||'')&&res.status!=='Finished'&&!res.status?.startsWith('+');
+        return(grid>0&&pos>0&&!isDNF)?grid-pos:null;
+      }).filter(x=>x!==null);
+      const qDelta=deltas.length?(deltas.reduce((a,b)=>a+b,0)/deltas.length):null;
+      const qDeltaText=qDelta===null?'—':(qDelta>=0?'+':'')+qDelta.toFixed(1);
+      // Last 3 races points — include sprint points
+      const last3=results.slice(-3);
+      const last3pts=last3.reduce((s,r)=>s+parseFloat(r.Results[0]?.points||0)+(sprintPtsMap[r.round]?.pts||0),0);
       const teammate=liveDrivers.find(x=>x.team===d.team&&x.driverId!==driverId);
       let h2hText='—';
       if(teammate){
         const diff=d.pts-teammate.pts;
         h2hText=diff>0?'+'+diff+' vs '+teammate.last:diff<0?diff+' vs '+teammate.last:'Tied vs '+teammate.last;
       }
-      const bqEl=document.getElementById('ms-bestq');  if(bqEl) bqEl.textContent=bestQ;
-      const afEl=document.getElementById('ms-avgfin'); if(afEl) afEl.textContent=avgFin==='—'?'—':'P'+avgFin;
-      const ppEl=document.getElementById('ms-ppr');    if(ppEl) ppEl.textContent=ppr;
-      const dnEl=document.getElementById('ms-dnf');    if(dnEl) dnEl.textContent=dnfCount;
-      const h2El=document.getElementById('ms-h2h');    if(h2El) h2El.textContent=h2hText;
+      const bqEl=document.getElementById('ms-bestq');     if(bqEl) bqEl.textContent=bestQ;
+      const pdEl=document.getElementById('ms-podiums');   if(pdEl) pdEl.textContent=podiums;
+      const qdEl=document.getElementById('ms-qdelta');    if(qdEl) qdEl.textContent=qDeltaText;
+      const ppEl=document.getElementById('ms-ppr');       if(ppEl) ppEl.textContent=ppr;
+      const l3El=document.getElementById('ms-last3');     if(l3El) l3El.textContent=results.length>=1?last3pts+' pts':'—';
+      const dnEl=document.getElementById('ms-dnf');       if(dnEl) dnEl.textContent=dnfCount;
+      const h2El=document.getElementById('ms-h2h');       if(h2El) h2El.textContent=h2hText;
       mrEl.innerHTML='<div class="modal-results">'+results.map(r=>{
         const res=r.Results[0];
         const status=res?.status||'';
         const isDNF=status&&status!=='Finished'&&!status.startsWith('+');
         const pos=res?.position||'—';
-        const pts=parseFloat(res?.points||0);
-        return '<div class="modal-result-row">'
-          +'<span class="modal-result-race">'+r.raceName.replace(' Grand Prix','')+'</span>'
-          +'<span style="display:flex;align-items:center;gap:8px">'
-          +(isDNF?'<span class="dnf-badge">'+status.toUpperCase().slice(0,6)+'</span>':'')
-          +'<span class="modal-result-pos '+(isDNF?'dnf':'')+'">'+( isDNF?'DNF':pos==='1'?'🏆 1':pos)+'</span>'
-          +'<span class="modal-result-pts">'+(pts>0?'+'+pts+'pts':'')+'</span>'
-          +'</span></div>';
+        const racePts=parseFloat(res?.points||0);
+        const sData=sprintPtsMap[r.round];
+        const spts=sData?.pts||0;
+        const totalRoundPts=racePts+spts;
+        const grid=parseInt(res?.grid||0);
+        const finPos=parseInt(res?.position||0);
+        const gain=(!isDNF&&grid>0&&finPos>0)?grid-finPos:null;
+        const isFl=res?.FastestLap?.rank==='1'||res?.FastestLap?.rank===1;
+        const flTime=res?.FastestLap?.Time?.time||'';
+        const laps=res?.laps||'';
+        const qData=qualiMap[r.round];
+        const qPos=qData?.pos;
+        const qBest=qData?.q3||qData?.q2||qData?.q1||'';
+        const raceName=r.raceName.replace(' Grand Prix','');
+
+        let out='<div class="modal-result-row">';
+        // Header: race name + finishing position + points
+        out+='<div class="modal-result-header">';
+        out+='<span class="modal-result-race">'+raceName+'</span>';
+        out+='<span style="display:flex;align-items:center;gap:6px">';
+        if(isDNF) out+='<span class="dnf-badge">'+status.toUpperCase().slice(0,6)+'</span>';
+        out+='<span class="modal-result-pos'+(isDNF?' dnf':'')+'">'+(!isDNF?(pos==='1'?'🏆 P1':'P'+pos):'DNF')+'</span>';
+        if(totalRoundPts>0) out+='<span class="modal-result-pts">+'+totalRoundPts+' pts</span>';
+        out+='</span></div>';
+
+        // Meta row: quali pos, grid, places gained, laps, fastest lap
+        out+='<div class="modal-result-meta">';
+        if(qPos) out+='<span class="modal-result-chip highlight">Q: P'+qPos+(qBest?' · '+qBest:'')+'</span>';
+        if(grid>0) out+='<span class="modal-result-chip highlight">Grid: P'+grid+'</span>';
+        if(gain!==null&&gain!==0) out+='<span class="modal-result-chip '+(gain>0?'gain':'loss')+'">'+(gain>0?'▲'+gain:'▼'+Math.abs(gain))+' places</span>';
+        if(gain===0&&!isDNF) out+='<span class="modal-result-chip">= position held</span>';
+        if(laps) out+='<span class="modal-result-chip">'+laps+' laps</span>';
+        if(isFl) out+='<span class="modal-result-chip fl">⚡ Fastest lap'+(flTime?' · '+flTime:'')+'</span>';
+        out+='</div>';
+
+        // Sprint sub-row if this was a sprint weekend
+        if(sData){
+          const sIsDNF=sData.status&&sData.status!=='Finished'&&!sData.status.startsWith('+');
+          out+='<div class="modal-result-sprint">';
+          out+='<span style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Sprint</span>';
+          out+='<span style="display:flex;align-items:center;gap:6px">';
+          out+='<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text2)">'+(sIsDNF?'DNF':'P'+sData.pos)+'</span>';
+          if(spts>0) out+='<span class="modal-result-pts">+'+spts+' pts</span>';
+          out+='</span></div>';
+        }
+
+        out+='</div>';
+        return out;
       }).join('')+'</div>';
 
       // ── Deep dive charts ──
       const labels=results.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
-      // Points progression (cumulative)
+      // Points progression (cumulative) — include sprint points
       let cumPts=0;
-      const ptsData=results.map(r=>{cumPts+=parseFloat(r.Results[0]?.points||0);return cumPts;});
+      const ptsData=results.map(r=>{
+        cumPts+=parseFloat(r.Results[0]?.points||0)+(sprintPtsMap[r.round]?.pts||0);
+        return cumPts;
+      });
       // Qualifying vs Race position
       const qualiData=results.map(r=>parseInt(r.Results[0]?.grid||0)||null);
       const raceData2=results.map(r=>{
@@ -1313,6 +1402,24 @@ async function openDriverModal(driverId){
     }
   } else {
     mrEl.innerHTML='<div class="error-msg" style="padding:8px">Could not load results.</div>';
+  }
+
+  // Laps led — count laps where this driver held P1
+  const llEl=document.getElementById('ms-lapsled');
+  if(llEl){
+    if(lapsData.status==='fulfilled'){
+      const races=lapsData.value.MRData?.RaceTable?.Races||[];
+      let lapsLed=0;
+      races.forEach(race=>{
+        (race.Laps||[]).forEach(lap=>{
+          const leader=(lap.Timings||[]).find(t=>t.position==='1');
+          if(leader&&leader.driverId===driverId) lapsLed++;
+        });
+      });
+      llEl.textContent=lapsLed;
+    } else {
+      llEl.textContent='—';
+    }
   }
 }
 function closeModal(e){
@@ -2712,7 +2819,6 @@ const RSS_FEEDS = [
   { url:'https://www.motorsport.com/rss/f1/news/', source:'motorsport.com',  color:'#e63946' },
   { url:'https://www.gpfans.com/en/rss/',          source:'gpfans.com',      color:'#6b21a8' },
   { url:'https://racer.com/f1/feed/',              source:'racer.com',       color:'#b45309' },
-  { url:'https://joesaward.wordpress.com/feed/',   source:'joesaward',       color:'#0f766e' },
   { url:'https://www.f1technical.net/rss/news.xml',source:'f1technical.net', color:'#0d9488' },
   { url:'https://www.gptoday.net/rss.php',         source:'gptoday.net',     color:'#16a34a' },
   { url:'https://www.pitpass.com/rss/pitpass_fes_site_news.php', source:'pitpass.com', color:'#7c3aed' },
