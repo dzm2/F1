@@ -2497,7 +2497,7 @@ function renderChampionshipDeepDive(){
 
     bwEl.innerHTML='<div style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">Driver season snapshot</div>'
       +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px">'
-      +liveDrivers.slice(0,10).map(d=>{
+      +liveDrivers.map(d=>{
         const col=d.color||'#888';
         const results=driverResults[d.driverId]||[];
         const numericResults=results.filter(r=>r.pos!=='DNF');
@@ -2535,7 +2535,9 @@ function renderH2H(){
       +'<div class="h2h-row"><span class="h2h-name">'+a.last+'</span>'
       +'<div class="h2h-bar-bg"><div class="h2h-bar-a" style="width:'+pctA+'%;background:'+color+'"></div><div class="h2h-bar-b" style="width:'+(100-pctA)+'%"></div></div>'
       +'<span class="h2h-val">'+a.pts+'</span></div>'
-      +'<div class="h2h-row"><span class="h2h-name">'+b.last+'</span><span class="h2h-val" style="color:var(--text2)">'+b.pts+'</span></div>'
+      +'<div class="h2h-row"><span class="h2h-name">'+b.last+'</span>'
+      +'<div class="h2h-bar-bg"><div class="h2h-bar-a" style="width:'+(100-pctA)+'%;background:'+color+'88"></div><div class="h2h-bar-b" style="width:'+pctA+'%"></div></div>'
+      +'<span class="h2h-val" style="color:var(--text2)">'+b.pts+'</span></div>'
       +'<div class="h2h-cat">Wins</div>'
       +'<div class="h2h-row"><span class="h2h-name">'+a.last+'</span><span class="h2h-val">'+a.wins+'</span></div>'
       +'<div class="h2h-row"><span class="h2h-name">'+b.last+'</span><span class="h2h-val" style="color:var(--text2)">'+b.wins+'</span></div>';
