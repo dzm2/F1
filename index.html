@@ -370,7 +370,7 @@
 
     /* H2H */
     .h2h-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:4px;}
-    .h2h-card{background:var(--bg2);border-radius:8px;padding:14px;border:0.5px solid var(--border);}
+    .h2h-card{background:var(--bg);border-radius:8px;padding:14px;border:0.5px solid var(--border);}
     .h2h-team{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:8px;padding-bottom:6px;}
     .h2h-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;}
     .h2h-name{flex:1;font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);}
@@ -402,11 +402,11 @@
     .rc-row.p1 .rc-val{color:var(--red);font-size:17px;}
 
     /* Regs + Team assessments */
-    .reg-card{background:var(--bg2);border-radius:8px;padding:16px 18px;border:0.5px solid var(--border);border-left:4px solid var(--red);margin-bottom:8px;}
+    .reg-card{background:var(--bg);border-radius:8px;padding:16px 18px;border:0.5px solid var(--border);border-left:4px solid var(--red);margin-bottom:8px;}
     .reg-card-title{font-family:'Barlow',sans-serif;font-weight:900;font-size:16px;color:var(--text);margin-bottom:6px;}
     .reg-card-body{font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--text2);line-height:1.6;}
     .assess-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
-    .assess-card{background:var(--bg2);border-radius:8px;padding:14px 16px;border:0.5px solid var(--border);}
+    .assess-card{background:var(--bg);border-radius:8px;padding:14px 16px;border:0.5px solid var(--border);}
     .assess-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
     .assess-team{font-family:'Barlow',sans-serif;font-weight:900;font-size:16px;color:var(--text);letter-spacing:-0.2px;}
     .assess-rating{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:20px;margin-left:auto;}
@@ -448,14 +448,7 @@
         </div>
         <button onclick="closeSettings()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:18px;padding:0;line-height:1">✕</button>
       </div>
-      <label style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px">Anthropic API Key</label>
-      <div style="position:relative">
-        <input id="api-key-input" type="text" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box;background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;padding:9px 48px 9px 12px;color:var(--text);font-size:13px;font-family:monospace;outline:none;-webkit-text-security:disc">
-        <button onclick="toggleApiKeyVisibility()" id="api-key-toggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text2);font-size:11px;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.5px;padding:2px 4px">Show</button>
-      </div>
-      <div style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5">Required for AI team assessments. Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--info)">console.anthropic.com</a>. Your key is never sent anywhere except the Anthropic API.</div>
-      <button onclick="saveApiKey()" style="margin-top:14px;width:100%;display:flex;align-items:center;justify-content:center;background:#E10600;color:#fff;border:none;border-radius:8px;padding:11px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">Save Key</button>
-      <div id="api-key-status" style="font-size:12px;color:var(--text2);margin-top:8px;text-align:center;min-height:16px"></div>
+
     </div>
   </div>
 
@@ -612,10 +605,21 @@
       <hr class="modal-divider" style="margin:1rem 0">
       <div class="section-group-label" style="display:flex;align-items:center;justify-content:space-between">
         <span>Team season assessments</span>
-        <button class="icon-btn" id="assess-btn" onclick="generateAssessments()">✦ Generate with AI</button>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--text3);margin-left:auto">After round 2 · China</span>
       </div>
-      <div id="assess-status" style="font-size:12px;color:var(--text2);margin-bottom:8px;display:none"></div>
-      <div class="assess-grid" id="assess-grid"></div>
+      <div class="assess-grid" id="assess-grid">
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">MERCEDES</span><span class="assess-rating rating-strong">Strong</span></div><div class="assess-body">Dominant through the opening two rounds. Back-to-back 1-2 finishes in Australia and China have put them nearly 100 points clear — a stunning start to the new regulation era. Russell and Antonelli are pulling away before most rivals have found their footing.</div></div>
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">FERRARI</span><span class="assess-rating rating-strong">Competitive</span></div><div class="assess-body">The only team able to stay in sight of Mercedes. Hamilton's first Ferrari podium in China and Leclerc's consistent pace suggest the Scuderia have a genuine challenger — but they need to close a 31-point gap before the season escapes them.</div></div>
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">MCLAREN</span><span class="assess-rating rating-struggling">Struggling</span></div><div class="assess-body">A catastrophic start. Both cars failed to start in China after power unit problems, and Piastri also missed Australia. Stuck on 18 points after two rounds, already 80 behind Mercedes. The reigning champions need answers urgently.</div></div>
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">HAAS</span><span class="assess-rating rating-mid">Midfield</span></div><div class="assess-body">The surprise package of the early season. Bearman has been exceptional — a fifth in China moved them above Red Bull in the standings. Ocon is yet to score but the pace is there. A genuine midfield contender if they can maintain this level.</div></div>
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">RED BULL</span><span class="assess-rating rating-mid">Midfield</span></div><div class="assess-body">A deeply difficult start for the most dominant team of the recent era. Two retirements in two grands prix for Verstappen, with Hadjar also crashing out in Australia. Just 12 points on the board. The new regulations have not been kind to them yet.</div></div>
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">RACING BULLS</span><span class="assess-rating rating-mid">Midfield</span></div><div class="assess-body">Quietly solid. Lawson scored in both the sprint and the race in China, and they sit level on points with Red Bull. A more consistent weekend-to-weekend team than their senior partner so far, which will make for interesting internal politics.</div></div>
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">ALPINE</span><span class="assess-rating rating-mid">Midfield</span></div><div class="assess-body">Gasly delivered a points finish in China with a sixth place, putting Alpine in a respectable position in the early standings. Under Briatore's renewed leadership, there are signs of stability — but they need both cars scoring consistently to push higher.</div></div>
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">WILLIAMS</span><span class="assess-rating rating-struggling">Struggling</span></div><div class="assess-body">A painful start — Albon failed to start in China with hydraulic issues and the team has just 2 points to show. Colapinto grabbed a point in China which offered some relief. The pace isn't there yet and they need reliability before anything else.</div></div>
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">AUDI</span><span class="assess-rating rating-struggling">Struggling</span></div><div class="assess-body">Two rounds in and still searching for a points finish. Bortoleto failed to start in China with hydraulic problems and Hülkenberg has been unable to convert pace into results. A transitional team in a transition year — patience is required.</div></div>
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">ASTON MARTIN</span><span class="assess-rating rating-struggling">Backmarker</span></div><div class="assess-body">Zero points after two races. Alonso and Stroll are yet to threaten the top ten. The team that challenged for race wins in 2023 looks a long way from that form under the new regulations. A tough season lies ahead unless development comes quickly.</div></div>
+        <div class="assess-card"><div class="assess-header"><span class="assess-team">CADILLAC</span><span class="assess-rating rating-struggling">Backmarker</span></div><div class="assess-body">The new American entry faces the steep learning curve expected of a first-year team. Zero points, and Bottas and Pérez are finding life tough at the back. But making the grid and racing cleanly is itself an achievement in year one.</div></div>
+      </div>
     </div>
   </div>
 
@@ -2392,7 +2396,6 @@ async function loadSeasonTab(){
   renderChampionshipDeepDive();
   renderH2H();
   renderRegulations();
-  renderTeamAssessments();
 }
 
 function renderTimeline(){
@@ -2564,123 +2567,9 @@ function renderRegulations(){
   });
 }
 
-function renderTeamAssessments(){
-  // Show placeholder cards until AI generates real ones
-  const el=document.getElementById('assess-grid');
-  el.innerHTML='<div style="grid-column:1/-1;font-size:13px;color:var(--text2);padding:8px 0">'
-    +'Click <strong>✦ Generate with AI</strong> to produce assessments based on live season data.</div>';
-}
 
-async function generateAssessments(){
-  const el=document.getElementById('assess-grid');
-  const btn=document.getElementById('assess-btn');
-  const status=document.getElementById('assess-status');
 
-  if(!liveConstructors.length){
-    status.style.display='block';
-    status.textContent='Season data not yet loaded — please wait for standings to fetch.';
-    return;
-  }
 
-  btn.disabled=true;
-  btn.textContent='✦ Generating...';
-  status.style.display='block';
-  status.textContent='Sending live data to Claude...';
-  el.innerHTML='<div style="grid-column:1/-1" class="loading"><div class="loading-spinner"></div><div class="loading-text">Generating assessments from live data...</div></div>';
-
-  // Build a data summary from live standings and reliability
-  const racesCompleted=standingsHistory.length;
-  const teamSummaries=liveConstructors.map(c=>{
-    const name=cleanConstructorName(c.Constructor.name);
-    const pts=parseFloat(c.points);
-    const wins=parseInt(c.wins);
-    const pos=parseInt(c.position);
-    const drivers=liveDrivers.filter(d=>d.team===name).slice(0,2);
-    const driverLines=drivers.map(d=>{
-      const dnfs=0; // approximated — we don't track per-driver DNFs globally
-      return d.first+' '+d.last+': P'+d.pos+' championship, '+d.pts+' pts, '+d.wins+' wins';
-    }).join('; ');
-    return 'P'+pos+' '+name+': '+pts+' pts, '+wins+' wins, '+racesCompleted+' races. Drivers: '+driverLines+'.';
-  }).join('\n');
-
-  const prompt=`You are an expert Formula 1 analyst. Based on the following LIVE 2026 season standings data, write a short honest assessment (2-3 sentences) for each constructor. Be factual and direct — base your assessment entirely on the numbers provided, not on pre-season expectations. If a team has zero points or poor reliability, say so clearly.
-
-Important context: Cadillac is a brand new constructor in their debut F1 season in 2026. When assessing them, factor in that completing races, building experience, and developing their infrastructure are legitimate measures of success for a first-year team. Do not judge them by the same standards as established constructors.
-
-After each assessment, classify the team as exactly one of: Strong, Competitive, Midfield, Struggling, or Backmarker.
-
-Format your response as valid JSON only, no other text:
-[
-  {"team": "Team Name", "rating": "Rating", "assessment": "Your assessment here."},
-  ...
-]
-
-Live 2026 standings after ${racesCompleted} race${racesCompleted!==1?'s':''} completed:
-${teamSummaries}`;
-
-  const apiKey=lsGet('anthropic_api_key','');
-  if(!apiKey){
-    el.innerHTML='<div class="error-msg" style="grid-column:1/-1">No API key found. Click <strong>⚙ Settings</strong> in the header to add your Anthropic API key.</div>';
-    status.style.display='block';
-    status.textContent='API key required.';
-    btn.disabled=false; btn.textContent='✦ Generate with AI';
-    return;
-  }
-
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true',
-        'x-api-key':apiKey,
-      },
-      body:JSON.stringify({
-        model:'claude-sonnet-4-5',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    if(!res.ok){
-      const errData=await res.json().catch(()=>({}));
-      throw new Error('API error '+res.status+': '+(errData.error?.message||JSON.stringify(errData)));
-    }
-    const data=await res.json();
-    const text=(data.content||[]).map(b=>b.text||'').join('').trim();
-    if(!text) throw new Error('Empty response from API');
-    const clean=text.replace(/```json|```/g,'').trim();
-    let assessments;
-    try{ assessments=JSON.parse(clean); }
-    catch(e){ throw new Error('Could not parse API response as JSON'); }
-    if(!Array.isArray(assessments)||!assessments.length) throw new Error('Unexpected response format');
-
-    el.innerHTML='';
-    assessments.forEach(a=>{
-      const name=sanitise(a.team||'Unknown');
-      const color=teamColor(a.team||'');
-      const rating=sanitise(a.rating||'Midfield');
-      const assessment=sanitise(a.assessment||'');
-      const cls=a.rating==='Strong'?'rating-strong':a.rating==='Competitive'?'rating-strong':a.rating==='Struggling'?'rating-struggling':a.rating==='Backmarker'?'rating-struggling':'rating-mid';
-      const d=document.createElement('div'); d.className='assess-card';
-      d.innerHTML='<div class="assess-header">'
-        +'<div style="width:4px;height:26px;border-radius:2px;background:'+color+'"></div>'
-        +'<span class="assess-team">'+name.toUpperCase()+'</span>'
-        +'<span class="assess-rating '+cls+'">'+rating+'</span>'
-        +'</div><div class="assess-body">'+assessment+'</div>';
-      el.appendChild(d);
-    });
-
-    const now=new Date().toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-    status.textContent='Generated from live data · '+racesCompleted+' races completed · '+now;
-    btn.textContent='✦ Regenerate';
-  }catch(e){
-    el.innerHTML='<div class="error-msg" style="grid-column:1/-1">Could not generate assessments: '+e.message+'</div>';
-    status.textContent='Generation failed. Try again.';
-    btn.textContent='✦ Generate with AI';
-  }
-  btn.disabled=false;
-}
 
 // ── All-time Records ──
 async function loadRecords(){
@@ -3102,14 +2991,6 @@ function filterNews(cat,btn){
 })();
 
 
-function toggleApiKeyVisibility(){
-  const input=document.getElementById('api-key-input');
-  const btn=document.getElementById('api-key-toggle');
-  const masked=input.style.webkitTextSecurity==='disc';
-  input.style.webkitTextSecurity=masked?'none':'disc';
-  btn.textContent=masked?'Hide':'Show';
-}
-
 // ── Welcome banner ──
 (function(){
   if(!lsGet('s3_welcome_dismissed')){
@@ -3123,19 +3004,9 @@ function dismissWelcome(){
 
 // ── Settings ──
 function openSettings(){
-  const stored=lsGet('anthropic_api_key','');
-  document.getElementById('api-key-input').value=stored;
-  document.getElementById('api-key-status').textContent=stored?'✓ Key saved':'No key saved yet';
   document.getElementById('settings-modal').classList.remove('hidden');
 }
 function closeSettings(){ document.getElementById('settings-modal').classList.add('hidden'); }
-function saveApiKey(){
-  const key=document.getElementById('api-key-input').value.trim();
-  if(!key){ document.getElementById('api-key-status').textContent='Please enter a key.'; return; }
-  if(!key.startsWith('sk-ant-')){ document.getElementById('api-key-status').textContent='Key should start with sk-ant-'; return; }
-  lsSet('anthropic_api_key',key);
-  document.getElementById('api-key-status').textContent='✓ Key saved successfully';
-}
 
 
 async function loadAll(){
