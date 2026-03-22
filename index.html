@@ -51,7 +51,7 @@
 
     /* Season stats strip */
     .season-stats-strip { display:grid; grid-template-columns:repeat(4,1fr); background:var(--bg); border-bottom:0.5px solid var(--border); }
-    .season-stat { text-align:center; padding:16px 12px; border-right:0.5px solid var(--border); }
+    .season-stat { text-align:center; padding:16px 12px; border-right:0.5px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; }
     .season-stat:last-child { border-right:none; }
     .season-stat-val { font-family:'Barlow',sans-serif; font-weight:900; font-size:28px; letter-spacing:-1px; color:var(--text); line-height:1; }
     .season-stat-val.season-stat-countdown { font-size:20px; letter-spacing:-0.5px; color:var(--red); }
@@ -101,7 +101,6 @@
     .pts-shade{display:none;}
     .pts-num{position:relative;z-index:1;}
     .wins-cell{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;text-align:center;color:var(--text3);}
-    .wins-cell.has-wins { color:#B8922A; }
     .gap-cell{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--text2);text-align:right;white-space:nowrap;}
     .con-name{font-family:'Barlow',sans-serif;font-size:16px;font-weight:900;letter-spacing:.3px;}
     .export-row { display:flex; justify-content:flex-end; margin-bottom:8px; }
@@ -291,7 +290,7 @@
     .chart-caption{font-size:11px;color:var(--text3);text-align:center;margin-top:8px;}
 
     /* Sources */
-    .f1-sources{margin-top:1.5rem;padding-top:1rem;border-top:0.5px solid var(--border);}
+    .f1-sources{margin-top:1.5rem;padding:1rem 2rem 1.5rem;border-top:0.5px solid var(--border);}
     .sources-label{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
     .sources-groups{display:flex;flex-direction:column;gap:10px;}
     .sources-group{display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap;}
@@ -935,7 +934,7 @@ function startCountdown(dateStr,name){
     const h=Math.floor((diff%86400000)/3600000);
     const m=Math.floor((diff%3600000)/60000);
     const s=Math.floor((diff%60000)/1000);
-    const str=d>0?`${d}d ${h}h ${m}m`:`${h}h ${m}m ${s}s`;
+    const str=d>0?`${d}d ${h}h ${m}m ${s}s`:`${h}h ${m}m ${s}s`;
     if(el){ el.textContent=str; el.className='season-stat-val season-stat-countdown'; }
   }
   tick(); _cdInterval=setInterval(tick,1000);
@@ -997,7 +996,7 @@ async function loadDriverStandings(){
       ? '<span class="champ-badge champ-eliminated" title="Mathematically eliminated">OUT</span>'
       : (d.pos===1&&racesLeft===0?'<span class="champ-badge champ-winner">✓ Champion</span>':'');
     const rookieBadge=isRookie?'<span class="rookie-badge">R</span>':'';
-    const winsClass=d.wins>0?'wins-cell has-wins':'wins-cell';
+    const winsClass='wins-cell';
     dtb.innerHTML+=`<tr class="${d.pos===1?'p1':''}" data-search="${d.first} ${d.last} ${d.team}" onclick="openDriverModal('${d.driverId}')">
       <td class="f1-pos">${d.pos}</td>
       <td style="padding-right:0;width:4px"><div class="team-pip" style="background:${d.color}"></div></td>
