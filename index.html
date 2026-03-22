@@ -13,20 +13,22 @@
     :root {
       --red:#E10600; --gold:#c89b3c; --green:#22c55e;
       --bg:#ffffff; --bg2:#f5f4f0; --bg3:#edecea;
+      --canvas:#E10600;
       --text:#1a1a18; --text2:#73726c; --text3:#9c9a92;
       --border:rgba(0,0,0,0.1); --border2:rgba(0,0,0,0.22);
       --info:#185fa5; --shadow:rgba(0,0,0,0.08);
     }
     [data-theme="dark"] {
       --bg:#1c1c1a; --bg2:#252523; --bg3:#2e2e2b;
+      --canvas:#A50400;
       --text:#e8e6de; --text2:#9c9a92; --text3:#6b6963;
       --border:rgba(255,255,255,0.1); --border2:rgba(255,255,255,0.22);
       --info:#85b7eb; --shadow:rgba(0,0,0,0.3);
     }
     html { scroll-behavior:smooth; }
-    body { font-family:'Space Grotesk',sans-serif; background:var(--bg3); color:var(--text); min-height:100vh; padding:2rem 1rem; transition:background .2s,color .2s; }
+    body { font-family:'Space Grotesk',sans-serif; background:var(--canvas); color:var(--text); min-height:100vh; padding:2rem 1rem; transition:background .2s,color .2s; }
     .container { max-width:960px; margin:0 auto; }
-    .dash { background:var(--bg3); border-radius:12px; padding:0; border:0.5px solid var(--border); overflow:hidden; }
+    .dash { background:var(--bg3); border-radius:12px; padding:0; border:none; overflow:hidden; }
     .dash-inner { padding:1.5rem 2rem; background:var(--bg3); }
 
     /* Header */
@@ -320,9 +322,8 @@
     #back-top{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:8px 12px;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);cursor:pointer;display:none;transition:all .15s;z-index:100;}
     #back-top.show{display:block;} #back-top:hover{color:var(--text);border-color:var(--border2);}
 
-    /* Print */
     @media print {
-      body{background:#fff;padding:0;} .dash{box-shadow:none;border:none;padding:1rem;}
+      body{background:#fff!important;padding:0;} .dash{box-shadow:none;border:none;padding:1rem;}
       .icon-btn,#back-top,.news-filter,.export-row,.search-wrap,.modal-overlay{display:none!important;}
       .f1-tab{display:none;} .f1-panel{display:block!important;}
     }
@@ -784,14 +785,17 @@ function cleanConstructorName(n){
 }
 function flag(n){ return flagMap[n]||'🏁'; }
 
+// Safe localStorage wrapper — silently fails in private browsing or when storage is blocked
+function lsGet(k,fallback=null){ try{ const v=localStorage.getItem(k); return v===null?fallback:v; }catch(e){ return fallback; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
 // ── Theme ──
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
-  localStorage.setItem('f1theme',t);
-
+  lsSet('f1theme',t);
 }
 (function(){
-  const saved=localStorage.getItem('f1theme');
+  const saved=lsGet('f1theme');
   if(saved) applyTheme(saved);
   else if(matchMedia('(prefers-color-scheme:dark)').matches) applyTheme('dark');
 })();
@@ -855,8 +859,13 @@ function cacheGetStale(k){ try{const r=JSON.parse(localStorage.getItem(k));if(r)
 async function fetchJSON(url,retries=2){
   const c=cacheGet(url); if(c)return c;
   for(let i=0;i<=retries;i++){
-    try{ const r=await fetch(url); if(!r.ok)throw new Error('HTTP '+r.status); const d=await r.json(); cacheSet(url,d); return d; }
-    catch(e){ if(i===retries)throw e; await new Promise(r=>setTimeout(r,800*(i+1))); }
+    try{
+      const r=await fetch(url,{signal:AbortSignal.timeout(12000)});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const d=await r.json();
+      cacheSet(url,d);
+      return d;
+    }catch(e){ if(i===retries)throw e; await new Promise(r=>setTimeout(r,800*(i+1))); }
   }
 }
 
@@ -914,7 +923,8 @@ async function fetchWeather(lat,lon){
     const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weathercode&temperature_unit=fahrenheit&timezone=auto');
     if(!r.ok) return null;
     const d=await r.json();
-    return {temp:Math.round(d.current.temperature_2m),code:d.current.weathercode};
+    if(d?.current?.temperature_2m==null) return null;
+    return {temp:Math.round(d.current.temperature_2m),code:d.current.weathercode??0};
   }catch(e){return null;}
 }
 function weatherIcon(code){
@@ -931,9 +941,8 @@ function weatherIcon(code){
 let _cdInterval=null;
 function startCountdown(dateStr,name){
   if(_cdInterval) clearInterval(_cdInterval);
-  // Race date from API is midnight UTC on race day.
-  // Assume race starts ~14:00 UTC and lasts ~2h — so "race in progress" window is 14:00–17:00 UTC.
   const raceDay=new Date(dateStr);
+  if(isNaN(raceDay.getTime())) return; // invalid date — bail silently
   const raceStart=new Date(raceDay); raceStart.setUTCHours(13,0,0,0); // conservative: 1pm UTC
   const raceEnd=new Date(raceDay);   raceEnd.setUTCHours(17,0,0,0);   // generous: 5pm UTC
   const el=document.getElementById('h-countdown');
@@ -977,18 +986,18 @@ async function loadDriverStandings(){
     ]);
     if(standingsRes.status==='fulfilled'){
       data=standingsRes.value;
-      list=data.MRData.StandingsTable.StandingsLists[0]?.DriverStandings||[];
+      list=data.MRData?.StandingsTable?.StandingsLists[0]?.DriverStandings||[];
     } else { throw standingsRes.reason; }
     if(flRes.status==='fulfilled'){
       fastestLapCounts={};
-      (flRes.value.MRData.RaceTable.Races||[]).forEach(r=>{
+      (flRes.value.MRData?.RaceTable?.Races||[]).forEach(r=>{
         const d=r.Results?.[0]?.Driver?.driverId;
         if(d) fastestLapCounts[d]=(fastestLapCounts[d]||0)+1;
       });
     }
   }catch(e){
     const fb=cacheGetStale(`${BASE}/${SEASON}/driverstandings.json?limit=30`);
-    if(fb){data=fb;list=fb.MRData.StandingsTable.StandingsLists[0]?.DriverStandings||[];stale=true;}
+    if(fb){data=fb;list=fb.MRData?.StandingsTable?.StandingsLists[0]?.DriverStandings||[];stale=true;}
     else{document.getElementById('drivers-loading').innerHTML=`<div class="error-msg">Could not load driver standings.<br><small>${sanitise(e.message)}</small></div>`;tickProgress();return;}
   }
 
@@ -1035,6 +1044,11 @@ async function loadDriverStandings(){
     </tr>`;
   });
   document.getElementById('drivers-loading').style.display='none';
+  if(!liveDrivers.length){
+    document.getElementById('drivers-loading').innerHTML='<div class="error-msg" style="text-align:center;padding:2rem">No driver standings yet — the 2026 season has not started.</div>';
+    document.getElementById('drivers-loading').style.display='';
+    tickProgress(); return;
+  }
   document.getElementById('drivers-table').style.display='';
   document.getElementById('drivers-stale').classList.toggle('show',stale);
   if(liveDrivers.length>=2){
@@ -1187,14 +1201,14 @@ async function openDriverModal(driverId){
     try{
       const first=await fetchJSON(`${BASE}/drivers/${driverId}/results.json?limit=${limit}&offset=0`);
       const total=parseInt(first.MRData.total||0);
-      const firstRaces=first.MRData.RaceTable.Races||[];
+      const firstRaces=first.MRData?.RaceTable?.Races||[];
       if(total<=limit) return firstRaces;
       // Fire remaining pages in parallel
       const pages=[];
       for(let offset=limit;offset<total;offset+=limit) pages.push(offset);
       const rest=await Promise.allSettled(pages.map(offset=>fetchJSON(`${BASE}/drivers/${driverId}/results.json?limit=${limit}&offset=${offset}`)));
       const allRaces=[...firstRaces];
-      rest.forEach(r=>{ if(r.status==='fulfilled') allRaces.push(...(r.value.MRData.RaceTable.Races||[])); });
+      rest.forEach(r=>{ if(r.status==='fulfilled') allRaces.push(...(r.value.MRData?.RaceTable?.Races||[])); });
       return allRaces;
     }catch(e){ return []; }
   }
@@ -1213,7 +1227,7 @@ async function openDriverModal(driverId){
   }
   // If career returned nothing but season did, use season data
   if(!allCareerRaces.length && raceData.status==='fulfilled'){
-    allCareerRaces=raceData.value.MRData.RaceTable.Races||[];
+    allCareerRaces=raceData.value.MRData?.RaceTable?.Races||[];
   }
   if(allCareerRaces.length){
     let wins=0, podiums=0, poles=0;
@@ -1240,7 +1254,7 @@ async function openDriverModal(driverId){
   const mrEl=document.getElementById('modal-race-results');
   if(!mrEl) return;
   if(raceData.status==='fulfilled'){
-    const results=raceData.value.MRData.RaceTable.Races||[];
+    const results=raceData.value.MRData?.RaceTable?.Races||[];
     if(!results.length){ mrEl.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 0">No results yet this season.</div>'; }
     else{
       // Compute per-season stats
@@ -1457,7 +1471,7 @@ async function openConstructorModal(constructorId){
   const chartWrap=document.getElementById('con-round-chart-wrap');
   if(chartWrap){
     if(roundsData.status==='fulfilled'){
-      const races=roundsData.value.MRData.RaceTable.Races||[];
+      const races=roundsData.value.MRData?.RaceTable?.Races||[];
       // Aggregate points per round (sum both drivers)
       const roundPts={};
       const roundNames={};
@@ -1490,7 +1504,7 @@ async function openConstructorModal(constructorId){
   const relEl=document.getElementById('con-rel-loading');
   if(relEl) relEl.textContent='';
   if(roundsData.status==='fulfilled'){
-    const races=roundsData.value.MRData.RaceTable.Races||[];
+    const races=roundsData.value.MRData?.RaceTable?.Races||[];
     let dnfs=0,fins=0;
     races.forEach(r=>{
       (r.Results||[]).forEach(res=>{
@@ -1510,7 +1524,7 @@ async function openConstructorModal(constructorId){
   if(splitEl) splitEl.textContent='';
   const splitCtx=document.getElementById('con-split-chart');
   if(splitCtx&&roundsData.status==='fulfilled'){
-    const races=roundsData.value.MRData.RaceTable.Races||[];
+    const races=roundsData.value.MRData?.RaceTable?.Races||[];
     const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
     if(teamDrivers.length>=2&&races.length){
       const [dA,dB]=teamDrivers;
@@ -1529,7 +1543,7 @@ async function openConstructorModal(constructorId){
   if(qrEl) qrEl.textContent='';
   const qrCtx=document.getElementById('con-qr-chart');
   if(qrCtx&&roundsData.status==='fulfilled'){
-    const races=roundsData.value.MRData.RaceTable.Races||[];
+    const races=roundsData.value.MRData?.RaceTable?.Races||[];
     if(races.length){
       const rLabels=races.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
       // Average grid vs average finish per round for both drivers
@@ -1569,7 +1583,7 @@ async function openConstructorModal(constructorId){
   const clEl=document.getElementById('con-career-loading');
   if(clEl) clEl.textContent='';
   if(careerData.status==='fulfilled'){
-    const allRaces=careerData.value.MRData.RaceTable.Races||[];
+    const allRaces=careerData.value.MRData?.RaceTable?.Races||[];
     let allWins=0,allPodiums=0;
     allRaces.forEach(r=>{
       (r.Results||[]).forEach(res=>{
@@ -1584,12 +1598,12 @@ async function openConstructorModal(constructorId){
     if(pEl) pEl.textContent=allPodiums;
   }
   if(titlesData.status==='fulfilled'){
-    const titles=titlesData.value.MRData.StandingsTable.StandingsLists?.length||0;
+    const titles=titlesData.value.MRData?.StandingsTable?.StandingsLists?.length||0;
     const tEl=document.getElementById('cc-titles');
     if(tEl) tEl.textContent=titles;
 
     // ── Team story — plain-English context ──
-    const allRaces=careerData.status==='fulfilled'?careerData.value.MRData.RaceTable.Races||[]:[];
+    const allRaces=careerData.status==='fulfilled'?careerData.value.MRData?.RaceTable?.Races||[]:[];
     let allWins=0,allPodiums=0;
     allRaces.forEach(r=>{(r.Results||[]).forEach(res=>{const p=parseInt(res.position||99);if(p===1)allWins++;if(p<=3)allPodiums++;});});
     const yearsActive=info.f1Since?2026-info.f1Since:null;
@@ -1633,10 +1647,10 @@ async function loadConstructorStandings(){
   let stale=false,list;
   try{
     const data=await fetchJSON(`${BASE}/${SEASON}/constructorstandings.json?limit=20`);
-    list=data.MRData.StandingsTable.StandingsLists[0]?.ConstructorStandings||[];
+    list=data.MRData?.StandingsTable?.StandingsLists[0]?.ConstructorStandings||[];
   }catch(e){
     const fb=cacheGetStale(`${BASE}/${SEASON}/constructorstandings.json?limit=20`);
-    if(fb){list=fb.MRData.StandingsTable.StandingsLists[0]?.ConstructorStandings||[];stale=true;}
+    if(fb){list=fb.MRData?.StandingsTable?.StandingsLists[0]?.ConstructorStandings||[];stale=true;}
     else{document.getElementById('con-loading').innerHTML=`<div class="error-msg">Could not load constructor standings.<br><small>${sanitise(e.message)}</small></div>`;tickProgress();return;}
   }
   liveConstructors=list;
@@ -1660,6 +1674,11 @@ async function loadConstructorStandings(){
     </tr>`;
   });
   document.getElementById('con-loading').style.display='none';
+  if(!liveConstructors.length){
+    document.getElementById('con-loading').innerHTML='<div class="error-msg" style="text-align:center;padding:2rem">No constructor standings yet — the 2026 season has not started.</div>';
+    document.getElementById('con-loading').style.display='';
+    tickProgress(); return;
+  }
   document.getElementById('con-table').style.display='';
   document.getElementById('con-stale').classList.toggle('show',stale);
   if(list.length>=2){
@@ -1732,7 +1751,7 @@ async function loadCalendar(){
   let stale=false,allRaces=[],resultsMap={},sprintMap={},qualiMap={},sprintQualiMap={};
   try{
     const schedData=await fetchJSON(`${BASE}/${SEASON}.json?limit=30`);
-    allRaces=schedData.MRData.RaceTable.Races||[];
+    allRaces=schedData.MRData?.RaceTable?.Races||[];
     const today=new Date();
     const completed=allRaces.filter(r=>new Date(r.date)<=today);
     const completedSprints=completed.filter(r=>SPRINT_ROUNDS.has(parseInt(r.round)));
@@ -1778,7 +1797,7 @@ async function loadCalendar(){
     }
   }catch(e){
     const fb=cacheGetStale(`${BASE}/${SEASON}.json?limit=30`);
-    if(fb){allRaces=fb.MRData.RaceTable.Races||[];stale=true;
+    if(fb){allRaces=fb.MRData?.RaceTable?.Races||[];stale=true;
       // Still attempt to build standingsHistory from cached per-round data
       const today=new Date();
       const completedFb=allRaces.filter(r=>new Date(r.date)<=today);
@@ -2115,7 +2134,7 @@ async function loadCalendar(){
             do{
               const data=await fetchJSON(`${BASE}/${SEASON}/${r.round}/laps.json?limit=100&offset=${offset}`);
               if(total===null) total=parseInt(data.MRData.total||0);
-              const laps=data.MRData.RaceTable.Races?.[0]?.Laps||[];
+              const laps=data.MRData?.RaceTable?.Races?.[0]?.Laps||[];
               allLaps.push(...laps);
               offset+=100;
             }while(allLaps.length<total&&offset<total&&offset<2000);
@@ -2227,7 +2246,7 @@ document.getElementById('race-list').addEventListener('click', e=>{
     if(pitWrap&&pitWrap.dataset.loaded==='0'){
       pitWrap.dataset.loaded='1';
       fetchJSON(BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=100').then(d=>{
-        const stops=d.MRData.RaceTable.Races?.[0]?.PitStops||[];
+        const stops=d.MRData?.RaceTable?.Races?.[0]?.PitStops||[];
         if(!stops.length){pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">No pit stop data available.</div>';return;}
         // Store in global pitStopData for constructor modal average
         stops.forEach(s=>{ if(!pitStopData[round]) pitStopData[round]=[]; pitStopData[round].push({driverId:s.driverId,duration:s.duration}); });
@@ -2258,6 +2277,8 @@ function filterTable(tbodyId,q){
 }
 // ── CSV export ──
 function exportCSV(type){
+  if(type==='drivers'&&!liveDrivers.length) return;
+  if(type==='constructors'&&!liveConstructors.length) return;
   let rows,filename;
   if(type==='drivers'){
     rows=[['Pos','Driver','Team','Points','Wins'],...liveDrivers.map(d=>[d.pos,`${d.first} ${d.last}`,d.team,d.pts,d.wins])];
@@ -2484,7 +2505,7 @@ Format your response as valid JSON only, no other text:
 Live 2026 standings after ${racesCompleted} race${racesCompleted!==1?'s':''} completed:
 ${teamSummaries}`;
 
-  const apiKey=localStorage.getItem('anthropic_api_key')||'';
+  const apiKey=lsGet('anthropic_api_key','');
   if(!apiKey){
     el.innerHTML='<div class="error-msg" style="grid-column:1/-1">No API key found. Click <strong>⚙ Settings</strong> in the header to add your Anthropic API key.</div>';
     status.style.display='block';
@@ -2513,22 +2534,27 @@ ${teamSummaries}`;
       throw new Error('API error '+res.status+': '+(errData.error?.message||JSON.stringify(errData)));
     }
     const data=await res.json();
-    const text=data.content?.map(b=>b.text||'').join('').trim();
+    const text=(data.content||[]).map(b=>b.text||'').join('').trim();
+    if(!text) throw new Error('Empty response from API');
     const clean=text.replace(/```json|```/g,'').trim();
-    const assessments=JSON.parse(clean);
+    let assessments;
+    try{ assessments=JSON.parse(clean); }
+    catch(e){ throw new Error('Could not parse API response as JSON'); }
+    if(!Array.isArray(assessments)||!assessments.length) throw new Error('Unexpected response format');
 
     el.innerHTML='';
     assessments.forEach(a=>{
-      const name=a.team;
-      const color=teamColor(name);
-      const rating=a.rating||'Midfield';
-      const cls=rating==='Strong'?'rating-strong':rating==='Competitive'?'rating-strong':rating==='Struggling'?'rating-struggling':rating==='Backmarker'?'rating-struggling':'rating-mid';
+      const name=sanitise(a.team||'Unknown');
+      const color=teamColor(a.team||'');
+      const rating=sanitise(a.rating||'Midfield');
+      const assessment=sanitise(a.assessment||'');
+      const cls=a.rating==='Strong'?'rating-strong':a.rating==='Competitive'?'rating-strong':a.rating==='Struggling'?'rating-struggling':a.rating==='Backmarker'?'rating-struggling':'rating-mid';
       const d=document.createElement('div'); d.className='assess-card';
       d.innerHTML='<div class="assess-header">'
         +'<div style="width:4px;height:26px;border-radius:2px;background:'+color+'"></div>'
         +'<span class="assess-team">'+name.toUpperCase()+'</span>'
         +'<span class="assess-rating '+cls+'">'+rating+'</span>'
-        +'</div><div class="assess-body">'+a.assessment+'</div>';
+        +'</div><div class="assess-body">'+assessment+'</div>';
       el.appendChild(d);
     });
 
@@ -2886,7 +2912,7 @@ function renderNewsItems(items){
     ng.innerHTML='<div class="error-msg">No articles loaded. Try refreshing, or check your connection.</div>';
     return;
   }
-  const saved=localStorage.getItem('f1newsfilter')||'all';
+  const saved=lsGet('f1newsfilter','all');
 
   // Separate lead story (first item) from rest
   const visible=saved==='all'?items:items.filter(n=>n.category===saved);
@@ -2950,11 +2976,11 @@ function refreshNews(){ loadNews(); }
 function filterNews(cat,btn){
   document.querySelectorAll('.news-filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  localStorage.setItem('f1newsfilter',cat);
+  lsSet('f1newsfilter',cat);
   if(window._newsItems) renderNewsItems(window._newsItems);
 }
 (function(){
-  const saved=localStorage.getItem('f1newsfilter');
+  const saved=lsGet('f1newsfilter');
   if(saved&&saved!=='all'){ const btn=document.querySelector(`.news-filter-btn[onclick*="'${saved}'"]`); if(btn) filterNews(saved,btn); }
 })();
 
@@ -2969,18 +2995,18 @@ function toggleApiKeyVisibility(){
 
 // ── Welcome banner ──
 (function(){
-  if(!localStorage.getItem('s3_welcome_dismissed')){
+  if(!lsGet('s3_welcome_dismissed')){
     document.getElementById('welcome-banner').style.display='block';
   }
 })();
 function dismissWelcome(){
   document.getElementById('welcome-banner').style.display='none';
-  localStorage.setItem('s3_welcome_dismissed','1');
+  lsSet('s3_welcome_dismissed','1');
 }
 
 // ── Settings ──
 function openSettings(){
-  const stored=localStorage.getItem('anthropic_api_key')||'';
+  const stored=lsGet('anthropic_api_key','');
   document.getElementById('api-key-input').value=stored;
   document.getElementById('api-key-status').textContent=stored?'✓ Key saved':'No key saved yet';
   document.getElementById('settings-modal').classList.remove('hidden');
@@ -2990,7 +3016,7 @@ function saveApiKey(){
   const key=document.getElementById('api-key-input').value.trim();
   if(!key){ document.getElementById('api-key-status').textContent='Please enter a key.'; return; }
   if(!key.startsWith('sk-ant-')){ document.getElementById('api-key-status').textContent='Key should start with sk-ant-'; return; }
-  localStorage.setItem('anthropic_api_key',key);
+  lsSet('anthropic_api_key',key);
   document.getElementById('api-key-status').textContent='✓ Key saved successfully';
 }
 
