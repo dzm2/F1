@@ -2865,8 +2865,11 @@ async function loadVideos(){
   grid.innerHTML='<div class="video-grid">'+items.slice(0,18).map(v=>`
     <a class="video-card" href="${v.url}" target="_blank" rel="noopener noreferrer" rel="noopener">
       <div class="video-thumb">
-        ${v.thumb?`<img src="${v.thumb}" alt="" loading="lazy" onerror="this.style.display='none'">`:'' }
-        <div class="video-thumb-fallback" style="${v.thumb?'display:none':''}"></div>
+        ${v.thumb?`<img src="${v.thumb}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'' }
+        <div class="video-thumb-fallback" style="${v.thumb?'display:none':'display:flex'};background:${v.color}18;flex-direction:column;gap:6px">
+          <div style="width:36px;height:36px;border-radius:50%;background:${v.color};display:flex;align-items:center;justify-content:center"><div style="width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #fff;margin-left:3px"></div></div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:${v.color};letter-spacing:1px">${v.channel}</div>
+        </div>
         <div class="play-overlay"><div class="play-tri"></div></div>
       </div>
       <div class="video-channel-bar" style="background:${v.color}"></div>
