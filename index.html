@@ -1188,10 +1188,9 @@ async function openDriverModal(driverId){
     }catch(e){ return []; }
   }
 
-  const [careerRaces, raceData, lapsData, sprintData, qualiData] = await Promise.allSettled([
+  const [careerRaces, raceData, sprintData, qualiData] = await Promise.allSettled([
     fetchAllCareerRaces(driverId),
     fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/results.json?limit=30`),
-    fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/laps.json?limit=1000`),
     fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/sprint.json?limit=30`),
     fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/qualifying.json?limit=30`),
   ]);
@@ -1404,22 +1403,26 @@ async function openDriverModal(driverId){
     mrEl.innerHTML='<div class="error-msg" style="padding:8px">Could not load results.</div>';
   }
 
-  // Laps led — count laps where this driver held P1
+  // Laps led — count laps where this driver held P1, paginated
   const llEl=document.getElementById('ms-lapsled');
   if(llEl){
-    if(lapsData.status==='fulfilled'){
-      const races=lapsData.value.MRData?.RaceTable?.Races||[];
+    try{
+      let allRaces=[], offset=0, lapLimit=100, lapTotal=null;
+      do{
+        const d2=await fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/laps.json?limit=${lapLimit}&offset=${offset}`);
+        if(lapTotal===null) lapTotal=parseInt(d2.MRData.total||0);
+        allRaces.push(...(d2.MRData?.RaceTable?.Races||[]));
+        offset+=lapLimit;
+      }while(allRaces.reduce((s,r)=>(r.Laps||[]).length+s,0)<lapTotal&&offset<lapTotal&&offset<5000);
       let lapsLed=0;
-      races.forEach(race=>{
+      allRaces.forEach(race=>{
         (race.Laps||[]).forEach(lap=>{
           const leader=(lap.Timings||[]).find(t=>t.position==='1');
           if(leader&&leader.driverId===driverId) lapsLed++;
         });
       });
       llEl.textContent=lapsLed;
-    } else {
-      llEl.textContent='—';
-    }
+    }catch(e){ llEl.textContent='—'; }
   }
 }
 function closeModal(e){
@@ -1506,10 +1509,26 @@ async function openConstructorModal(constructorId){
       <div class="modal-stat"><div class="modal-stat-label">Titles</div><div class="modal-stat-value" id="cc-titles">—</div></div>
     </div>`;
 
-  // Fetch all data in parallel (removed driverstandings — not supported by Jolpica; use liveDrivers instead)
-  const [roundsData, careerData, titlesData] = await Promise.allSettled([
+  // Fetch all data — career results paginated to handle Ferrari's 1000+ races
+  async function fetchAllConRaces(constructorId){
+    const limit=100;
+    try{
+      const first=await fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=0`);
+      const total=parseInt(first.MRData.total||0);
+      const firstRaces=first.MRData?.RaceTable?.Races||[];
+      if(total<=limit) return firstRaces;
+      const pages=[];
+      for(let offset=limit;offset<total;offset+=limit) pages.push(offset);
+      const rest=await Promise.allSettled(pages.map(offset=>fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=${offset}`)));
+      const allRaces=[...firstRaces];
+      rest.forEach(r=>{ if(r.status==='fulfilled') allRaces.push(...(r.value.MRData?.RaceTable?.Races||[])); });
+      return allRaces;
+    }catch(e){ return []; }
+  }
+
+  const [roundsData, careerRaces, titlesData] = await Promise.allSettled([
     fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/results.json?limit=500`),
-    fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=2000`),
+    fetchAllConRaces(constructorId),
     fetchJSON(`${BASE}/constructors/${constructorId}/constructorstandings/1.json?limit=100`),
   ]);
 
@@ -1660,8 +1679,8 @@ async function openConstructorModal(constructorId){
   // ── All-time career stats ──
   const clEl=document.getElementById('con-career-loading');
   if(clEl) clEl.textContent='';
-  if(careerData.status==='fulfilled'){
-    const allRaces=careerData.value.MRData?.RaceTable?.Races||[];
+  if(careerRaces.status==='fulfilled'){
+    const allRaces=careerRaces.value||[];
     let allWins=0,allPodiums=0;
     allRaces.forEach(r=>{
       (r.Results||[]).forEach(res=>{
@@ -1681,7 +1700,7 @@ async function openConstructorModal(constructorId){
     if(tEl) tEl.textContent=titles;
 
     // ── Team story — plain-English context ──
-    const allRaces=careerData.status==='fulfilled'?careerData.value.MRData?.RaceTable?.Races||[]:[];
+    const allRaces=careerRaces.status==='fulfilled'?careerRaces.value||[]:[];
     let allWins=0,allPodiums=0;
     allRaces.forEach(r=>{(r.Results||[]).forEach(res=>{const p=parseInt(res.position||99);if(p===1)allWins++;if(p<=3)allPodiums++;});});
     const yearsActive=info.f1Since?2026-info.f1Since:null;
