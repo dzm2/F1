@@ -102,9 +102,7 @@
     .pts-num{position:relative;z-index:1;}
     .wins-cell{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;text-align:center;color:var(--text3);}
     .gap-cell{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--text2);text-align:right;white-space:nowrap;}
-    .trend-up{color:#22c55e;font-size:11px;font-weight:700;margin-left:4px;}
-    .trend-down{color:var(--red);font-size:11px;font-weight:700;margin-left:4px;}
-    .trend-same{color:var(--text3);font-size:11px;font-weight:700;margin-left:4px;}
+
     .sprint-pts-cell{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--text3);text-align:center;white-space:nowrap;}
     .finrate-cell{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--text3);text-align:center;}
     .con-name{font-family:'Barlow',sans-serif;font-size:16px;font-weight:900;letter-spacing:.3px;}
@@ -125,8 +123,8 @@
     .modal-bio { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:1rem; }
     .modal-stat { background:var(--bg2); border-radius:6px; padding:10px 12px; }
     .modal-stat-label { font-family:'Space Grotesk',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text2); margin-bottom:4px; font-weight:700; }
-    .modal-stat-value { font-family:'Barlow',sans-serif; font-weight:900; font-size:20px; color:var(--text); }
-    .modal-stat-value.small { font-size:14px; }
+    .modal-stat-value { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; color:var(--text); }
+    .modal-stat-value.small { font-size:13px; }
     .modal-divider { border:none; border-top:0.5px solid var(--border); margin:0.75rem 0; }
     .modal-section-title { font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--text2); margin-bottom:8px; }
     .modal-loading-tag { font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:400; letter-spacing:0; text-transform:none; color:var(--text3); margin-left:6px; }
@@ -990,7 +988,6 @@ async function loadDriverStandings(bypassCache=false){
   // Per-driver sprint pts + finish rate maps (populated below)
   window._driverSprintPts={};
   window._driverFinRate={};
-  window._driverLastPos={};  // position in prev round for trend
   try{
     // Fetch standings, fastest laps, season results and sprint results in parallel
     const [standingsRes,flRes,seasonRes,sprintRes]=await Promise.allSettled([
@@ -1019,7 +1016,7 @@ async function loadDriverStandings(bypassCache=false){
         });
       });
     }
-    // Build per-driver finish rate and last position (for trend)
+    // Build per-driver finish rate
     if(seasonRes.status==='fulfilled'){
       const perDriver={};
       (seasonRes.value.MRData?.RaceTable?.Races||[]).forEach(r=>{
@@ -1038,11 +1035,7 @@ async function loadDriverStandings(bypassCache=false){
         window._driverFinRate[id]=v.races>0?Math.round(v.finishes/v.races*100):null;
       });
     }
-    // Build last-round position for trend indicator
-    if(standingsHistory.length>=2){
-      const prev=standingsHistory[standingsHistory.length-2];
-      (prev?.standings||[]).forEach(s=>{ window._driverLastPos[s.id]=s.pts; });
-    }
+
   }catch(e){
     const fb=cacheGetStale(`${BASE}/${SEASON}/driverstandings.json?limit=30`);
     if(fb){data=fb;list=fb.MRData?.StandingsTable?.StandingsLists[0]?.DriverStandings||[];stale=true;}
@@ -1082,16 +1075,7 @@ async function loadDriverStandings(bypassCache=false){
     const finRate=window._driverFinRate?.[d.driverId];
     const finRateStr=finRate!==null&&finRate!==undefined?finRate+'%':'—';
     // Trend: compare current pts to pts after previous round
-    let trendHtml='';
-    if(standingsHistory.length>=2&&window._driverLastPos){
-      const prevPts=window._driverLastPos[d.driverId];
-      if(prevPts!==undefined){
-        const diff=d.pts-prevPts;
-        if(diff>0) trendHtml=`<span class="trend-up">▲${diff}</span>`;
-        else if(diff<0) trendHtml=`<span class="trend-down">▼${Math.abs(diff)}</span>`;
-        else trendHtml=`<span class="trend-same">—</span>`;
-      }
-    }
+
     dtb.innerHTML+=`<tr class="${d.pos===1?'p1':''}" data-search="${d.first} ${d.last} ${d.team}" onclick="openDriverModal('${d.driverId}')">
       <td class="f1-pos">${d.pos}</td>
       <td style="padding-right:0;width:4px"><div class="team-pip" style="background:${d.color}"></div></td>
@@ -1100,7 +1084,7 @@ async function loadDriverStandings(bypassCache=false){
         <div class="driver-info-first">${d.team}</div>
         <div class="driver-pts-bar"><div class="driver-pts-bar-fill" style="width:${pct}%;background:${d.color}"></div></div>
       </div></td>
-      <td class="pts-cell" data-val="${d.pts}"><div class="pts-num">${d.pts}${trendHtml}</div></td>
+      <td class="pts-cell" data-val="${d.pts}"><div class="pts-num">${d.pts}</div></td>
       <td class="${winsClass}" data-val="${d.wins}">${d.wins}</td>
       <td class="sprint-pts-cell">${sprintPts>0?'+'+sprintPts:'—'}</td>
       <td class="finrate-cell">${finRateStr}</td>
