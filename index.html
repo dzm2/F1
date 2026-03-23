@@ -1874,8 +1874,8 @@ async function loadCalendar(){
       const [gpRes,sprintRes,qualiRes,sprintQualiRes]=await Promise.all([
         Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/results.json?limit=20`).catch(()=>null))),
         Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/sprint.json?limit=3`).catch(()=>null))),
-        Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=5`).catch(()=>null))),
-        Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=3`).catch(()=>null))),
+        Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`).catch(()=>null))),
+        Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`).catch(()=>null))),
       ]);
       completed.forEach((r,i)=>{
         if(gpRes[i])    resultsMap[r.round]   =gpRes[i].MRData?.RaceTable?.Races?.[0]?.Results||[];
@@ -2150,7 +2150,7 @@ async function loadCalendar(){
       const hdr=document.createElement('div'); hdr.className='detail-group-hdr';
       hdr.innerHTML='<span class="detail-group-lbl">'+label+'</span><span class="detail-group-arrow">&#9660;</span>';
       const body=document.createElement('div'); body.className='detail-group-body';
-      hdr.onclick=()=>{
+      hdr.onclick=(e)=>{ e.stopPropagation();
         const hidden=body.classList.toggle('dg-hidden');
         hdr.querySelector('.detail-group-arrow').style.transform=hidden?'rotate(-90deg)':'rotate(0deg)';
       };
@@ -2172,7 +2172,7 @@ async function loadCalendar(){
       if(rest.length){
         const more=document.createElement('div'); more.className='detail-show-more';
         more.textContent='Show all '+rows.length+' '+(moreLabel||'drivers')+' ▾';
-        more.onclick=()=>{ tbl.querySelectorAll('.tbl-extra').forEach(b=>b.style.display=''); more.style.display='none'; };
+        more.onclick=(e)=>{ e.stopPropagation(); tbl.querySelectorAll('.tbl-extra').forEach(b=>b.style.display=''); more.style.display='none'; };
         wrap.appendChild(more);
       }
       return wrap;
