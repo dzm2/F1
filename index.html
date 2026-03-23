@@ -1492,11 +1492,11 @@ async function openDriverModal(driverId){
     }
 
     // Build qualifying map: round -> {q1,q2,q3,pos}
-    const qualiMap={};
+    const modalQualiMap={};
     if(qualiData.status==='fulfilled'){
       (qualiData.value.MRData?.RaceTable?.Races||[]).forEach(r=>{
         const qr=r.QualifyingResults?.[0];
-        if(qr) qualiMap[r.round]={pos:qr.position,q1:qr.Q1||'',q2:qr.Q2||'',q3:qr.Q3||''};
+        if(qr) modalQualiMap[r.round]={pos:qr.position,q1:qr.Q1||'',q2:qr.Q2||'',q3:qr.Q3||''};
       });
     }
 
@@ -1545,7 +1545,7 @@ async function openDriverModal(driverId){
       // Average qualifying position
       const avgQPos=qualiPositions.length?(qualiPositions.reduce((a,b)=>a+b,0)/qualiPositions.length).toFixed(1):'—';
       // Q3 reach rate
-      const q3Count=results.filter(r=>qualiMap[r.round]?.q3&&qualiMap[r.round].q3!=='').length;
+      const q3Count=results.filter(r=>modalQualiMap[r.round]?.q3&&modalQualiMap[r.round].q3!=='').length;
       const q3Rate=results.length>0?Math.round(q3Count/results.length*100)+'%':'—';
       // Points scoring streak (current consecutive races scoring points, counting back from latest)
       let streak=0;
@@ -1580,7 +1580,7 @@ async function openDriverModal(driverId){
       }
       const h2hRaceText=teammate?(h2hRaceWins+'-'+h2hRaceLosses+' vs '+teammate.last):'—';
       // Championship context
-      const completedRoundsModal=parseInt(data?.MRData?.StandingsTable?.StandingsLists?.[0]?.round||standingsHistory.length||0);
+      const completedRoundsModal=standingsHistory.length||0;
       const racesLeftModal=Math.max(0,TOTAL_RACES-completedRoundsModal);
       const maxPossibleModal=PTS[0]*racesLeftModal+1;
       const p1PtsModal=liveDrivers[0]?.pts||0;
@@ -1651,7 +1651,7 @@ async function openDriverModal(driverId){
         const isFl=res?.FastestLap?.rank==='1'||res?.FastestLap?.rank===1;
         const flTime=res?.FastestLap?.Time?.time||'';
         const laps=res?.laps||'';
-        const qData=qualiMap[r.round];
+        const qData=modalQualiMap[r.round];
         const qPos=qData?.pos;
         const qBest=qData?.q3||qData?.q2||qData?.q1||'';
         const raceName=r.raceName.replace(' Grand Prix','');
