@@ -221,7 +221,7 @@
     .qual-table .q-pos.pole { color:var(--red); }
     .qual-table .q-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:13px; color:var(--text); }
     .qual-table .q-team { font-family:'Space Grotesk',sans-serif; font-size:11px; color:var(--text3); }
-    .qual-table td.q-time { font-family:monospace; font-size:12px; color:var(--text2); text-align:right; }
+    .qual-table td.q-time { font-family:monospace; font-size:11px; color:var(--text2); text-align:right; }
     .qual-table td.q-time.pole { color:var(--red); }
     .qual-table td.q-time.empty { color:var(--text3); }
 
@@ -2269,6 +2269,12 @@ async function loadCalendar(bypassCache=false){
           const m=String(g).match(/^[+]?(\d+\.\d+)$/);
           return m?parseFloat(g.replace('+','')):null;
         };
+        const getLapCount=f=>{
+          const s=String(f.status||'');
+          const t=String(f.Time?.time||'');
+          const m=(s+t).match(/\+(\d+)\s*[Ll]ap/);
+          return m?parseInt(m[1]):0;
+        };
         const allGaps=finishers.map(f=>parseGap(f.Time?.time||''));
         const raceHdr='<thead><tr><td class="r-pos"></td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Driver / Team</td><td class="r-grid" title="Grid position" style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Grid</td><td class="r-gain same" title="Places gained or lost" style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">±</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Gap</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Interval</td><td class="r-pts" style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Pts</td></tr></thead>';
         const raceWrap=makeExpandTable(finishers,(f,i)=>{
@@ -2281,10 +2287,18 @@ async function loadCalendar(bypassCache=false){
           const color=teamColor(f.Constructor?.name||'');
           const rawGap=f.Time?.time||'';
           const isLapped=String(f.status||'').includes('Lap')||String(rawGap).includes('lap');
-          const gapTxt=i===0?'—':isLapped?f.status:(rawGap?'+'+rawGap:'—');
+          const gapTxt=i===0?'—':isLapped?f.status:(rawGap?rawGap:'—');
           let intTxt='—';
-          if(i>0&&allGaps[i]!==null&&allGaps[i-1]!==null){
-            intTxt='+'+(allGaps[i]-allGaps[i-1]).toFixed(3)+'s';
+          if(i>0){
+            const prevLaps=getLapCount(finishers[i-1]);
+            const currLaps=getLapCount(f);
+            if(currLaps>prevLaps){
+              intTxt='+'+currLaps+' Lap'+(currLaps>1?'s':'');
+            } else if(allGaps[i]!==null&&allGaps[i-1]!==null){
+              intTxt='+'+(allGaps[i]-allGaps[i-1]).toFixed(3)+'s';
+            } else if(currLaps===0&&prevLaps===0){
+              intTxt='—';
+            }
           }
           const flBadge=isFl?'<span style="display:inline-block;background:#9B59B622;color:#7D3C98;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px">FL</span>':'';
           return '<tr>'
@@ -2383,15 +2397,16 @@ async function loadCalendar(bypassCache=false){
           const posCtx=posCanvas;
           if(!posCtx||posCtx._chart) return;
           try{
-            // Fetch all laps — paginate as a race can have up to 77 laps x 20 drivers = 1540 timings
+            // Fetch all laps — MRData.total is the number of lap objects, limit=100 fetches 100 laps at a time
             let allLaps=[], offset=0, total=null;
             do{
               const data=await fetchJSON(`${BASE}/${SEASON}/${r.round}/laps.json?limit=100&offset=${offset}`);
               if(total===null) total=parseInt(data.MRData.total||0);
               const laps=data.MRData?.RaceTable?.Races?.[0]?.Laps||[];
+              if(!laps.length) break;
               allLaps.push(...laps);
-              offset+=100;
-            }while(allLaps.length<total&&offset<total&&offset<2000);
+              offset+=laps.length;
+            }while(offset<total&&offset<2000);
 
             if(!allLaps.length){posNote.textContent='Lap data not available for this race.';return;}
 
