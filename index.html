@@ -167,7 +167,7 @@
     .track-map-img { max-width:100%; max-height:180px; object-fit:contain; filter:var(--track-map-filter); }
     :root { --track-map-filter: none; }
     [data-theme="dark"] { --track-map-filter: invert(1) hue-rotate(180deg) brightness(0.85); }
-    .track-info-item { background:var(--bg); border:0.5px solid var(--border); border-radius:5px; padding:7px 10px; }
+    .track-info-item { background:var(--bg); border:0.5px solid var(--border); border-radius:5px; padding:10px 12px; }
     .track-info-label { font-family:'Space Grotesk',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text2); font-weight:700; margin-bottom:2px; }
     .track-info-value { font-family:'Barlow',sans-serif; font-weight:900; font-size:15px; color:var(--text); }
     .track-info-value.mono { font-size:13px; }
@@ -183,17 +183,17 @@
     .podium-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);}
     .next-pill{background:var(--red);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:20px;white-space:nowrap;margin-left:6px;}
     .sprint-pill{background:var(--gold);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:20px;white-space:nowrap;margin-left:4px;}
-    .race-detail{display:none;padding-top:10px;border-top:0.5px solid var(--border);margin-top:10px;}
+    .race-detail{display:none;padding-top:16px;border-top:0.5px solid var(--border);margin-top:12px;}
     .race-detail.open{display:block;min-height:20px;}
-    .detail-section-title{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px;margin-top:12px;}
+    .detail-section-title{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;margin-top:18px;}
     .detail-section-title:first-child{margin-top:0;}
-    .detail-section-title.prominent{font-family:'Barlow',sans-serif;font-size:14px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--text);border-left:3px solid var(--red);padding-left:8px;margin-top:14px;margin-bottom:8px;}
-    .detail-group{border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px;}
-    .detail-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg2);cursor:pointer;user-select:none;border-left:3px solid var(--red);}
+    .detail-section-title.prominent{font-family:'Barlow',sans-serif;font-size:14px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--text);border-left:3px solid var(--red);padding-left:8px;margin-top:0;margin-bottom:12px;}
+    .detail-group{border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+    .detail-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg2);cursor:pointer;user-select:none;border-left:3px solid var(--red);}
     .detail-group-hdr:hover{background:var(--bg3);}
     .detail-group-lbl{font-family:'Barlow',sans-serif;font-size:14px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--text);}
     .detail-group-arrow{font-size:10px;color:var(--text3);transition:transform .2s;display:inline-block;}
-    .detail-group-body{padding:10px 12px;border-top:0.5px solid var(--border);}
+    .detail-group-body{padding:14px 16px;border-top:0.5px solid var(--border);}
     .detail-group-body.dg-hidden{display:none;}
     .detail-show-more{display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;border-top:0.5px solid var(--border);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;}
     .detail-show-more:hover{color:var(--red);background:var(--bg2);}
@@ -212,7 +212,7 @@
 
     /* Qualifying table inside detail */
     .qual-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:4px; }
-    .qual-table td { padding:5px 6px; border-bottom:0.5px solid var(--border); color:var(--text2); }
+    .qual-table td { padding:7px 8px; border-bottom:0.5px solid var(--border); color:var(--text2); }
     .qual-table tr:last-child td { border-bottom:none; }
     .qual-table .q-pos { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text2); width:24px; }
     .qual-table .q-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:13px; color:var(--text); }
@@ -221,7 +221,7 @@
 
     /* Result rows in expanded detail */
     .result-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:4px; }
-    .result-table td { padding:6px 6px; border-bottom:0.5px solid var(--border); vertical-align:middle; }
+    .result-table td { padding:8px 8px; border-bottom:0.5px solid var(--border); vertical-align:middle; }
     .result-table tr:last-child td { border-bottom:none; }
     .result-table tr:hover td { background:var(--bg2); }
     .r-pos { font-family:'Barlow',sans-serif; font-weight:900; font-size:15px; color:var(--text2); width:26px; text-align:center; }
@@ -338,7 +338,7 @@
     .session-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;}
     .session-table .session-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;color:var(--text2);}
     .session-table .session-time-local{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);text-align:right;}
-    .session-table td{padding:5px 8px;border-bottom:0.5px solid var(--border);}
+    .session-table td{padding:7px 10px;border-bottom:0.5px solid var(--border);}
     .session-table tr:last-child td{border-bottom:none;}
     .session-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);}
     .session-time-local{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:var(--text2);}
@@ -356,7 +356,7 @@
 
     /* Pit stop table in race detail */
     .pit-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px;}
-    .pit-table td{padding:4px 6px;border-bottom:0.5px solid var(--border);color:var(--text2);}
+    .pit-table td{padding:7px 8px;border-bottom:0.5px solid var(--border);color:var(--text2);}
     .pit-table tr:last-child td{border-bottom:none;}
     .pit-lap{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);}
     .pit-dur{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;color:var(--text2);}
@@ -2362,15 +2362,18 @@ async function loadCalendar(bypassCache=false){
 
             if(!allLaps.length){posNote.textContent='Lap data not available for this race.';return;}
 
-            // Build per-driver position series: { driverId: [pos_lap1, pos_lap2, ...] }
+            // Build per-driver position series: { driverId: { lapNum: position } }
             const driverPos={};
-            const lapNums=allLaps.map(l=>parseInt(l.number));
+            const lapNumsSet=new Set();
             allLaps.forEach(lap=>{
+              const lapNum=parseInt(lap.number);
+              lapNumsSet.add(lapNum);
               (lap.Timings||[]).forEach(t=>{
-                if(!driverPos[t.driverId]) driverPos[t.driverId]=[];
-                driverPos[t.driverId][parseInt(lap.number)-1]=parseInt(t.position);
+                if(!driverPos[t.driverId]) driverPos[t.driverId]={};
+                driverPos[t.driverId][lapNum]=parseInt(t.position);
               });
             });
+            const lapNums=[...lapNumsSet].sort((a,b)=>a-b);
 
             // Only show top 10 finishers to keep chart readable
             const top10ids=finishers.slice(0,10).map(f=>f.Driver.driverId);
@@ -2379,7 +2382,7 @@ async function loadCalendar(bypassCache=false){
               const col=teamColor(f?.Constructor?.name||'');
               return {
                 label:f?.Driver.familyName||id,
-                data:lapNums.map((_,i)=>driverPos[id]?.[i]||null),
+                data:lapNums.map(n=>driverPos[id]?.[n]||null),
                 borderColor:col,
                 backgroundColor:'transparent',
                 borderWidth:1.5,
