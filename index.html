@@ -2192,7 +2192,7 @@ async function loadCalendar(bypassCache=false){
         }
         if(sprintFinishers.length){
           const srt=document.createElement('div'); srt.className='detail-section-title'; srt.textContent='Sprint race'; body.appendChild(srt);
-          const srHdr='<thead><tr><td class="r-pos"></td><td>Driver</td><td class="r-pts">Pts</td></tr></thead>';
+          const srHdr='<thead><tr><td class="r-pos"></td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Driver</td><td class="r-pts" style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Pts</td></tr></thead>';
           const srWrap=makeExpandTable(sprintFinishers,(f,i)=>{
             const color=teamColor(f.Constructor?.name||'');
             const teamShort=(f.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
