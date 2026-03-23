@@ -470,7 +470,7 @@
   <div id="welcome-banner" style="display:none;background:var(--bg);border:0.5px solid var(--border);border-radius:0;padding:20px 32px;position:relative">
     <button onclick="dismissWelcome()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;padding:0">✕</button>
     <div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;color:var(--text);margin-bottom:6px">Welcome to Track Limits</div>
-    <div style="font-size:13px;color:var(--text2);line-height:1.6;padding-right:24px">Your 2026 Formula 1 dashboard — standings, race results, news and records all in one place. Data is sourced from the Jolpica F1 API and updates after each race weekend. Click any driver or team to see detailed stats. New to F1? Check out the <strong style="color:var(--text);cursor:pointer" onclick="showTab('season',document.querySelector('[data-tab=season]'))">Season tab</strong> for an explainer on the 2026 regulations.</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;padding-right:24px">Your 2026 Formula 1 dashboard — standings, race results, news and records all in one place. Data is sourced from the Jolpica F1 API and typically becomes available 30–60 minutes after each session ends. Click any driver or team to see detailed stats. New to F1? Check out the <strong style="color:var(--text);cursor:pointer" onclick="showTab('season',document.querySelector('[data-tab=season]'))">Season tab</strong> for an explainer on the 2026 regulations.</div>
   </div>
 
   <!-- Season stats strip -->
@@ -1935,9 +1935,9 @@ async function loadCalendar(bypassCache=false){
   document.getElementById('cal-stale').classList.toggle('show',stale);
 
   const today=new Date();
-  const completed=allRaces.filter(r=>new Date(r.date)<=today);
-  const upcoming=allRaces.filter(r=>new Date(r.date)>today);
-  const nextRace=upcoming[0];
+  const completed=allRaces.filter(r=>(resultsMap[r.round]||[]).length>0);
+  const upcoming=allRaces.filter(r=>(resultsMap[r.round]||[]).length===0);
+  const nextRace=allRaces.filter(r=>new Date(r.date)>today)[0]||upcoming[0];
 
   // Expose schedule globally so auto-refresh can make smart decisions
   window._allRaces=allRaces;
@@ -1976,7 +1976,7 @@ async function loadCalendar(bypassCache=false){
 
   allOrdered.forEach(r=>{
     try{
-    const isCompleted=new Date(r.date)<=today;
+    const isCompleted=(resultsMap[r.round]||[]).length>0;
     const isNext=nextRace&&r.round===nextRace.round;
 
     // Insert subtle divider before the first upcoming race
