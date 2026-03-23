@@ -188,7 +188,7 @@
     .detail-section-title{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;margin-top:18px;}
     .detail-section-title:first-child{margin-top:0;}
     .detail-section-title.prominent{font-family:'Barlow',sans-serif;font-size:14px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--text);border-left:3px solid var(--red);padding-left:8px;margin-top:0;margin-bottom:12px;}
-    .detail-group{border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+    .detail-group{border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;margin-top:16px;}
     .detail-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg2);cursor:pointer;user-select:none;border-left:3px solid var(--red);}
     .detail-group-hdr:hover{background:var(--bg3);}
     .detail-group-lbl{font-family:'Barlow',sans-serif;font-size:14px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--text);}
@@ -2081,10 +2081,12 @@ async function loadCalendar(bypassCache=false){
 
     // Track info
     if(Object.keys(ci).length){
-      const topMargin=(isCompleted&&finishers.length)?'10px':'0';
-      const trackTitle=document.createElement('div'); trackTitle.className='detail-section-title prominent'; trackTitle.style.marginTop=topMargin; trackTitle.textContent='Track information';
-      detail.appendChild(trackTitle);
-      if(ci.mapUrl){ const mw=document.createElement('div'); mw.className='track-map-wrap'; const img=document.createElement('img'); img.className='track-map-img'; img.src=ci.mapUrl; img.alt='track map'; img.loading='lazy'; img.onerror=function(){this.parentElement.style.display='none';}; mw.appendChild(img); detail.appendChild(mw); }
+      const trackGrp=document.createElement('div'); trackGrp.className='detail-group';
+      const trackHdr=document.createElement('div'); trackHdr.className='detail-group-hdr';
+      trackHdr.innerHTML='<span class="detail-group-lbl">Track information</span><span class="detail-group-arrow">&#9660;</span>';
+      const trackBody=document.createElement('div'); trackBody.className='detail-group-body';
+      trackHdr.onclick=(e)=>{ e.stopPropagation(); const hidden=trackBody.classList.toggle('dg-hidden'); trackHdr.querySelector('.detail-group-arrow').style.transform=hidden?'rotate(-90deg)':'rotate(0deg)'; };
+      if(ci.mapUrl){ const mw=document.createElement('div'); mw.className='track-map-wrap'; mw.style.marginTop='0'; const img=document.createElement('img'); img.className='track-map-img'; img.src=ci.mapUrl; img.alt='track map'; img.loading='lazy'; img.onerror=function(){this.parentElement.style.display='none';}; mw.appendChild(img); trackBody.appendChild(mw); }
       const grid=document.createElement('div'); grid.className='track-info-grid';
       const infoItems=[
         ['Length', ci.lengthMi?ci.lengthMi.toFixed(3)+' mi':'—'],
@@ -2100,7 +2102,10 @@ async function loadCalendar(bypassCache=false){
       grid.appendChild(lr);
       if(ci.overtakeModeZones!=null){ const d=document.createElement('div'); d.className='track-info-item'; d.style.gridColumn='span 3'; d.innerHTML='<div class="track-info-label">Overtake Mode zones</div><div class="track-info-value">'+ci.overtakeModeZones+'</div>'; grid.appendChild(d); }
       if(ci.chars&&ci.chars.length){ const d=document.createElement('div'); d.className='track-info-item'; d.style.gridColumn='span 3'; d.innerHTML='<div class="track-info-label">Characteristics</div><div style="margin-top:4px">'+ci.chars.map(c=>'<span class="track-char-pill">'+c+'</span>').join('')+'</div>'; grid.appendChild(d); }
-      detail.appendChild(grid);
+      trackBody.appendChild(grid);
+      trackGrp.appendChild(trackHdr);
+      trackGrp.appendChild(trackBody);
+      detail.appendChild(trackGrp);
     }
 
     // Session schedule (for upcoming races) and weather
