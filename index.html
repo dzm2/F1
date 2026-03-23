@@ -1530,12 +1530,6 @@ async function openDriverModal(driverId){
       // Last 3 races points — include sprint points
       const last3=results.slice(-3);
       const last3pts=last3.reduce((s,r)=>s+parseFloat(r.Results[0]?.points||0)+(sprintPtsMap[r.round]?.pts||0),0);
-      const teammate=liveDrivers.find(x=>x.team===d.team&&x.driverId!==driverId);
-      let h2hText='—';
-      if(teammate){
-        const diff=d.pts-teammate.pts;
-        h2hText=diff>0?'+'+diff+' vs '+teammate.last:diff<0?diff+' vs '+teammate.last:'Tied vs '+teammate.last;
-      }
       // ── New stats ──
       // Average finish and grid positions
       const avgFin=finPositions.length?(finPositions.reduce((a,b)=>a+b,0)/finPositions.length).toFixed(1):'—';
@@ -1563,8 +1557,8 @@ async function openDriverModal(driverId){
         if(rPts>0) streak++; else break;
       }
       // H2H race wins vs teammate
-      let h2hRaceWins=0,h2hRaceLosses=0;
       const teammate=liveDrivers.find(x=>x.team===d.team&&x.driverId!==driverId);
+      let h2hRaceWins=0,h2hRaceLosses=0;
       if(teammate){
         results.forEach(r=>{
           const myPos=parseInt(r.Results[0]?.position||99);
