@@ -187,6 +187,16 @@
     .race-detail.open{display:block;min-height:20px;}
     .detail-section-title{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px;margin-top:12px;}
     .detail-section-title:first-child{margin-top:0;}
+    .detail-group-header{font-family:'Barlow',sans-serif;font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--bg);background:var(--text2);padding:4px 10px;border-radius:4px;margin:14px 0 10px;display:inline-block;}
+    .detail-group{border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px;}
+    .detail-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg2);cursor:pointer;user-select:none;}
+    .detail-group-hdr:hover{background:var(--bg3);}
+    .detail-group-lbl{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);}
+    .detail-group-arrow{font-size:10px;color:var(--text3);transition:transform .2s;display:inline-block;}
+    .detail-group-body{padding:10px 12px;border-top:0.5px solid var(--border);}
+    .detail-group-body.dg-hidden{display:none;}
+    .detail-show-more{display:flex;align-items:center;justify-content:center;padding:5px;border-top:0.5px solid var(--border);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;}
+    .detail-show-more:hover{color:var(--text2);background:var(--bg2);}
     .detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:5px;font-size:13px;}
     .detail-item{color:var(--text2);} .detail-item strong{color:var(--text);font-weight:700;}
 
@@ -2070,7 +2080,8 @@ async function loadCalendar(){
     // Track info
     if(Object.keys(ci).length){
       const topMargin=(isCompleted&&finishers.length)?'10px':'0';
-      const trackTitle=document.createElement('div'); trackTitle.className='detail-section-title'; trackTitle.style.marginTop=topMargin; trackTitle.textContent='Track information';
+      const groupHdr=document.createElement('div'); groupHdr.className='detail-group-header'; groupHdr.textContent='Weekend'; groupHdr.style.marginTop=topMargin; detail.appendChild(groupHdr);
+      const trackTitle=document.createElement('div'); trackTitle.className='detail-section-title'; trackTitle.style.marginTop='0'; trackTitle.textContent='Track information';
       detail.appendChild(trackTitle);
       if(ci.mapUrl){ const mw=document.createElement('div'); mw.className='track-map-wrap'; const img=document.createElement('img'); img.className='track-map-img'; img.src=ci.mapUrl; img.alt='track map'; img.loading='lazy'; img.onerror=function(){this.parentElement.style.display='none';}; mw.appendChild(img); detail.appendChild(mw); }
       const grid=document.createElement('div'); grid.className='track-info-grid';
@@ -2124,121 +2135,164 @@ async function loadCalendar(){
 
     // Pit stops (for completed races — fetch asynchronously)
     if(isCompleted&&finishers.length){
-      const pitTitle=document.createElement('div'); pitTitle.className='detail-section-title'; pitTitle.textContent='Pit stops (top 5)';
+      const pitTitle=document.createElement('div'); pitTitle.className='detail-section-title'; pitTitle.textContent='Pit stops — all drivers';
       const pitWrap=document.createElement('div'); pitWrap.id='pit-'+r.round;
       pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
       detail.appendChild(pitTitle);
       detail.appendChild(pitWrap);
-      // Fetch pit data lazily when detail is first opened
       pitWrap.dataset.round=r.round;
       pitWrap.dataset.loaded='0';
     }
 
-    // Qualifying
-    if(isCompleted&&qualiResults.length){
-      const qt=document.createElement('div'); qt.className='detail-section-title'; qt.textContent='Qualifying top 5'; detail.appendChild(qt);
-      const tbl=document.createElement('table'); tbl.className='qual-table';
-      tbl.innerHTML='<tbody>'+qualiResults.slice(0,5).map((q,i)=>{
-        const best=q.Q3||q.Q2||q.Q1||'—';
-        return '<tr><td class="q-pos">'+(i+1)+'</td><td class="q-name">'+q.Driver.familyName+'</td><td class="q-time '+(i===0?'pole':'')+'">'+best+'</td></tr>';
-      }).join('')+'</tbody>';
-      detail.appendChild(tbl);
-    }
-
-    // Sprint qualifying top 5 (sprint rounds only)
-    const sprintQualiResults=sprintQualiMap[r.round]||[];
-    if(isCompleted&&sprintQualiResults.length){
-      const sqt=document.createElement('div'); sqt.className='detail-section-title'; sqt.textContent='Sprint qualifying top 5'; detail.appendChild(sqt);
-      const sqTbl=document.createElement('table'); sqTbl.className='qual-table';
-      sqTbl.innerHTML='<tbody>'+sprintQualiResults.slice(0,5).map((q,i)=>{
-        const best=q.Q3||q.Q2||q.Q1||'—';
-        return '<tr><td class="q-pos">'+(i+1)+'</td><td class="q-name">'+q.Driver.familyName+'</td><td class="q-time '+(i===0?'pole':'')+'">'+best+'</td></tr>';
-      }).join('')+'</tbody>';
-      detail.appendChild(sqTbl);
-    }
-
-    // Race top 10
-    if(isCompleted&&finishers.length){
-      // Hero cards
-      const winner=finishers[0];
-      const poleDriver=finishers.find(f=>f.grid==='1')||finishers[0];
-      const fl=finishers.find(f=>f.FastestLap?.rank==='1');
-      const heroEl=document.createElement('div');
-      heroEl.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px';
-      const heroCard=(label,name,sub)=>`<div style="background:var(--bg2);border-radius:6px;padding:8px 12px"><div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:2px">${label}</div><div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text)">${name}</div><div style="font-size:11px;color:var(--text2);font-family:monospace">${sub}</div></div>`;
-      const poleQ=qualiResults.find(q=>q.Driver?.driverId===poleDriver.Driver.driverId);
-      const poleTime=poleQ?.Q3||poleQ?.Q2||poleQ?.Q1||'—';
-      heroEl.innerHTML=heroCard('Winner',winner.Driver.familyName,winner.Time?.time||'—')+heroCard('Pole',poleDriver.Driver.familyName,poleTime)+heroCard('Fastest lap',fl?fl.Driver.familyName:'—',fl?(fl.FastestLap?.Time?.time||'—')+(fl.FastestLap?.lap?' · Lap '+fl.FastestLap.lap:''):'—');
-      detail.appendChild(heroEl);
-
-      const rt=document.createElement('div'); rt.className='detail-section-title'; rt.textContent='Race top 10'; detail.appendChild(rt);
-      const parseGap=g=>{
-        if(!g||g==='')return null;
-        const m=String(g).match(/^[+]?(\d+\.\d+)$/);
-        return m?parseFloat(g.replace('+','')):null;
+    // Helper: build a collapsible group
+    const makeGroup=(label,bodyFn)=>{
+      const grp=document.createElement('div'); grp.className='detail-group';
+      const hdr=document.createElement('div'); hdr.className='detail-group-hdr';
+      hdr.innerHTML='<span class="detail-group-lbl">'+label+'</span><span class="detail-group-arrow">&#9660;</span>';
+      const body=document.createElement('div'); body.className='detail-group-body';
+      hdr.onclick=()=>{
+        const hidden=body.classList.toggle('dg-hidden');
+        hdr.querySelector('.detail-group-arrow').style.transform=hidden?'rotate(-90deg)':'rotate(0deg)';
       };
-      const top10=finishers.slice(0,10);
-      const gaps=top10.map(f=>parseGap(f.Time?.time||''));
-      const tbl=document.createElement('table'); tbl.className='result-table';
-      const hdr='<thead><tr><td class="r-pos"></td><td>Driver / Team</td><td class="r-grid" title="Grid position">Grid</td><td class="r-gain same" title="Places gained or lost">±</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Gap</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Interval</td><td class="r-pts">Pts</td></tr></thead>';
-      const rows=top10.map((f,i)=>{
-        const isFl=f.FastestLap?.rank==='1';
-        const grid=parseInt(f.grid)||0;
-        const gained=grid>0?grid-(parseInt(f.position)||i+1):null;
-        const gainCell=gained===null?'<td class="r-gain same">—</td>':gained>0?'<td class="r-gain up">↑'+gained+'</td>':gained<0?'<td class="r-gain down">↓'+Math.abs(gained)+'</td>':'<td class="r-gain same">—</td>';
-        const pts=parseFloat(f.points||0);
-        const teamShort=(f.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
-        const color=teamColor(f.Constructor?.name||'');
-        const rawGap=f.Time?.time||'';
-        const isLapped=String(f.status||'').includes('Lap')||String(rawGap).includes('lap');
-        const gapTxt=i===0?'—':isLapped?f.status:(rawGap?'+'+rawGap:'—');
-        let intTxt='—';
-        if(i>0&&gaps[i]!==null&&gaps[i-1]!==null){
-          intTxt='+'+(gaps[i]-gaps[i-1]).toFixed(3)+'s';
-        }
-        const flBadge=isFl?'<span style="display:inline-block;background:#9B59B622;color:#7D3C98;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px">FL</span>':'';
-        return '<tr>'
-          +'<td class="r-pos '+(i===0?'p1c':'')+'">'+(i+1)+'</td>'
-          +'<td><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span class="r-name">'+f.Driver.familyName+flBadge+'</span><br><span class="r-team">'+teamShort+'</span></td>'
-          +'<td class="r-grid" title="Started P'+(grid||'?')+'">'+(grid||'?')+'</td>'
-          +gainCell
-          +'<td style="font-family:monospace;font-size:11px;color:var(--text2)">'+gapTxt+'</td>'
-          +'<td style="font-family:monospace;font-size:11px;color:var(--text2)">'+intTxt+'</td>'
-          +'<td class="r-pts">'+(pts>0?'+'+pts:'0')+'</td>'
-          +'</tr>';
-      }).join('');
-      tbl.innerHTML=hdr+'<tbody>'+rows+'</tbody>';
-      detail.appendChild(tbl);
+      bodyFn(body);
+      grp.appendChild(hdr);
+      grp.appendChild(body);
+      return grp;
+    };
 
-      if(dnfs.length){
-        const dt=document.createElement('div'); dt.className='detail-section-title'; dt.textContent='Retirements (Did Not Finish)'; detail.appendChild(dt);
-        const dg=document.createElement('div'); dg.className='detail-grid';
-        dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><strong>'+f.Driver.familyName+'</strong> <span class="dnf-badge">'+f.status+'</span></div>').join('');
-        detail.appendChild(dg);
+    // Helper: expandable table (top N rows visible, rest hidden)
+    const makeExpandTable=(rows,buildRow,hdrHtml,showN,moreLabel)=>{
+      const wrap=document.createElement('div');
+      const tbl=document.createElement('table'); tbl.className='result-table'; tbl.style.width='100%';
+      const top=rows.slice(0,showN);
+      const rest=rows.slice(showN);
+      tbl.innerHTML=(hdrHtml||'')+'<tbody>'+top.map((r,i)=>buildRow(r,i)).join('')+'</tbody>'
+        +(rest.length?'<tbody class="tbl-extra" style="display:none">'+rest.map((r,i)=>buildRow(r,i+showN)).join('')+'</tbody>':'');
+      wrap.appendChild(tbl);
+      if(rest.length){
+        const more=document.createElement('div'); more.className='detail-show-more';
+        more.textContent='Show all '+rows.length+' '+(moreLabel||'drivers')+' ▾';
+        more.onclick=()=>{ tbl.querySelectorAll('.tbl-extra').forEach(b=>b.style.display=''); more.style.display='none'; };
+        wrap.appendChild(more);
       }
+      return wrap;
+    };
 
-      // ── Race deep dive ──
-      // Gap to leader at finish
-      const gapTitle=document.createElement('div'); gapTitle.className='detail-section-title'; gapTitle.textContent='Gap to leader at finish'; detail.appendChild(gapTitle);
-      const gapWrap=document.createElement('div'); gapWrap.style.cssText='position:relative;height:180px;margin-bottom:8px';
-      const gapCanvas=document.createElement('canvas'); gapCanvas.id='gap-chart-'+r.round;
-      gapWrap.appendChild(gapCanvas); detail.appendChild(gapWrap);
+    // Sprint group (sprint rounds only)
+    const sprintQualiResults=sprintQualiMap[r.round]||[];
+    if(isCompleted&&(sprintQualiResults.length||sprintFinishers.length)){
+      const sprintGrp=makeGroup('Sprint',body=>{
+        if(sprintQualiResults.length){
+          const sqt=document.createElement('div'); sqt.className='detail-section-title'; sqt.style.marginTop='0'; sqt.textContent='Sprint qualifying'; body.appendChild(sqt);
+          const sqWrap=makeExpandTable(sprintQualiResults,(q,i)=>{
+            const best=q.Q3||q.Q2||q.Q1||'—';
+            return '<tr><td class="q-pos">'+(i+1)+'</td><td class="q-name">'+q.Driver.familyName+'</td><td class="q-time '+(i===0?'pole':'')+'">'+best+'</td></tr>';
+          },null,5,'drivers');
+          body.appendChild(sqWrap);
+        }
+        if(sprintFinishers.length){
+          const srt=document.createElement('div'); srt.className='detail-section-title'; srt.textContent='Sprint race'; body.appendChild(srt);
+          const srHdr='<thead><tr><td class="r-pos"></td><td>Driver</td><td class="r-pts">Pts</td></tr></thead>';
+          const srWrap=makeExpandTable(sprintFinishers,(f,i)=>{
+            const color=teamColor(f.Constructor?.name||'');
+            const teamShort=(f.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
+            const pts=parseFloat(f.points||0);
+            return '<tr>'
+              +'<td class="r-pos '+(i===0?'p1c':'')+'">'+(i+1)+'</td>'
+              +'<td><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span class="r-name">'+f.Driver.familyName+'</span><br><span class="r-team">'+teamShort+'</span></td>'
+              +'<td class="r-pts">'+(pts>0?'+'+pts:'0')+'</td>'
+              +'</tr>';
+          },srHdr,5,'drivers');
+          body.appendChild(srWrap);
+        }
+      });
+      detail.appendChild(sprintGrp);
+    }
 
-      // Fastest lap comparison
-      const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap (top 5 finishers)'; detail.appendChild(flTitle);
-      const flWrap=document.createElement('div'); flWrap.style.cssText='position:relative;height:160px;margin-bottom:8px';
-      const flCanvas=document.createElement('canvas'); flCanvas.id='fl-chart-'+r.round;
-      flWrap.appendChild(flCanvas); detail.appendChild(flWrap);
+    // Race group
+    if(isCompleted&&finishers.length){
+      const raceGrp=makeGroup('Race',body=>{
+        const winner=finishers[0];
+        const poleDriver=finishers.find(f=>f.grid==='1')||finishers[0];
+        const fl=finishers.find(f=>f.FastestLap?.rank==='1');
+        const heroEl=document.createElement('div');
+        heroEl.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px';
+        const heroCard=(label,name,sub)=>`<div style="background:var(--bg2);border-radius:6px;padding:8px 12px"><div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:2px">${label}</div><div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text)">${name}</div><div style="font-size:11px;color:var(--text2);font-family:monospace">${sub}</div></div>`;
+        const poleQ=qualiResults.find(q=>q.Driver?.driverId===poleDriver.Driver.driverId);
+        const poleTime=poleQ?.Q3||poleQ?.Q2||poleQ?.Q1||'—';
+        heroEl.innerHTML=heroCard('Winner',winner.Driver.familyName,winner.Time?.time||'—')+heroCard('Pole',poleDriver.Driver.familyName,poleTime)+heroCard('Fastest lap',fl?fl.Driver.familyName:'—',fl?(fl.FastestLap?.Time?.time||'—')+(fl.FastestLap?.lap?' · Lap '+fl.FastestLap.lap:''):'—');
+        body.appendChild(heroEl);
 
-      // Grid vs finish — replaced with lap-by-lap position changes
-      const posTitle=document.createElement('div'); posTitle.className='detail-section-title'; posTitle.textContent='Position changes lap by lap'; detail.appendChild(posTitle);
-      const posWrap=document.createElement('div'); posWrap.style.cssText='position:relative;height:220px;margin-bottom:8px';
-      const posCanvas=document.createElement('canvas'); posCanvas.id='pos-chart-'+r.round;
-      posWrap.appendChild(posCanvas); detail.appendChild(posWrap);
-      const posNote=document.createElement('div'); posNote.style.cssText='font-size:11px;color:var(--text3);margin-bottom:8px;text-align:center'; posNote.textContent='Loading lap data...'; detail.appendChild(posNote);
+        if(qualiResults.length){
+          const qt=document.createElement('div'); qt.className='detail-section-title'; qt.style.marginTop='0'; qt.textContent='Qualifying'; body.appendChild(qt);
+          const qWrap=makeExpandTable(qualiResults,(q,i)=>{
+            const best=q.Q3||q.Q2||q.Q1||'—';
+            return '<tr><td class="q-pos">'+(i+1)+'</td><td class="q-name">'+q.Driver.familyName+'</td><td class="q-time '+(i===0?'pole':'')+'">'+best+'</td></tr>';
+          },null,5,'drivers');
+          body.appendChild(qWrap);
+        }
 
-      // Build charts after DOM is rendered
-      requestAnimationFrame(()=>{
+        const rt=document.createElement('div'); rt.className='detail-section-title'; rt.textContent='Race'; body.appendChild(rt);
+        const parseGap=g=>{
+          if(!g||g==='')return null;
+          const m=String(g).match(/^[+]?(\d+\.\d+)$/);
+          return m?parseFloat(g.replace('+','')):null;
+        };
+        const allGaps=finishers.map(f=>parseGap(f.Time?.time||''));
+        const raceHdr='<thead><tr><td class="r-pos"></td><td>Driver / Team</td><td class="r-grid" title="Grid position">Grid</td><td class="r-gain same" title="Places gained or lost">±</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Gap</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Interval</td><td class="r-pts">Pts</td></tr></thead>';
+        const raceWrap=makeExpandTable(finishers,(f,i)=>{
+          const isFl=f.FastestLap?.rank==='1';
+          const grid=parseInt(f.grid)||0;
+          const gained=grid>0?grid-(parseInt(f.position)||i+1):null;
+          const gainCell=gained===null?'<td class="r-gain same">—</td>':gained>0?'<td class="r-gain up">↑'+gained+'</td>':gained<0?'<td class="r-gain down">↓'+Math.abs(gained)+'</td>':'<td class="r-gain same">—</td>';
+          const pts=parseFloat(f.points||0);
+          const teamShort=(f.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
+          const color=teamColor(f.Constructor?.name||'');
+          const rawGap=f.Time?.time||'';
+          const isLapped=String(f.status||'').includes('Lap')||String(rawGap).includes('lap');
+          const gapTxt=i===0?'—':isLapped?f.status:(rawGap?'+'+rawGap:'—');
+          let intTxt='—';
+          if(i>0&&allGaps[i]!==null&&allGaps[i-1]!==null){
+            intTxt='+'+(allGaps[i]-allGaps[i-1]).toFixed(3)+'s';
+          }
+          const flBadge=isFl?'<span style="display:inline-block;background:#9B59B622;color:#7D3C98;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px">FL</span>':'';
+          return '<tr>'
+            +'<td class="r-pos '+(i===0?'p1c':'')+'">'+(i+1)+'</td>'
+            +'<td><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span class="r-name">'+f.Driver.familyName+flBadge+'</span><br><span class="r-team">'+teamShort+'</span></td>'
+            +'<td class="r-grid" title="Started P'+(grid||'?')+'">'+(grid||'?')+'</td>'
+            +gainCell
+            +'<td style="font-family:monospace;font-size:11px;color:var(--text2)">'+gapTxt+'</td>'
+            +'<td style="font-family:monospace;font-size:11px;color:var(--text2)">'+intTxt+'</td>'
+            +'<td class="r-pts">'+(pts>0?'+'+pts:'0')+'</td>'
+            +'</tr>';
+        },raceHdr,5,'drivers');
+        body.appendChild(raceWrap);
+
+        if(dnfs.length){
+          const dt=document.createElement('div'); dt.className='detail-section-title'; dt.textContent='Retirements (Did Not Finish)'; body.appendChild(dt);
+          const dg=document.createElement('div'); dg.className='detail-grid';
+          dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><strong>'+f.Driver.familyName+'</strong> <span class="dnf-badge">'+f.status+'</span></div>').join('');
+          body.appendChild(dg);
+        }
+
+        const gapTitle=document.createElement('div'); gapTitle.className='detail-section-title'; gapTitle.textContent='Gap to leader at finish'; body.appendChild(gapTitle);
+        const gapWrap=document.createElement('div'); gapWrap.style.cssText='position:relative;height:180px;margin-bottom:8px';
+        const gapCanvas=document.createElement('canvas'); gapCanvas.id='gap-chart-'+r.round;
+        gapWrap.appendChild(gapCanvas); body.appendChild(gapWrap);
+
+        const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap (top 5 finishers)'; body.appendChild(flTitle);
+        const flWrap=document.createElement('div'); flWrap.style.cssText='position:relative;height:160px;margin-bottom:8px';
+        const flCanvas=document.createElement('canvas'); flCanvas.id='fl-chart-'+r.round;
+        flWrap.appendChild(flCanvas); body.appendChild(flWrap);
+
+        const posTitle=document.createElement('div'); posTitle.className='detail-section-title'; posTitle.textContent='Position changes lap by lap'; body.appendChild(posTitle);
+        const posWrap=document.createElement('div'); posWrap.style.cssText='position:relative;height:220px;margin-bottom:8px';
+        const posCanvas=document.createElement('canvas'); posCanvas.id='pos-chart-'+r.round;
+        posWrap.appendChild(posCanvas); body.appendChild(posWrap);
+        const posNote=document.createElement('div'); posNote.style.cssText='font-size:11px;color:var(--text3);margin-bottom:8px;text-align:center'; posNote.textContent='Loading lap data...'; body.appendChild(posNote);
+
+        // Build charts after DOM is rendered
+        requestAnimationFrame(()=>{
         const cOpts=chartDefaults();
         cOpts.plugins.legend={display:false};
         cOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.dataset.label||ctx.label}};
@@ -2333,7 +2387,9 @@ async function loadCalendar(){
             posNote.textContent='Could not load lap data.';
           }
         })();
+        });
       });
+      detail.appendChild(raceGrp);
     }
 
     rightCol.appendChild(detail);
@@ -2385,22 +2441,34 @@ document.getElementById('race-list').addEventListener('click', e=>{
     const pitWrap=document.getElementById('pit-'+round);
     if(pitWrap&&pitWrap.dataset.loaded==='0'){
       pitWrap.dataset.loaded='1';
-      fetchJSON(BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=100').then(d=>{
+      fetchJSON(BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=200').then(d=>{
         const stops=d.MRData?.RaceTable?.Races?.[0]?.PitStops||[];
         if(!stops.length){pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">No pit stop data available.</div>';return;}
         // Store in global pitStopData for constructor modal average
         stops.forEach(s=>{ if(!pitStopData[round]) pitStopData[round]=[]; pitStopData[round].push({driverId:s.driverId,duration:s.duration}); });
-        // Group by driver, take first 5 drivers from race order
+        // Group stops by driver
         const byDriver={};
         stops.forEach(s=>{if(!byDriver[s.driverId])byDriver[s.driverId]=[];byDriver[s.driverId].push(s);});
-        const topDrivers=Object.keys(byDriver).slice(0,5);
-        let html='<table class="pit-table"><tbody>';
-        topDrivers.forEach(did=>{
+        // Order by finishing position using finishers array from outer scope
+        const finishersForRound=resultsMap[round]||[];
+        const orderedDrivers=finishersForRound.map(f=>f.Driver.driverId).filter(id=>byDriver[id]);
+        // Add any drivers in pit data not in finishers (DNFs etc)
+        Object.keys(byDriver).forEach(id=>{if(!orderedDrivers.includes(id))orderedDrivers.push(id);});
+        let html='<table class="pit-table" style="width:100%"><thead><tr>'
+          +'<th style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:4px 8px 6px;text-align:left;width:80px">Driver</th>'
+          +'<th style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:4px 8px 6px;text-align:center;width:40px">Stops</th>'
+          +'<th style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:4px 8px 6px;text-align:left">Lap · Duration</th>'
+          +'</tr></thead><tbody>';
+        orderedDrivers.forEach((did,i)=>{
           const dObj=liveDrivers.find(x=>x.driverId===did)||{last:did};
-          const dStops=byDriver[did];
-          html+='<tr><td style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;color:var(--text)">'+dObj.last+'</td>'
-            +'<td class="pit-lap">'+dStops.length+' stop'+(dStops.length>1?'s':'')+'</td>'
-            +'<td style="font-size:11px;color:var(--text3)">Laps: '+dStops.map(s=>s.lap).join(', ')+'</td></tr>';
+          const dStops=byDriver[did].sort((a,b)=>parseInt(a.lap)-parseInt(b.lap));
+          const color=teamColor(liveDrivers.find(x=>x.driverId===did)?.team||'');
+          const stopsDetail=dStops.map(s=>'<span style="display:inline-block;background:var(--bg2);border-radius:3px;padding:1px 6px;margin:1px 2px;font-size:10px;white-space:nowrap">L'+s.lap+' <span style="color:var(--text2)">'+s.duration+'s</span></span>').join('');
+          html+='<tr style="border-top:0.5px solid var(--border)">'
+            +'<td style="padding:6px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+dObj.last+'</span></td>'
+            +'<td style="padding:6px 8px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text2)">'+dStops.length+'</td>'
+            +'<td style="padding:6px 8px">'+stopsDetail+'</td>'
+            +'</tr>';
         });
         html+='</tbody></table>';
         pitWrap.innerHTML=html;
