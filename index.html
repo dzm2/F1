@@ -160,14 +160,14 @@
 
     /* Calendar */
     .race-list{display:flex;flex-direction:column;gap:6px;}
-    .race-card{background:var(--bg2);border-radius:8px;padding:14px 18px;display:grid;grid-template-columns:48px 1fr;gap:14px;border:0.5px solid var(--border);cursor:pointer;transition:border-color .15s;}
-    .race-card:hover{border-color:var(--border2);background:var(--bg);}
+    .race-card{background:var(--bg);border-radius:8px;padding:14px 18px;display:grid;grid-template-columns:48px 1fr;gap:14px;border:0.5px solid var(--border);cursor:pointer;transition:border-color .15s;}
+    .race-card:hover{border-color:var(--border2);background:var(--bg2);}
     /* Track map */
     .track-map-wrap { margin-top:8px; background:var(--bg); border-radius:6px; padding:8px; text-align:center; border:0.5px solid var(--border); }
     .track-map-img { max-width:100%; max-height:180px; object-fit:contain; filter:var(--track-map-filter); }
     :root { --track-map-filter: none; }
     [data-theme="dark"] { --track-map-filter: invert(1) hue-rotate(180deg) brightness(0.85); }
-    .track-info-item { background:var(--bg2); border-radius:5px; padding:7px 10px; }
+    .track-info-item { background:var(--bg); border:0.5px solid var(--border); border-radius:5px; padding:7px 10px; }
     .track-info-label { font-family:'Space Grotesk',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text2); font-weight:700; margin-bottom:2px; }
     .track-info-value { font-family:'Barlow',sans-serif; font-weight:900; font-size:15px; color:var(--text); }
     .track-info-value.mono { font-size:13px; }
@@ -176,8 +176,8 @@
     .race-rnd-num{font-family:'Barlow',sans-serif;font-weight:900;font-size:24px;color:var(--text);line-height:1;text-align:center;}
     .race-name-text{font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;letter-spacing:-0.2px;color:var(--text);}
     .race-meta{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--text2);margin-top:3px;}
-    .race-podium{font-size:12px;color:var(--text2);margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-    .race-extra{font-size:12px;color:var(--text2);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;}
+    .race-podium{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--text2);margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .race-extra{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--text2);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;}
     .podium-item{display:flex;align-items:center;gap:4px;}
     .podium-pos{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text2);}
     .podium-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);}
@@ -187,11 +187,11 @@
     .race-detail.open{display:block;min-height:20px;}
     .detail-section-title{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px;margin-top:12px;}
     .detail-section-title:first-child{margin-top:0;}
-    .detail-group-header{font-family:'Barlow',sans-serif;font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--bg);background:var(--text2);padding:4px 10px;border-radius:4px;margin:14px 0 10px;display:inline-block;}
+    .detail-section-title.prominent{font-family:'Barlow',sans-serif;font-size:14px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--text);border-left:3px solid var(--red);padding-left:8px;margin-top:14px;margin-bottom:8px;}
     .detail-group{border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px;}
-    .detail-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg2);cursor:pointer;user-select:none;}
+    .detail-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg2);cursor:pointer;user-select:none;border-left:3px solid var(--red);}
     .detail-group-hdr:hover{background:var(--bg3);}
-    .detail-group-lbl{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);}
+    .detail-group-lbl{font-family:'Barlow',sans-serif;font-size:14px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--text);}
     .detail-group-arrow{font-size:10px;color:var(--text3);transition:transform .2s;display:inline-block;}
     .detail-group-body{padding:10px 12px;border-top:0.5px solid var(--border);}
     .detail-group-body.dg-hidden{display:none;}
@@ -216,8 +216,8 @@
     .qual-table tr:last-child td { border-bottom:none; }
     .qual-table .q-pos { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text2); width:24px; }
     .qual-table .q-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:13px; color:var(--text); }
-    .qual-table .q-time { font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--text2); }
-    .qual-table .q-time.pole { color:var(--red); font-weight:700; }
+    .qual-table .q-time { font-family:monospace; font-size:12px; color:var(--text2); }
+    .qual-table .q-time.pole { color:var(--red); }
 
     /* Result rows in expanded detail */
     .result-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:4px; }
@@ -336,7 +336,9 @@
 
     /* Session schedule */
     .session-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;}
-    .session-table td{padding:5px 8px;border-bottom:0.5px solid var(--border);color:var(--text2);}
+    .session-table .session-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;color:var(--text2);}
+    .session-table .session-time-local{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);text-align:right;}
+    .session-table td{padding:5px 8px;border-bottom:0.5px solid var(--border);}
     .session-table tr:last-child td{border-bottom:none;}
     .session-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);}
     .session-time-local{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:var(--text2);}
@@ -2080,8 +2082,7 @@ async function loadCalendar(bypassCache=false){
     // Track info
     if(Object.keys(ci).length){
       const topMargin=(isCompleted&&finishers.length)?'10px':'0';
-      const groupHdr=document.createElement('div'); groupHdr.className='detail-group-header'; groupHdr.textContent='Weekend'; groupHdr.style.marginTop=topMargin; detail.appendChild(groupHdr);
-      const trackTitle=document.createElement('div'); trackTitle.className='detail-section-title'; trackTitle.style.marginTop='0'; trackTitle.textContent='Track information';
+      const trackTitle=document.createElement('div'); trackTitle.className='detail-section-title prominent'; trackTitle.style.marginTop=topMargin; trackTitle.textContent='Track information';
       detail.appendChild(trackTitle);
       if(ci.mapUrl){ const mw=document.createElement('div'); mw.className='track-map-wrap'; const img=document.createElement('img'); img.className='track-map-img'; img.src=ci.mapUrl; img.alt='track map'; img.loading='lazy'; img.onerror=function(){this.parentElement.style.display='none';}; mw.appendChild(img); detail.appendChild(mw); }
       const grid=document.createElement('div'); grid.className='track-info-grid';
