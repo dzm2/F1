@@ -877,6 +877,7 @@ function chartDefaults(yTitle=''){
 }
 let liveDrivers=[], liveConstructors=[], standingsHistory=[];
 let fastestLapCounts={};  // driverId -> FL count for 2026
+let resultsMap={}, sprintMap={}, qualiMap={}, sprintQualiMap={};
 let pitStopData={};       // round -> {driverId -> [{lap,duration}]}
 let penaltyData={};       // round -> [{driver,penalty,reason}]
 let qualifyingH2H={};     // driverId -> {teammate, driverAhead, teammateAhead}
@@ -1871,7 +1872,8 @@ const CIRCUIT_INFO = {
 
 // ── Calendar + Results (with quali, sprint quali, tyre strategy, DNF tracking) ──
 async function loadCalendar(bypassCache=false){
-  let stale=false,allRaces=[],resultsMap={},sprintMap={},qualiMap={},sprintQualiMap={};
+  let stale=false,allRaces=[];
+  resultsMap={}; sprintMap={}; qualiMap={}; sprintQualiMap={};
   try{
     const schedData=await fetchJSON(`${BASE}/${SEASON}.json?limit=30`,2,bypassCache);
     allRaces=schedData.MRData?.RaceTable?.Races||[];
@@ -2295,7 +2297,8 @@ async function loadCalendar(bypassCache=false){
             if(currLaps>prevLaps){
               intTxt='+'+currLaps+' Lap'+(currLaps>1?'s':'');
             } else if(allGaps[i]!==null&&allGaps[i-1]!==null){
-              intTxt='+'+(allGaps[i]-allGaps[i-1]).toFixed(3)+'s';
+              const diff=(allGaps[i]-allGaps[i-1]);
+              intTxt=(diff>=0?'+':'')+diff.toFixed(3)+'s';
             } else if(currLaps===0&&prevLaps===0){
               intTxt='—';
             }
