@@ -2145,27 +2145,66 @@ async function loadCalendar(){
       detail.appendChild(tbl);
     }
 
+    // Sprint qualifying top 5 (sprint rounds only)
+    const sprintQualiResults=sprintQualiMap[r.round]||[];
+    if(isCompleted&&sprintQualiResults.length){
+      const sqt=document.createElement('div'); sqt.className='detail-section-title'; sqt.textContent='Sprint qualifying top 5'; detail.appendChild(sqt);
+      const sqTbl=document.createElement('table'); sqTbl.className='qual-table';
+      sqTbl.innerHTML='<tbody>'+sprintQualiResults.slice(0,5).map((q,i)=>{
+        const best=q.Q3||q.Q2||q.Q1||'—';
+        return '<tr><td class="q-pos">'+(i+1)+'</td><td class="q-name">'+q.Driver.familyName+'</td><td class="q-time '+(i===0?'pole':'')+'">'+best+'</td></tr>';
+      }).join('')+'</tbody>';
+      detail.appendChild(sqTbl);
+    }
+
     // Race top 10
     if(isCompleted&&finishers.length){
+      // Hero cards
+      const winner=finishers[0];
+      const poleDriver=finishers.find(f=>f.grid==='1')||finishers[0];
+      const fl=finishers.find(f=>f.FastestLap?.rank==='1');
+      const heroEl=document.createElement('div');
+      heroEl.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px';
+      const heroCard=(label,name,sub)=>`<div style="background:var(--bg2);border-radius:6px;padding:8px 12px"><div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:2px">${label}</div><div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text)">${name}</div><div style="font-size:11px;color:var(--text2);font-family:monospace">${sub}</div></div>`;
+      const poleQ=qualiResults.find(q=>q.Driver?.driverId===poleDriver.Driver.driverId);
+      const poleTime=poleQ?.Q3||poleQ?.Q2||poleQ?.Q1||'—';
+      heroEl.innerHTML=heroCard('Winner',winner.Driver.familyName,winner.Time?.time||'—')+heroCard('Pole',poleDriver.Driver.familyName,poleTime)+heroCard('Fastest lap',fl?fl.Driver.familyName:'—',fl?(fl.FastestLap?.Time?.time||'—')+(fl.FastestLap?.lap?' · Lap '+fl.FastestLap.lap:''):'—');
+      detail.appendChild(heroEl);
+
       const rt=document.createElement('div'); rt.className='detail-section-title'; rt.textContent='Race top 10'; detail.appendChild(rt);
+      const parseGap=g=>{
+        if(!g||g==='')return null;
+        const m=String(g).match(/^[+]?(\d+\.\d+)$/);
+        return m?parseFloat(g.replace('+','')):null;
+      };
+      const top10=finishers.slice(0,10);
+      const gaps=top10.map(f=>parseGap(f.Time?.time||''));
       const tbl=document.createElement('table'); tbl.className='result-table';
-      const hdr='<thead><tr><td class="r-pos"></td><td>Driver / Team</td><td class="r-grid" title="Grid position">Grid</td><td class="r-gain same" title="Places gained or lost">±</td><td class="r-pts">Pts</td><td class="r-status">Status</td></tr></thead>';
-      const rows=finishers.slice(0,10).map((f,i)=>{
-        const isDNF=f.status&&f.status!=='Finished'&&!f.status.startsWith('+');
+      const hdr='<thead><tr><td class="r-pos"></td><td>Driver / Team</td><td class="r-grid" title="Grid position">Grid</td><td class="r-gain same" title="Places gained or lost">±</td><td style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Gap</td><td style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Interval</td><td class="r-pts">Pts</td></tr></thead>';
+      const rows=top10.map((f,i)=>{
         const isFl=f.FastestLap?.rank==='1';
         const grid=parseInt(f.grid)||0;
         const gained=grid>0?grid-(parseInt(f.position)||i+1):null;
         const gainCell=gained===null?'<td class="r-gain same">—</td>':gained>0?'<td class="r-gain up">↑'+gained+'</td>':gained<0?'<td class="r-gain down">↓'+Math.abs(gained)+'</td>':'<td class="r-gain same">—</td>';
         const pts=parseFloat(f.points||0);
         const teamShort=(f.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
-        const statusTxt=isDNF?f.status:f.status==='Finished'?'':f.status;
+        const color=teamColor(f.Constructor?.name||'');
+        const rawGap=f.Time?.time||'';
+        const isLapped=String(f.status||'').includes('Lap')||String(rawGap).includes('lap');
+        const gapTxt=i===0?'—':isLapped?f.status:(rawGap?'+'+rawGap:'—');
+        let intTxt='—';
+        if(i>0&&gaps[i]!==null&&gaps[i-1]!==null){
+          intTxt='+'+(gaps[i]-gaps[i-1]).toFixed(3)+'s';
+        }
+        const flBadge=isFl?'<span style="display:inline-block;background:#9B59B622;color:#7D3C98;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px">FL</span>':'';
         return '<tr>'
           +'<td class="r-pos '+(i===0?'p1c':'')+'">'+(i+1)+'</td>'
-          +'<td><span class="r-name">'+f.Driver.familyName+(isFl?' ⚡':'')+'</span><br><span class="r-team">'+teamShort+'</span></td>'
+          +'<td><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span class="r-name">'+f.Driver.familyName+flBadge+'</span><br><span class="r-team">'+teamShort+'</span></td>'
           +'<td class="r-grid" title="Started P'+(grid||'?')+'">'+(grid||'?')+'</td>'
           +gainCell
+          +'<td style="font-family:monospace;font-size:11px;color:var(--text2)">'+gapTxt+'</td>'
+          +'<td style="font-family:monospace;font-size:11px;color:var(--text2)">'+intTxt+'</td>'
           +'<td class="r-pts">'+(pts>0?'+'+pts:'0')+'</td>'
-          +'<td class="r-status">'+(isDNF?'<span class="dnf-badge">'+statusTxt.slice(0,8)+'</span>':statusTxt)+'</td>'
           +'</tr>';
       }).join('');
       tbl.innerHTML=hdr+'<tbody>'+rows+'</tbody>';
@@ -2174,7 +2213,7 @@ async function loadCalendar(){
       if(dnfs.length){
         const dt=document.createElement('div'); dt.className='detail-section-title'; dt.textContent='Retirements (Did Not Finish)'; detail.appendChild(dt);
         const dg=document.createElement('div'); dg.className='detail-grid';
-        dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><strong>'+f.Driver.familyName+'</strong> <span class="dnf-badge">'+f.status.slice(0,10)+'</span></div>').join('');
+        dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><strong>'+f.Driver.familyName+'</strong> <span class="dnf-badge">'+f.status+'</span></div>').join('');
         detail.appendChild(dg);
       }
 
