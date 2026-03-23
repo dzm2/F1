@@ -2180,7 +2180,7 @@ async function loadCalendar(){
       const top10=finishers.slice(0,10);
       const gaps=top10.map(f=>parseGap(f.Time?.time||''));
       const tbl=document.createElement('table'); tbl.className='result-table';
-      const hdr='<thead><tr><td class="r-pos"></td><td>Driver / Team</td><td class="r-grid" title="Grid position">Grid</td><td class="r-gain same" title="Places gained or lost">±</td><td style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Gap</td><td style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Interval</td><td class="r-pts">Pts</td></tr></thead>';
+      const hdr='<thead><tr><td class="r-pos"></td><td>Driver / Team</td><td class="r-grid" title="Grid position">Grid</td><td class="r-gain same" title="Places gained or lost">±</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Gap</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Interval</td><td class="r-pts">Pts</td></tr></thead>';
       const rows=top10.map((f,i)=>{
         const isFl=f.FastestLap?.rank==='1';
         const grid=parseInt(f.grid)||0;
@@ -2244,7 +2244,7 @@ async function loadCalendar(){
         cOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.dataset.label||ctx.label}};
 
         // Gap to leader chart (all classified finishers)
-        const classified=finishers.filter(f=>f.status==='Finished'||f.status.startsWith('+'));
+        const classified=finishers.filter(f=>f.status==='Finished'||f.status?.startsWith('+'));
         const gapLabels=classified.map(f=>f.Driver.familyName);
         const gapData=classified.map((f,i)=>{
           if(i===0) return 0;
