@@ -837,8 +837,8 @@ function cacheGet(k){ try{const r=JSON.parse(localStorage.getItem(k));if(r&&Date
 function cacheGetStale(k){ try{const r=JSON.parse(localStorage.getItem(k));if(r)return r.data;}catch(e){}return null; }
 
 // ── Fetch with retry + cache ──
-async function fetchJSON(url,retries=2){
-  const c=cacheGet(url); if(c)return c;
+async function fetchJSON(url,retries=2,bypassCache=false){
+  if(!bypassCache){ const c=cacheGet(url); if(c)return c; }
   for(let i=0;i<=retries;i++){
     try{
       const r=await fetch(url,{signal:AbortSignal.timeout(12000)});
@@ -969,13 +969,13 @@ function startCountdown(dateStr,name){
 
 
 // ── Driver Standings ──
-async function loadDriverStandings(){
+async function loadDriverStandings(bypassCache=false){
   let stale=false,list,data;
   try{
     // Fetch standings and fastest laps in parallel
     const [standingsRes,flRes]=await Promise.allSettled([
-      fetchJSON(`${BASE}/${SEASON}/driverstandings.json?limit=30`),
-      fetchJSON(`${BASE}/${SEASON}/fastest/1/results.json?limit=200`),
+      fetchJSON(`${BASE}/${SEASON}/driverstandings.json?limit=30`,2,bypassCache),
+      fetchJSON(`${BASE}/${SEASON}/fastest/1/results.json?limit=200`,2,bypassCache),
     ]);
     if(standingsRes.status==='fulfilled'){
       data=standingsRes.value;
@@ -1759,10 +1759,10 @@ function closeConModal(e){
 }
 
 // ── Constructor Standings ──
-async function loadConstructorStandings(){
+async function loadConstructorStandings(bypassCache=false){
   let stale=false,list;
   try{
-    const data=await fetchJSON(`${BASE}/${SEASON}/constructorstandings.json?limit=20`);
+    const data=await fetchJSON(`${BASE}/${SEASON}/constructorstandings.json?limit=20`,2,bypassCache);
     list=data.MRData?.StandingsTable?.StandingsLists[0]?.ConstructorStandings||[];
   }catch(e){
     const fb=cacheGetStale(`${BASE}/${SEASON}/constructorstandings.json?limit=20`);
@@ -1862,20 +1862,20 @@ const CIRCUIT_INFO = {
 };
 
 // ── Calendar + Results (with quali, sprint quali, tyre strategy, DNF tracking) ──
-async function loadCalendar(){
+async function loadCalendar(bypassCache=false){
   let stale=false,allRaces=[],resultsMap={},sprintMap={},qualiMap={},sprintQualiMap={};
   try{
-    const schedData=await fetchJSON(`${BASE}/${SEASON}.json?limit=30`);
+    const schedData=await fetchJSON(`${BASE}/${SEASON}.json?limit=30`,2,bypassCache);
     allRaces=schedData.MRData?.RaceTable?.Races||[];
     const today=new Date();
     const completed=allRaces.filter(r=>new Date(r.date)<=today);
     const completedSprints=completed.filter(r=>SPRINT_ROUNDS.has(parseInt(r.round)));
     if(completed.length>0){
       const [gpRes,sprintRes,qualiRes,sprintQualiRes]=await Promise.all([
-        Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/results.json?limit=20`).catch(()=>null))),
-        Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/sprint.json?limit=3`).catch(()=>null))),
-        Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`).catch(()=>null))),
-        Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`).catch(()=>null))),
+        Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/results.json?limit=20`,2,bypassCache).catch(()=>null))),
+        Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/sprint.json?limit=3`,2,bypassCache).catch(()=>null))),
+        Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null))),
+        Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null))),
       ]);
       completed.forEach((r,i)=>{
         if(gpRes[i])    resultsMap[r.round]   =gpRes[i].MRData?.RaceTable?.Races?.[0]?.Results||[];
@@ -3121,14 +3121,14 @@ function openSettings(){
 function closeSettings(){ document.getElementById('settings-modal').classList.add('hidden'); }
 
 
-async function loadAll(){
+async function loadAll(bypassCache=false){
   resetProgress();
   _loadTotal=4;
   document.getElementById('fetch-status').textContent='Fetching...';
   document.getElementById('live-dot').classList.remove('stale-dot');
   ['drivers-loading','con-loading','cal-loading'].forEach(id=>document.getElementById(id).style.display='');
   ['drivers-table','con-table','race-list'].forEach(id=>document.getElementById(id).style.display='none');
-  await Promise.allSettled([loadDriverStandings(),loadConstructorStandings(),loadCalendar(),loadNews()]);
+  await Promise.allSettled([loadDriverStandings(bypassCache),loadConstructorStandings(bypassCache),loadCalendar(bypassCache),loadNews()]);
   const stale=document.querySelector('.stale-banner.show');
   document.getElementById('fetch-status').textContent=(stale?'Cached':'Live')+' · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   if(stale)document.getElementById('live-dot').classList.add('stale-dot');
@@ -3137,7 +3137,28 @@ async function loadAll(){
   // Preload Season tab in background so it feels instant when the user clicks it
   if(!window._seasonLoaded) setTimeout(()=>loadSeasonTab(true),4000);
 }
-document.getElementById('refresh-btn').onclick=()=>{ loadAll(); };
+(()=>{
+  const btn=document.getElementById('refresh-btn');
+  let locked=false;
+  btn.onclick=()=>{
+    if(locked) return;
+    locked=true;
+    btn.disabled=true;
+    btn.textContent='✓ Refreshed';
+    btn.style.color='#16a34a';
+    // Clear localStorage cache so fresh data is fetched
+    try{ Object.keys(localStorage).filter(k=>k.startsWith('https://')).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+    window._seasonLoaded=false;
+    loadAll(true).finally(()=>{
+      setTimeout(()=>{
+        btn.textContent='↻ Refresh';
+        btn.style.color='';
+        btn.style.opacity='0.4';
+        setTimeout(()=>{ locked=false; btn.disabled=false; btn.style.opacity=''; btn.textContent='↻ Refresh'; },8000);
+      },2000);
+    });
+  };
+})();
 
 // ── Smart auto-refresh ──
 // Schedules a single fetch shortly after each session is expected to end.
