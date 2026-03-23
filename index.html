@@ -2332,9 +2332,27 @@ async function loadCalendar(bypassCache=false){
         pitWrap.dataset.loaded='0';
 
         const gapTitle=document.createElement('div'); gapTitle.className='detail-section-title'; gapTitle.textContent='Gap to leader at finish'; body.appendChild(gapTitle);
-        const gapWrap=document.createElement('div'); gapWrap.style.cssText='position:relative;height:180px;margin-bottom:8px';
-        const gapCanvas=document.createElement('canvas'); gapCanvas.id='gap-chart-'+r.round;
-        gapWrap.appendChild(gapCanvas); body.appendChild(gapWrap);
+        const top5gap=finishers.slice(0,5);
+        const maxGap=Math.max(...top5gap.map(f=>{const t=f.Time?.time||'';const m=t.match(/^[+]?(\d+\.?\d*)$/);return m?parseFloat(m[1]):0;}));
+        const gapTbl=document.createElement('table'); gapTbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;margin-top:4px';
+        gapTbl.innerHTML='<tbody>'+top5gap.map((f,i)=>{
+          const color=teamColor(f.Constructor?.name||'');
+          const teamShort=(f.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
+          const rawGap=f.Time?.time||'';
+          const m=rawGap.match(/^[+]?(\d+\.?\d*)$/);
+          const gapSec=m?parseFloat(m[1]):null;
+          const barPct=i===0||!gapSec||!maxGap?0:Math.round((gapSec/maxGap)*100);
+          const gapVal=i===0?'<span style="color:var(--red);font-weight:700">Winner</span>':(rawGap||'—');
+          return '<tr style="border-bottom:0.5px solid var(--border)">'
+            +'<td style="padding:7px 8px;width:24px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:14px;color:'+(i===0?'var(--red)':'var(--text2)')+'">'+(i+1)+'</td>'
+            +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
+            +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+f.Driver.familyName+'</span>'
+            +'<br><span style="font-family:\'Space Grotesk\',sans-serif;font-size:11px;color:var(--text3)">'+teamShort+'</span></td>'
+            +'<td style="padding:7px 8px;width:100px"><div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+barPct+'%;background:'+color+(i===0?'':'88')+';border-radius:2px"></div></div></td>'
+            +'<td style="padding:7px 8px;font-family:monospace;font-size:11px;color:var(--text2);text-align:right;white-space:nowrap">'+gapVal+'</td>'
+            +'</tr>';
+        }).join('')+'</tbody>';
+        body.appendChild(gapTbl);
 
         const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap · top 5 finishers'; body.appendChild(flTitle);
         const top5=finishers.slice(0,5).filter(f=>f.FastestLap?.Time?.time);
@@ -2379,21 +2397,6 @@ async function loadCalendar(bypassCache=false){
         const cOpts=chartDefaults();
         cOpts.plugins.legend={display:false};
         cOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.dataset.label||ctx.label}};
-
-        // Gap to leader chart (all classified finishers)
-        const classified=finishers.filter(f=>f.status==='Finished'||f.status?.startsWith('+'));
-        const gapLabels=classified.map(f=>f.Driver.familyName);
-        const gapData=classified.map((f,i)=>{
-          if(i===0) return 0;
-          const t=f.Time?.time||'';
-          const m=t.match(/^[+]?([\d.]+)$/); return m?parseFloat(m[1]):null;
-        });
-        const gapColors=classified.map(f=>teamColor(f.Constructor?.name||''));
-        const gapCtx=gapCanvas;
-        const gapOpts=chartDefaults('Seconds behind leader');
-        gapOpts.plugins.legend={display:false};
-        gapOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.parsed.y===0?'Leader':'+'+ctx.parsed.y+'s'}};
-        if(gapCtx&&!gapCtx._chart) gapCtx._chart=new Chart(gapCtx,{type:'bar',data:{labels:gapLabels,datasets:[{label:'Gap (s)',data:gapData,backgroundColor:gapColors.map(c=>c+'aa'),borderColor:gapColors,borderWidth:1}]},options:gapOpts});
 
         // ── Lap-by-lap position changes ──
         (async()=>{
@@ -2523,20 +2526,16 @@ document.getElementById('race-list').addEventListener('click', e=>{
         const orderedDrivers=finishersForRound.map(f=>f.Driver.driverId).filter(id=>byDriver[id]);
         // Add any drivers in pit data not in finishers (DNFs etc)
         Object.keys(byDriver).forEach(id=>{if(!orderedDrivers.includes(id))orderedDrivers.push(id);});
-        let html='<table class="pit-table" style="width:100%"><thead><tr>'
-          +'<th style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:4px 8px 6px;text-align:left;width:80px">Driver</th>'
-          +'<th style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:4px 8px 6px;text-align:center;width:40px">Stops</th>'
-          +'<th style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:4px 8px 6px;text-align:left">Lap · Duration</th>'
-          +'</tr></thead><tbody>';
+        let html='<table class="pit-table" style="width:100%;table-layout:fixed"><thead><tr>'          +'<th style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:7px 8px;text-align:left">Driver</th>'          +'<th style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:7px 8px;text-align:center;width:44px">Stops</th>'          +'<th style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:7px 8px;text-align:left">Lap · Duration</th>'          +'</tr></thead><tbody>';
         orderedDrivers.forEach((did,i)=>{
           const dObj=liveDrivers.find(x=>x.driverId===did)||{last:did};
           const dStops=byDriver[did].sort((a,b)=>parseInt(a.lap)-parseInt(b.lap));
           const color=teamColor(liveDrivers.find(x=>x.driverId===did)?.team||'');
           const stopsDetail=dStops.map(s=>'<span style="display:inline-block;background:var(--bg2);border-radius:3px;padding:1px 6px;margin:1px 2px;font-size:10px;white-space:nowrap">L'+s.lap+' <span style="color:var(--text2)">'+s.duration+'s</span></span>').join('');
           html+='<tr style="border-top:0.5px solid var(--border)">'
-            +'<td style="padding:6px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+dObj.last+'</span></td>'
-            +'<td style="padding:6px 8px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text2)">'+dStops.length+'</td>'
-            +'<td style="padding:6px 8px">'+stopsDetail+'</td>'
+            +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+dObj.last+'</span></td>'
+            +'<td style="padding:7px 8px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text2)">'+dStops.length+'</td>'
+            +'<td style="padding:7px 8px">'+stopsDetail+'</td>'
             +'</tr>';
         });
         html+='</tbody></table>';
