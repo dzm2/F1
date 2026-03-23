@@ -152,7 +152,7 @@
     .con-driver-cards { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:1rem; }
     .con-driver-card { background:var(--bg2); border-radius:8px; padding:12px; border-left:3px solid transparent; }
     .con-driver-card-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:16px; color:var(--text); text-transform:uppercase; }
-    .con-driver-card-pts { font-family:'Barlow',sans-serif; font-weight:900; font-size:22px; color:var(--text); margin-top:4px; }
+    .con-driver-card-pts { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; color:var(--text); margin-top:4px; }
     .con-driver-card-sub { font-family:'Space Grotesk',sans-serif; font-size:11px; color:var(--text2); margin-top:2px; }
     /* Mini points-per-round bar chart */
     .con-round-chart { display:flex; align-items:flex-end; gap:3px; height:60px; margin-top:6px; }
@@ -418,10 +418,10 @@
     .rc-bar-fill{height:2px;border-radius:0;}
     .rc-pos{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:var(--text3);}
     .rc-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:12px;text-transform:uppercase;color:var(--text);letter-spacing:0.2px;line-height:1.2;}
-    .rc-val{font-family:'Barlow',sans-serif;font-weight:900;font-size:15px;letter-spacing:-0.5px;color:var(--text);text-align:right;white-space:nowrap;}
+    .rc-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--text);text-align:right;white-space:nowrap;}
     .rc-row.p1 .rc-pos{color:#B8922A;}
     .rc-row.p1 .rc-name{font-size:13px;}
-    .rc-row.p1 .rc-val{color:var(--red);font-size:17px;}
+    .rc-row.p1 .rc-val{color:var(--red);font-size:17px;font-family:'Space Grotesk',sans-serif;font-weight:700;}
 
     /* Regs + Team assessments */
     .reg-card{background:var(--bg);border-radius:8px;padding:16px 18px;border:0.5px solid var(--border);border-left:4px solid var(--red);margin-bottom:8px;}
@@ -1999,7 +1999,7 @@ async function openConstructorModal(constructorId){
     if(allDurations.length){
       const avg=(allDurations.reduce((a,b)=>a+b,0)/allDurations.length).toFixed(3);
       const best=Math.min(...allDurations).toFixed(3);
-      pitAvgEl.innerHTML='<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:20px;color:var(--text)">'+avg+'s</span> <span style="font-family:\'Space Grotesk\',sans-serif;font-size:12px;color:var(--text2)">average · Best: '+best+'s</span>';
+      pitAvgEl.innerHTML='<span style="font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:18px;color:var(--text)">'+avg+'s</span> <span style="font-family:\'Space Grotesk\',sans-serif;font-size:12px;color:var(--text2)">average · Best: '+best+'s</span>';
     } else {
       pitAvgEl.textContent='No pit stop data yet — open race cards to load pit data.';
     }
