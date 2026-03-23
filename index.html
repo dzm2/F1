@@ -181,7 +181,6 @@
     .podium-item{display:flex;align-items:center;gap:4px;}
     .podium-pos{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text2);}
     .podium-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);}
-    .next-pill{background:var(--red);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:20px;white-space:nowrap;margin-left:6px;}
     .sprint-pill{background:var(--gold);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:20px;white-space:nowrap;margin-left:4px;}
     .race-detail{display:none;padding-top:16px;border-top:0.5px solid var(--border);margin-top:12px;}
     .race-detail.open{display:block;min-height:20px;}
@@ -1990,7 +1989,7 @@ async function loadCalendar(bypassCache=false){
     const sprintFinishers=sprintMap[r.round]||[];
     const qualiResults=qualiMap[r.round]||[];
     const date=new Date(r.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-    const cardClass=isNext?'next-race':isCompleted?'completed':'upcoming';
+    const cardClass=isCompleted?'completed':'upcoming';
 
     // Circuit info lookup
     const circuitId=r.Circuit?.circuitId||'';
@@ -2020,7 +2019,6 @@ async function loadCalendar(bypassCache=false){
     const nameDiv=document.createElement('div');
     nameDiv.className='race-name-text';
     nameDiv.textContent=r.raceName;
-    if(isNext){ const p=document.createElement('span'); p.className='next-pill'; p.textContent='Next'; nameDiv.appendChild(p); }
     if(isSprint){ const p=document.createElement('span'); p.className='sprint-pill'; p.textContent='Sprint'; nameDiv.appendChild(p); }
     rightCol.appendChild(nameDiv);
 
