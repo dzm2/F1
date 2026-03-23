@@ -884,6 +884,7 @@ let liveDrivers=[], liveConstructors=[], standingsHistory=[];
 let fastestLapCounts={};  // driverId -> FL count for 2026
 let resultsMap={}, sprintMap={}, qualiMap={}, sprintQualiMap={};
 let pitStopData={};       // round -> {driverId -> [{lap,duration}]}
+function parsePitDuration(s){ if(!s) return NaN; s=String(s).trim(); if(s.includes(':')){ const p=s.split(':'); return parseFloat(p[0])*60+parseFloat(p[1]); } return parseFloat(s); }
 let penaltyData={};       // round -> [{driver,penalty,reason}]
 let qualifyingH2H={};     // driverId -> {teammate, driverAhead, teammateAhead}
 
@@ -1580,8 +1581,8 @@ async function openDriverModal(driverId){
       Object.values(pitStopData).forEach(stops=>{
         stops.forEach(stop=>{
           if(stop.driverId===driverId){
-            const dur=parseFloat(stop.duration);
-            if(!isNaN(dur)&&dur>0&&dur<60) allDriverPits.push(dur);
+            const dur=parsePitDuration(stop.duration);
+            if(!isNaN(dur)&&dur>1.5&&dur<120) allDriverPits.push(dur);
           }
         });
       });
@@ -1991,8 +1992,8 @@ async function openConstructorModal(constructorId){
       stops.forEach(stop=>{
         const drivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
         if(drivers.some(d=>d.driverId===stop.driverId)){
-          const dur=parseFloat(stop.duration);
-          if(!isNaN(dur)&&dur>0&&dur<60) allDurations.push(dur);
+          const dur=parsePitDuration(stop.duration);
+          if(!isNaN(dur)&&dur>1.5&&dur<120) allDurations.push(dur);
         }
       });
     });
