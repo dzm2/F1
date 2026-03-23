@@ -2286,10 +2286,37 @@ async function loadCalendar(bypassCache=false){
         const gapCanvas=document.createElement('canvas'); gapCanvas.id='gap-chart-'+r.round;
         gapWrap.appendChild(gapCanvas); body.appendChild(gapWrap);
 
-        const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap (top 5 finishers)'; body.appendChild(flTitle);
-        const flWrap=document.createElement('div'); flWrap.style.cssText='position:relative;height:160px;margin-bottom:8px';
-        const flCanvas=document.createElement('canvas'); flCanvas.id='fl-chart-'+r.round;
-        flWrap.appendChild(flCanvas); body.appendChild(flWrap);
+        const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap · top 5 finishers'; body.appendChild(flTitle);
+        const top5=finishers.slice(0,5).filter(f=>f.FastestLap?.Time?.time);
+        if(top5.length){
+          const flSorted=[...top5].sort((a,b)=>{
+            const toSec=t=>{const p=t.match(/(\d+):(\d+\.\d+)/);return p?parseFloat(p[1])*60+parseFloat(p[2]):Infinity;};
+            return toSec(a.FastestLap.Time.time)-toSec(b.FastestLap.Time.time);
+          });
+          const toSec=t=>{const p=t.match(/(\d+):(\d+\.\d+)/);return p?parseFloat(p[1])*60+parseFloat(p[2]):Infinity;};
+          const fastest=toSec(flSorted[0].FastestLap.Time.time);
+          const flTbl=document.createElement('table'); flTbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;margin-top:4px';
+          flTbl.innerHTML='<tbody>'+flSorted.map((f,i)=>{
+            const color=teamColor(f.Constructor?.name||'');
+            const teamShort=(f.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
+            const time=f.FastestLap.Time.time;
+            const sec=toSec(time);
+            const delta=sec-fastest;
+            const isFastest=i===0;
+            const flBadge=f.FastestLap?.rank==='1'?'<span style="display:inline-block;background:#9B59B622;color:#7D3C98;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px">FL</span>':'';
+            return '<tr style="border-bottom:0.5px solid var(--border)">'
+              +'<td style="padding:6px 6px;width:22px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:'+(isFastest?'var(--red)':'var(--text2)')+'">'+(i+1)+'</td>'
+              +'<td style="padding:6px 6px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
+              +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+f.Driver.familyName+flBadge+'</span>'
+              +'<br><span style="font-size:11px;color:var(--text3)">'+teamShort+'</span></td>'
+              +'<td style="padding:6px 6px;font-family:monospace;font-size:12px;color:'+(isFastest?'#7D3C98':'var(--text2)')+';text-align:right">'+time+'</td>'
+              +'<td style="padding:6px 6px;font-family:monospace;font-size:11px;color:var(--text3);text-align:right;width:58px">'+(isFastest?'—':'+'+delta.toFixed(3)+'s')+'</td>'
+              +'</tr>';
+          }).join('')+'</tbody>';
+          body.appendChild(flTbl);
+        } else {
+          const noFl=document.createElement('div'); noFl.style.cssText='font-size:12px;color:var(--text3);padding:4px 0'; noFl.textContent='Fastest lap data not available'; body.appendChild(noFl);
+        }
 
         const posTitle=document.createElement('div'); posTitle.className='detail-section-title'; posTitle.textContent='Position changes lap by lap'; body.appendChild(posTitle);
         const posWrap=document.createElement('div'); posWrap.style.cssText='position:relative;height:220px;margin-bottom:8px';
@@ -2312,33 +2339,15 @@ async function loadCalendar(bypassCache=false){
           const m=s.match(/\+([\d.]+)/); return m?parseFloat(m[1]):null;
         });
         const gapColors=classified.map(f=>teamColor(f.Constructor?.name||''));
-        const gapCtx=document.getElementById('gap-chart-'+r.round);
+        const gapCtx=gapCanvas;
         const gapOpts=chartDefaults('Seconds behind leader');
         gapOpts.plugins.legend={display:false};
         gapOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.parsed.y===0?'Leader':'+'+ctx.parsed.y+'s'}};
         if(gapCtx&&!gapCtx._chart) gapCtx._chart=new Chart(gapCtx,{type:'bar',data:{labels:gapLabels,datasets:[{label:'Gap (s)',data:gapData,backgroundColor:gapColors.map(c=>c+'aa'),borderColor:gapColors,borderWidth:1}]},options:gapOpts});
 
-        // Fastest lap comparison (top 5)
-        const top5=finishers.slice(0,5).filter(f=>f.FastestLap?.Time?.time);
-        const flLabels=top5.map(f=>f.Driver.familyName);
-        const flTimes=top5.map(f=>{
-          const t=f.FastestLap?.Time?.time||'';
-          const parts=t.match(/(\d+):(\d+\.\d+)/);
-          return parts?parseFloat(parts[1])*60+parseFloat(parts[2]):null;
-        });
-        const flMin=flTimes.filter(Boolean).reduce((a,b)=>Math.min(a,b),Infinity);
-        const flColors=top5.map(f=>teamColor(f.Constructor?.name||''));
-        const flCtx=document.getElementById('fl-chart-'+r.round);
-        const flOpts=chartDefaults('Lap time (s)');
-        flOpts.plugins.legend={display:false};
-        flOpts.plugins.tooltip={callbacks:{label:ctx=>{const t=ctx.parsed.y;const m=Math.floor(t/60);const s=(t%60).toFixed(3).padStart(6,'0');return m+':'+s+(ctx.parsed.y===flMin?' ⚡':'');}}};
-        flOpts.scales.y={...flOpts.scales.y,suggestedMin:flMin*0.998};
-        if(flCtx&&!flCtx._chart&&top5.length) flCtx._chart=new Chart(flCtx,{type:'bar',data:{labels:flLabels,datasets:[{label:'Fastest lap',data:flTimes,backgroundColor:flColors.map(c=>c+'aa'),borderColor:flColors,borderWidth:1}]},options:flOpts});
-        else if(flCtx&&!top5.length) flCtx.parentElement.previousSibling.textContent='Fastest lap data not available';
-
         // ── Lap-by-lap position changes ──
         (async()=>{
-          const posCtx=document.getElementById('pos-chart-'+r.round);
+          const posCtx=posCanvas;
           if(!posCtx||posCtx._chart) return;
           try{
             // Fetch all laps — paginate as a race can have up to 77 laps x 20 drivers = 1540 timings
