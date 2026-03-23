@@ -211,12 +211,18 @@
 
     /* Qualifying table inside detail */
     .qual-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:4px; }
-    .qual-table td { padding:7px 8px; border-bottom:0.5px solid var(--border); color:var(--text2); }
+    .qual-table th { font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text3); padding:6px 8px 6px; border-bottom:0.5px solid var(--border); text-align:left; }
+    .qual-table th.q-time { text-align:right; }
+    .qual-table td { padding:7px 8px; border-bottom:0.5px solid var(--border); color:var(--text); vertical-align:middle; }
     .qual-table tr:last-child td { border-bottom:none; }
-    .qual-table .q-pos { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text2); width:24px; }
+    .qual-table tr:hover td { background:var(--bg2); }
+    .qual-table .q-pos { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text2); width:24px; text-align:center; }
+    .qual-table .q-pos.pole { color:var(--red); }
     .qual-table .q-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:13px; color:var(--text); }
-    .qual-table .q-time { font-family:monospace; font-size:12px; color:var(--text2); }
+    .qual-table .q-team { font-family:'Space Grotesk',sans-serif; font-size:11px; color:var(--text3); }
+    .qual-table .q-time { font-family:monospace; font-size:12px; color:var(--text2); text-align:right; }
     .qual-table .q-time.pole { color:var(--red); }
+    .qual-table .q-time.empty { color:var(--text3); }
 
     /* Result rows in expanded detail */
     .result-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:4px; }
@@ -2191,9 +2197,18 @@ async function loadCalendar(bypassCache=false){
         if(sprintQualiResults.length){
           const sqt=document.createElement('div'); sqt.className='detail-section-title'; sqt.style.marginTop='0'; sqt.textContent='Sprint qualifying'; body.appendChild(sqt);
           const sqWrap=makeExpandTable(sprintQualiResults,(q,i)=>{
-            const best=q.Q3||q.Q2||q.Q1||'—';
-            return '<tr><td class="q-pos">'+(i+1)+'</td><td class="q-name">'+q.Driver.familyName+'</td><td class="q-time '+(i===0?'pole':'')+'">'+best+'</td></tr>';
-          },null,5,'drivers');
+            const color=teamColor(q.Constructor?.name||'');
+            const teamShort=(q.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
+            const q1=q.Q1||''; const q2=q.Q2||''; const q3=q.Q3||'';
+            return '<tr>'
+              +'<td class="q-pos '+(i===0?'pole':'')+'\">'+(i+1)+'</td>'
+              +'<td><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
+              +'<span class="q-name">'+q.Driver.familyName+'</span><br><span class="q-team">'+teamShort+'</span></td>'
+              +'<td class="q-time '+(i===0&&q1?'pole':'')+(q1?'':'empty')+'">'+(q1||'—')+'</td>'
+              +'<td class="q-time '+(q2?'':'empty')+'">'+(q2||'—')+'</td>'
+              +'<td class="q-time '+(i===0&&q3?'pole':'')+(q3?'':'empty')+'">'+(q3||'—')+'</td>'
+              +'</tr>';
+          },'<thead><tr><td class="q-pos"></td><th>Driver</th><th class="q-time">SQ1</th><th class="q-time">SQ2</th><th class="q-time">SQ3</th></tr></thead>',5,'drivers');
           body.appendChild(sqWrap);
         }
         if(sprintFinishers.length){
@@ -2232,9 +2247,18 @@ async function loadCalendar(bypassCache=false){
         if(qualiResults.length){
           const qt=document.createElement('div'); qt.className='detail-section-title'; qt.style.marginTop='0'; qt.textContent='Qualifying'; body.appendChild(qt);
           const qWrap=makeExpandTable(qualiResults,(q,i)=>{
-            const best=q.Q3||q.Q2||q.Q1||'—';
-            return '<tr><td class="q-pos">'+(i+1)+'</td><td class="q-name">'+q.Driver.familyName+'</td><td class="q-time '+(i===0?'pole':'')+'">'+best+'</td></tr>';
-          },null,5,'drivers');
+            const color=teamColor(q.Constructor?.name||'');
+            const teamShort=(q.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
+            const q1=q.Q1||''; const q2=q.Q2||''; const q3=q.Q3||'';
+            return '<tr>'
+              +'<td class="q-pos '+(i===0?'pole':'')+'\">'+(i+1)+'</td>'
+              +'<td><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
+              +'<span class="q-name">'+q.Driver.familyName+'</span><br><span class="q-team">'+teamShort+'</span></td>'
+              +'<td class="q-time '+(i===0&&q1?'pole':'')+(q1?'':'empty')+'">'+(q1||'—')+'</td>'
+              +'<td class="q-time '+(q2?'':'empty')+'">'+(q2||'—')+'</td>'
+              +'<td class="q-time '+(i===0&&q3?'pole':'')+(q3?'':'empty')+'">'+(q3||'—')+'</td>'
+              +'</tr>';
+          },'<thead><tr><td class="q-pos"></td><th>Driver</th><th class="q-time">Q1</th><th class="q-time">Q2</th><th class="q-time">Q3</th></tr></thead>',5,'drivers');
           body.appendChild(qWrap);
         }
 
