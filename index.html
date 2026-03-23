@@ -1268,7 +1268,7 @@ async function openDriverModal(driverId){
         const res=r.Results[0]; if(!res) return;
         const pos=parseInt(res.position||0);
         const status=res.status||'';
-        const isDNF=status&&status!=='Finished'&&!status.startsWith('+');
+        const isDNF=status&&status!=='Finished'&&!status.startsWith('+')&&!status.toLowerCase().includes('lap');
         if(isDNF) dnfCount++; else if(pos>0){ finPositions.push(pos); if(pos<=3) podiums++; }
         const grid=parseInt(res.grid||0);
         if(grid>0) qualiPositions.push(grid);
@@ -1281,7 +1281,7 @@ async function openDriverModal(driverId){
         const res=r.Results[0]; if(!res) return null;
         const grid=parseInt(res.grid||0);
         const pos=parseInt(res.position||0);
-        const isDNF=(res.status||'')&&res.status!=='Finished'&&!res.status?.startsWith('+');
+        const isDNF=(res.status||'')&&res.status!=='Finished'&&!res.status?.startsWith('+')&&!res.status?.toLowerCase().includes('lap');
         return(grid>0&&pos>0&&!isDNF)?grid-pos:null;
       }).filter(x=>x!==null);
       const qDelta=deltas.length?(deltas.reduce((a,b)=>a+b,0)/deltas.length):null;
@@ -1305,7 +1305,7 @@ async function openDriverModal(driverId){
       mrEl.innerHTML='<div class="modal-results">'+results.map(r=>{
         const res=r.Results[0];
         const status=res?.status||'';
-        const isDNF=status&&status!=='Finished'&&!status.startsWith('+');
+        const isDNF=status&&status!=='Finished'&&!status.startsWith('+')&&!status.toLowerCase().includes('lap');
         const pos=res?.position||'—';
         const racePts=parseFloat(res?.points||0);
         const sData=sprintPtsMap[r.round];
@@ -1344,7 +1344,7 @@ async function openDriverModal(driverId){
 
         // Sprint sub-row if this was a sprint weekend
         if(sData){
-          const sIsDNF=sData.status&&sData.status!=='Finished'&&!sData.status.startsWith('+');
+          const sIsDNF=sData.status&&sData.status!=='Finished'&&!sData.status.startsWith('+')&&!sData.status.toLowerCase().includes('lap');
           out+='<div class="modal-result-sprint">';
           out+='<span style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Sprint</span>';
           out+='<span style="display:flex;align-items:center;gap:6px">';
@@ -1370,7 +1370,7 @@ async function openDriverModal(driverId){
       const raceData2=results.map(r=>{
         const res=r.Results[0];
         const status=res?.status||'';
-        const isDNF=status&&status!=='Finished'&&!status.startsWith('+');
+        const isDNF=status&&status!=='Finished'&&!status.startsWith('+')&&!status.toLowerCase().includes('lap');
         return isDNF?null:parseInt(res?.position||0)||null;
       });
 
@@ -1609,7 +1609,7 @@ async function openConstructorModal(constructorId){
     races.forEach(r=>{
       (r.Results||[]).forEach(res=>{
         const s=res.status||'';
-        if(s&&s!=='Finished'&&!s.startsWith('+')) dnfs++; else fins++;
+        if(s&&s!=='Finished'&&!s.startsWith('+')&&!s.toLowerCase().includes('lap')) dnfs++; else fins++;
       });
     });
     const total=dnfs+fins;
@@ -1892,7 +1892,7 @@ async function loadCalendar(){
         const podium=raceResults.slice(0,3).map(r=>({last:r.Driver.familyName,color:teamColor(r.Constructor?.name||'')}));
         const driverFinishes={};
         raceResults.forEach(r=>{
-          const isDNF=r.status&&r.status!=='Finished'&&!r.status.startsWith('+');
+          const isDNF=r.status&&r.status!=='Finished'&&!r.status.startsWith('+')&&!r.status.toLowerCase().includes('lap');
           driverFinishes[r.Driver.driverId]=isDNF?'DNF':parseInt(r.position||99);
         });
         standingsHistory.push({round,race:completed[i].raceName.replace(' Grand Prix',''),standings:sl.slice(0,5).map(d=>({id:d.Driver.driverId,last:d.Driver.familyName,pts:parseFloat(d.points),color:teamColor(d.Constructors[0]?.name||'')})),podium,driverFinishes});
@@ -1977,7 +1977,7 @@ async function loadCalendar(){
     const ci=CIRCUIT_INFO[circuitId]||{};
 
     // DNF/DNS tracking
-    const dnfs=isCompleted?finishers.filter(f=>f.status&&f.status!=='Finished'&&!f.status.startsWith('+')):[];
+    const dnfs=isCompleted?finishers.filter(f=>f.status&&f.status!=='Finished'&&!f.status.startsWith('+')&&!f.status.toLowerCase().includes('lap')):[];
 
     // Podium finishers
     const [p1,p2,p3]=finishers;
