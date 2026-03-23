@@ -1971,12 +1971,20 @@ async function loadCalendar(bypassCache=false){
   }
 
   const rl=document.getElementById('race-list');rl.innerHTML='';
-  const allOrdered=[...[...completed].reverse(),...upcoming];
+  const allOrdered=[...completed,...upcoming];
+  const nextRaceRound=nextRace?parseInt(nextRace.round):null;
 
   allOrdered.forEach(r=>{
     try{
     const isCompleted=new Date(r.date)<=today;
     const isNext=nextRace&&r.round===nextRace.round;
+
+    // Insert subtle divider before the first upcoming race
+    if(isNext&&completed.length>0){
+      const divider=document.createElement('div');
+      divider.style.cssText='height:1px;background:var(--border);margin:4px 0;opacity:0.6;';
+      rl.appendChild(divider);
+    }
     const isSprint=SPRINT_ROUNDS.has(parseInt(r.round));
     const finishers=resultsMap[r.round]||[];
     const sprintFinishers=sprintMap[r.round]||[];
@@ -2239,7 +2247,7 @@ async function loadCalendar(bypassCache=false){
           return m?parseFloat(g.replace('+','')):null;
         };
         const allGaps=finishers.map(f=>parseGap(f.Time?.time||''));
-        const raceHdr='<thead><tr><td class="r-pos"></td><td>Driver / Team</td><td class="r-grid" title="Grid position">Grid</td><td class="r-gain same" title="Places gained or lost">±</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Gap</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Interval</td><td class="r-pts">Pts</td></tr></thead>';
+        const raceHdr='<thead><tr><td class="r-pos"></td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Driver / Team</td><td class="r-grid" title="Grid position" style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Grid</td><td class="r-gain same" title="Places gained or lost" style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">±</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Gap</td><td style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Interval</td><td class="r-pts" style="font-family:Space Grotesk,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Pts</td></tr></thead>';
         const raceWrap=makeExpandTable(finishers,(f,i)=>{
           const isFl=f.FastestLap?.rank==='1';
           const grid=parseInt(f.grid)||0;
