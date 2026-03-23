@@ -2166,13 +2166,18 @@ async function loadCalendar(bypassCache=false){
       const tbl=document.createElement('table'); tbl.className='result-table'; tbl.style.width='100%';
       const top=rows.slice(0,showN);
       const rest=rows.slice(showN);
-      tbl.innerHTML=(hdrHtml||'')+'<tbody>'+top.map((r,i)=>buildRow(r,i)).join('')+'</tbody>'
-        +(rest.length?'<tbody class="tbl-extra" style="display:none">'+rest.map((r,i)=>buildRow(r,i+showN)).join('')+'</tbody>':'');
+      tbl.innerHTML=(hdrHtml||'')+'<tbody>'+top.map((r,i)=>buildRow(r,i)).join('')+'</tbody>';
+      if(rest.length){
+        const hiddenBody=document.createElement('tbody');
+        hiddenBody.style.display='none';
+        hiddenBody.innerHTML=rest.map((r,i)=>buildRow(r,i+showN)).join('');
+        tbl.appendChild(hiddenBody);
+      }
       wrap.appendChild(tbl);
       if(rest.length){
         const more=document.createElement('div'); more.className='detail-show-more';
         more.textContent='Show all '+rows.length+' '+(moreLabel||'drivers')+' ▾';
-        more.onclick=(e)=>{ e.stopPropagation(); tbl.querySelectorAll('.tbl-extra').forEach(b=>b.style.display=''); more.style.display='none'; };
+        more.onclick=(e)=>{ e.stopPropagation(); tbl.querySelectorAll('tbody').forEach(b=>b.style.display=''); more.style.display='none'; };
         wrap.appendChild(more);
       }
       return wrap;
