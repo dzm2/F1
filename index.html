@@ -2134,17 +2134,6 @@ async function loadCalendar(bypassCache=false){
       }
     }
 
-    // Pit stops (for completed races — fetch asynchronously)
-    if(isCompleted&&finishers.length){
-      const pitTitle=document.createElement('div'); pitTitle.className='detail-section-title'; pitTitle.textContent='Pit stops — all drivers';
-      const pitWrap=document.createElement('div'); pitWrap.id='pit-'+r.round;
-      pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
-      detail.appendChild(pitTitle);
-      detail.appendChild(pitWrap);
-      pitWrap.dataset.round=r.round;
-      pitWrap.dataset.loaded='0';
-    }
-
     // Helper: build a collapsible group
     const makeGroup=(label,bodyFn)=>{
       const grp=document.createElement('div'); grp.className='detail-group';
@@ -2281,6 +2270,14 @@ async function loadCalendar(bypassCache=false){
           body.appendChild(dg);
         }
 
+        // Pit stops — inside Race group
+        const pitTitle=document.createElement('div'); pitTitle.className='detail-section-title'; pitTitle.textContent='Pit stops — all drivers'; body.appendChild(pitTitle);
+        const pitWrap=document.createElement('div'); pitWrap.id='pit-'+r.round;
+        pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
+        body.appendChild(pitWrap);
+        pitWrap.dataset.round=r.round;
+        pitWrap.dataset.loaded='0';
+
         const gapTitle=document.createElement('div'); gapTitle.className='detail-section-title'; gapTitle.textContent='Gap to leader at finish'; body.appendChild(gapTitle);
         const gapWrap=document.createElement('div'); gapWrap.style.cssText='position:relative;height:180px;margin-bottom:8px';
         const gapCanvas=document.createElement('canvas'); gapCanvas.id='gap-chart-'+r.round;
@@ -2335,8 +2332,8 @@ async function loadCalendar(bypassCache=false){
         const gapLabels=classified.map(f=>f.Driver.familyName);
         const gapData=classified.map((f,i)=>{
           if(i===0) return 0;
-          const s=f.status||'';
-          const m=s.match(/\+([\d.]+)/); return m?parseFloat(m[1]):null;
+          const t=f.Time?.time||'';
+          const m=t.match(/^[+]?([\d.]+)$/); return m?parseFloat(m[1]):null;
         });
         const gapColors=classified.map(f=>teamColor(f.Constructor?.name||''));
         const gapCtx=gapCanvas;
@@ -2459,7 +2456,7 @@ document.getElementById('race-list').addEventListener('click', e=>{
     const pitWrap=document.getElementById('pit-'+round);
     if(pitWrap&&pitWrap.dataset.loaded==='0'){
       pitWrap.dataset.loaded='1';
-      fetchJSON(BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=200').then(d=>{
+      fetchJSON(BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=200',2,false).then(d=>{
         const stops=d.MRData?.RaceTable?.Races?.[0]?.PitStops||[];
         if(!stops.length){pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">No pit stop data available.</div>';return;}
         // Store in global pitStopData for constructor modal average
@@ -2490,7 +2487,7 @@ document.getElementById('race-list').addEventListener('click', e=>{
         });
         html+='</tbody></table>';
         pitWrap.innerHTML=html;
-      }).catch(()=>{pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">Pit data unavailable.</div>';});
+      }).catch((e)=>{pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">Pit data unavailable — '+e.message+'</div>';});
     }
   }
 });
