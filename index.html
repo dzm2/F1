@@ -1873,7 +1873,7 @@ async function loadCalendar(bypassCache=false){
     if(completed.length>0){
       const [gpRes,sprintRes,qualiRes,sprintQualiRes]=await Promise.all([
         Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/results.json?limit=20`,2,bypassCache).catch(()=>null))),
-        Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/sprint.json?limit=3`,2,bypassCache).catch(()=>null))),
+        Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/sprint.json?limit=20`,2,bypassCache).catch(()=>null))),
         Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null))),
         Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null))),
       ]);
