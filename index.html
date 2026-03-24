@@ -1798,7 +1798,7 @@ async function openConstructorModal(constructorId){
           +'<div class="con-driver-card-name">'+d.last.toUpperCase()+'</div>'
           +'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:4px">'+d.first+'</div>'
           +'<div class="con-driver-card-pts">'+d.pts+' <span style="font-family:\'Space Grotesk\',sans-serif;font-size:11px;font-weight:500;color:var(--text2)">pts</span></div>'
-          +'<div class="con-driver-card-sub">P'+d.pos+' overall · '+d.wins+' win'+(d.wins!==1?'s':'')+'</div>'
+          +'<div class="con-driver-card-sub">P'+d.pos+' championship · '+d.wins+' win'+(d.wins!==1?'s':'')+'</div>'
           +'<div style="margin-top:8px"><div style="height:3px;background:var(--border);border-radius:0;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+color+'"></div></div>'
           +'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:10px;color:var(--text3);margin-top:3px">'+pct+'% of team pts</div></div>'
           +'</div>';
@@ -1807,7 +1807,7 @@ async function openConstructorModal(constructorId){
     <hr class="modal-divider">
     <div class="modal-section-title">Reliability <span id="con-rel-loading" class="modal-loading-tag">Loading...</span></div>
     <div class="modal-stats" id="con-reliability">
-      <div class="modal-stat"><div class="modal-stat-label">Did Not Finish</div><div class="modal-stat-value" id="con-dnf-count">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">DNF</div><div class="modal-stat-value" id="con-dnf-count">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Finishes</div><div class="modal-stat-value" id="con-fin-count">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Finish rate</div><div class="modal-stat-value" id="con-fin-rate">—</div></div>
     </div>
@@ -1862,7 +1862,6 @@ async function openConstructorModal(constructorId){
   // ── Bio renders immediately — no API dependency ──
   const bioEl=document.getElementById('con-bio');
   if(bioEl&&info.bio){
-    const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
     const d1=teamDrivers[0]?.last||'';
     const d2=teamDrivers[1]?.last||'';
     const paras=info.bio.map(p=>p.replace('{D1}',d1).replace('{D2}',d2));
@@ -1876,41 +1875,73 @@ async function openConstructorModal(constructorId){
     fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/qualifying.json?limit=500`),
   ]);
 
+  // ── Pre-compute teamDrivers once (fix 2) ──
+  const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
+
   // ── Points per round bar chart ──
   const rlEl=document.getElementById('con-rounds-loading');
   if(rlEl) rlEl.textContent='';
   const chartWrap=document.getElementById('con-round-chart-wrap');
   const canvasWrap=document.getElementById('con-round-canvas-wrap');
   const roundCtx=document.getElementById('con-round-chart');
-  if(chartWrap){
-    if(roundsData.status==='fulfilled'){
-      const races=roundsData.value.MRData?.RaceTable?.Races||[];
-      // Fastest laps, podiums and points finishes
-      let fastestLaps=0, pointsFinishes=0, podiums=0;
-      races.forEach(r=>{(r.Results||[]).forEach(res=>{
+
+  if(roundsData.status==='fulfilled'){
+    const races=roundsData.value.MRData?.RaceTable?.Races||[];
+
+    // ── Single-pass over races (fix 1) — compute all stats at once ──
+    let fastestLaps=0, pointsFinishes=0, podiums=0, dnfs=0, fins=0;
+    const roundPts={}, roundNames={};
+    const [dA,dB]=teamDrivers;
+    const ptsA=[], ptsB=[], rLabels=[], rNames=[];
+
+    races.forEach(r=>{
+      const rnd=parseInt(r.round);
+      let roundTotal=0;
+      rLabels.push('R'+rnd);
+      rNames.push(r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
+      roundNames[rnd]=rNames[rNames.length-1];
+
+      // per-driver split points
+      if(dA) ptsA.push(parseFloat((r.Results||[]).find(x=>x.Driver.driverId===dA.driverId)?.points||0));
+      if(dB) ptsB.push(parseFloat((r.Results||[]).find(x=>x.Driver.driverId===dB.driverId)?.points||0));
+
+      (r.Results||[]).forEach(res=>{
+        const resPts=parseFloat(res.points||0);
+        const resPos=parseInt(res.position||99);
+        const s=res.status||'';
+        const laps=parseInt(res.laps||0);
+        roundTotal+=resPts;
         if(res.FastestLap?.rank==='1') fastestLaps++;
-        if(parseFloat(res.points||0)>0) pointsFinishes++;
-        if(parseInt(res.position||99)<=3) podiums++;
-      });});
-      const flEl=document.getElementById('con-fl');
-      const pfEl=document.getElementById('con-pts-fin');
-      const podEl=document.getElementById('con-podiums');
-      if(flEl) flEl.textContent=fastestLaps;
-      if(pfEl) pfEl.textContent=pointsFinishes;
-      if(podEl) podEl.textContent=podiums;
-      const roundPts={};
-      const roundNames={};
-      races.forEach(r=>{
-        const rnd=parseInt(r.round);
-        const pts=(r.Results||[]).reduce((sum,res)=>sum+parseFloat(res.points||0),0);
-        roundPts[rnd]=(roundPts[rnd]||0)+pts;
-        roundNames[rnd]=r.raceName.replace(' Grand Prix','').replace('Grand Prix','');
+        if(resPts>0) pointsFinishes++;
+        if(resPos<=3) podiums++;
+        if(s&&laps>0){
+          if(s==='Finished'||s.startsWith('+')||s.toLowerCase().includes('lap')) fins++;
+          else dnfs++;
+        }
       });
+      roundPts[rnd]=(roundPts[rnd]||0)+roundTotal;
+    });
+
+    // ── Populate stat elements (fix 3: batch getElementById) ──
+    const elMap={
+      'con-fl':fastestLaps, 'con-pts-fin':pointsFinishes, 'con-podiums':podiums,
+      'con-dnf-count':dnfs, 'con-fin-count':fins,
+    };
+    Object.entries(elMap).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.textContent=val;});
+    const total=dnfs+fins;
+    const rateEl=document.getElementById('con-fin-rate');
+    if(rateEl) rateEl.textContent=total>0?Math.round(fins/total*100)+'%':'—';
+
+    // ── Clear loading tags ──
+    const relEl=document.getElementById('con-rel-loading'); if(relEl) relEl.textContent='';
+
+    // ── Points per round chart ──
+    if(chartWrap){
       const rounds=Object.keys(roundPts).map(Number).sort((a,b)=>a-b);
       if(rounds.length){
         const totalPts=rounds.reduce((s,r)=>s+roundPts[r],0);
         const avgPts=(totalPts/rounds.length).toFixed(1);
-        const maxAvail=rounds.length*43;
+        const maxAvail=rounds.length*44;
         const pctAvail=Math.round((totalPts/maxAvail)*100);
         chartWrap.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:10px">
           <div style="flex:1;background:var(--bg2);border-radius:6px;padding:7px 12px">
@@ -1936,38 +1967,35 @@ async function openConstructorModal(constructorId){
           rOpts.plugins.tooltip={callbacks:{title:items=>roundNames[rounds[items[0].dataIndex]],label:ctx=>ctx.parsed.y+' pts'}};
           roundCtx._chart=new Chart(roundCtx,{
             type:'bar',
-            data:{
-              labels:rounds.map((_,i)=>'R'+(i+1)),
-              datasets:[{data:rounds.map(r=>roundPts[r]),backgroundColor:color+'cc',borderColor:color,borderWidth:1,borderRadius:2}]
-            },
+            data:{labels:rounds.map((_,i)=>'R'+(i+1)),datasets:[{data:rounds.map(r=>roundPts[r]),backgroundColor:color+'cc',borderColor:color,borderWidth:1,borderRadius:2}]},
             options:rOpts
           });
         }
       } else {
         chartWrap.innerHTML='<div style="font-size:13px;color:var(--text2);padding:8px 0">No round data yet this season.</div>';
       }
-    } else {
-      chartWrap.innerHTML='<div class="error-msg" style="padding:8px">Could not load round data.</div>';
     }
-  }
 
-  // ── Reliability ──
-  const relEl=document.getElementById('con-rel-loading');
-  if(relEl) relEl.textContent='';
-  if(roundsData.status==='fulfilled'){
-    const races=roundsData.value.MRData?.RaceTable?.Races||[];
-    let dnfs=0,fins=0;
-    races.forEach(r=>{
-      (r.Results||[]).forEach(res=>{
-        const s=res.status||'';
-        if(s&&s!=='Finished'&&!s.startsWith('+')&&!s.toLowerCase().includes('lap')) dnfs++; else fins++;
-      });
-    });
-    const total=dnfs+fins;
-    const rate=total>0?Math.round(fins/total*100)+'%':'—';
-    const dnfEl=document.getElementById('con-dnf-count'); if(dnfEl) dnfEl.textContent=dnfs;
-    const finEl=document.getElementById('con-fin-count'); if(finEl) finEl.textContent=fins;
-    const rateEl=document.getElementById('con-fin-rate'); if(rateEl) rateEl.textContent=rate;
+    // ── Driver points split (fix 2: reuse teamDrivers and pre-computed ptsA/ptsB) ──
+    const splitEl=document.getElementById('con-split-loading'); if(splitEl) splitEl.textContent='';
+    const splitCtx=document.getElementById('con-split-chart');
+    // fix 4: cache computed style once
+    const tick=getComputedStyle(document.documentElement).getPropertyValue('--text2').trim();
+    if(splitCtx&&teamDrivers.length>=2&&races.length){
+      if(splitCtx._chart) splitCtx._chart.destroy();
+      const splitOpts=chartDefaults('Points');
+      splitOpts.scales.x={...splitOpts.scales.x,stacked:true};
+      splitOpts.scales.y={...splitOpts.scales.y,stacked:true,title:{display:true,text:'Points',color:tick,font:{family:"'Space Grotesk',sans-serif",size:9}}};
+      splitOpts.plugins.tooltip={callbacks:{title:items=>rNames[items[0].dataIndex],label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' pts'}};
+      splitCtx._chart=new Chart(splitCtx,{type:'bar',data:{labels:rLabels,datasets:[{label:dA.last,data:ptsA,backgroundColor:color+'cc',borderColor:color,borderWidth:1},{label:dB.last,data:ptsB,backgroundColor:color+'55',borderColor:color+'88',borderWidth:1}]},options:splitOpts});
+    } else if(splitCtx){
+      splitCtx.parentElement.innerHTML='<div style="font-size:12px;color:var(--text2);padding:8px 0">Insufficient data.</div>';
+    }
+
+  } else {
+    if(chartWrap) chartWrap.innerHTML='<div class="error-msg" style="padding:8px">Could not load round data.</div>';
+    const relEl=document.getElementById('con-rel-loading'); if(relEl) relEl.textContent='';
+    const splitEl=document.getElementById('con-split-loading'); if(splitEl) splitEl.textContent='';
   }
 
   // ── Season performance — poles ──
@@ -1976,33 +2004,13 @@ async function openConstructorModal(constructorId){
   if(qualiData.status==='fulfilled'){
     const qualiRaces=qualiData.value.MRData?.RaceTable?.Races||[];
     let poles=0;
-    qualiRaces.forEach(r=>{(r.QualifyingResults||[]).forEach(res=>{if(res.position==='1') poles++;});});
+    qualiRaces.forEach(r=>{
+      const results=r.QualifyingResults||[];
+      const hasQ3=results.some(res=>res.Q3);
+      if(hasQ3) results.forEach(res=>{if(res.position==='1') poles++;});
+    });
     const polesEl=document.getElementById('con-poles');
     if(polesEl) polesEl.textContent=poles;
-  }
-
-  // ── Driver points split stacked bar ──
-  const splitEl=document.getElementById('con-split-loading');
-  if(splitEl) splitEl.textContent='';
-  const splitCtx=document.getElementById('con-split-chart');
-  if(splitCtx&&roundsData.status==='fulfilled'){
-    const races=roundsData.value.MRData?.RaceTable?.Races||[];
-    const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
-    if(teamDrivers.length>=2&&races.length){
-      const [dA,dB]=teamDrivers;
-      const rLabels=races.map((_,i)=>'R'+(i+1));
-      const rNames=races.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
-      const ptsA=races.map(r=>{const res=(r.Results||[]).find(x=>x.Driver.driverId===dA.driverId);return parseFloat(res?.points||0);});
-      const ptsB=races.map(r=>{const res=(r.Results||[]).find(x=>x.Driver.driverId===dB.driverId);return parseFloat(res?.points||0);});
-      if(splitCtx._chart) splitCtx._chart.destroy();
-      const splitOpts=chartDefaults('Points');
-      splitOpts.scales.x={...splitOpts.scales.x,stacked:true};
-      splitOpts.scales.y={...splitOpts.scales.y,stacked:true,title:{display:true,text:'Points',color:getComputedStyle(document.documentElement).getPropertyValue('--text2').trim(),font:{family:"'Space Grotesk',sans-serif",size:9}}};
-      splitOpts.plugins.tooltip={callbacks:{title:items=>rNames[items[0].dataIndex],label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' pts'}};
-      splitCtx._chart=new Chart(splitCtx,{type:'bar',data:{labels:rLabels,datasets:[{label:dA.last,data:ptsA,backgroundColor:color+'cc',borderColor:color,borderWidth:1},{label:dB.last,data:ptsB,backgroundColor:color+'55',borderColor:color+'88',borderWidth:1}]},options:splitOpts});
-    } else {
-      splitCtx.parentElement.innerHTML='<div style="font-size:12px;color:var(--text2);padding:8px 0">Insufficient data.</div>';
-    }
   }
 
 
@@ -2026,13 +2034,13 @@ async function loadConstructorStandings(bypassCache=false){
   }
   liveConstructors=list;
   const maxPts=parseFloat(list[0]?.points||1);
-  const ctb=document.getElementById('con-tbody');ctb.innerHTML='';
-  list.forEach(c=>{
+  const ctb=document.getElementById('con-tbody');
+  ctb.innerHTML=list.map(c=>{
     const pos=parseInt(c.position),pts=parseFloat(c.points),name=cleanConstructorName(c.Constructor.name),color=teamColor(c.Constructor.name);
     const gap=pos===1?'—':'–'+(parseFloat(list[0].points)-pts);
     const pct=Math.round(pts/maxPts*100);
     const winsClass=parseInt(c.wins)>0?'wins-cell has-wins':'wins-cell';
-    ctb.innerHTML+=`<tr class="${pos===1?'p1':''}" data-search="${name}" onclick="openConstructorModal('${c.Constructor.constructorId}')" style="cursor:pointer">
+    return `<tr class="${pos===1?'p1':''}" data-search="${name}" onclick="openConstructorModal('${c.Constructor.constructorId}')" style="cursor:pointer">
       <td class="f1-pos">${pos}</td>
       <td style="padding-right:0;width:4px"><div class="team-pip" style="background:${color}"></div></td>
       <td><div class="driver-info-wrap">
@@ -2043,7 +2051,7 @@ async function loadConstructorStandings(bypassCache=false){
       <td class="${winsClass}" data-val="${c.wins}">${c.wins}</td>
       <td class="gap-cell">${gap}</td>
     </tr>`;
-  });
+  }).join('');
   document.getElementById('con-loading').style.display='none';
   if(!liveConstructors.length){
     document.getElementById('con-loading').innerHTML='<div class="error-msg" style="text-align:center;padding:2rem">No constructor standings yet — the 2026 season has not started.</div>';
