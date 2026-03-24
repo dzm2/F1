@@ -1832,7 +1832,7 @@ async function openConstructorModal(constructorId){
     const d1=teamDrivers[0]?.last||'';
     const d2=teamDrivers[1]?.last||'';
     const paras=info.bio.map(p=>p.replace('{D1}',d1).replace('{D2}',d2));
-    bioEl.innerHTML=`<div style="border-left:3px solid ${color};border-radius:0;padding:10px 14px;background:var(--bg2)">`
+    bioEl.innerHTML=`<div style="border-left:3px solid ${color};border-radius:6px;padding:10px 14px;background:var(--bg2)">`
       +paras.map((p,i)=>`<p style="font-size:13px;color:var(--text2);line-height:1.65;margin:${i<paras.length-1?'0 0 10px':'0'}">${p}</p>`).join('')
       +'</div>';
   }
