@@ -1764,6 +1764,7 @@ function closeModal(e){
 // ── Constructor modal ──
 async function openConstructorModal(constructorId){
   const c=liveConstructors.find(x=>x.Constructor.constructorId===constructorId);
+  console.log('[con-modal] constructorId:',constructorId,'found:',!!c,'roundsStatus will use URL:',`${BASE}/${SEASON}/constructors/${constructorId}/results.json?limit=500`);
   if(!c) return;
   const name=cleanConstructorName(c.Constructor.name);
   const color=teamColor(c.Constructor.name);
@@ -1883,6 +1884,9 @@ async function openConstructorModal(constructorId){
     fetchAllConRaces(constructorId),
     fetchJSON(`${BASE}/constructors/${constructorId}/constructorstandings/1.json?limit=100`,2,false,60*60*1000),
   ]);
+  console.log('[con-modal] roundsData:',roundsData.status, roundsData.status==='fulfilled'?'total:'+roundsData.value?.MRData?.total:'reason:'+roundsData.reason);
+  console.log('[con-modal] careerRaces:',careerRaces.status, Array.isArray(careerRaces.value)?'races:'+careerRaces.value.length:'');
+  console.log('[con-modal] titlesData:',titlesData.status, titlesData.status==='fulfilled'?'total:'+titlesData.value?.MRData?.total:'');
 
   // ── Points per round bar chart ──
   const rlEl=document.getElementById('con-rounds-loading');
