@@ -1767,6 +1767,8 @@ async function openConstructorModal(constructorId){
       </div>
     </div>
 
+    <div id="con-story"></div>
+
     <div class="modal-stats">
       <div class="modal-stat"><div class="modal-stat-label">Points</div><div class="modal-stat-value">${pts}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value">${wins}</div></div>
@@ -1824,6 +1826,34 @@ async function openConstructorModal(constructorId){
     <div class="modal-section-title">About</div>
     <div id="con-bio"></div>
   `;
+
+  // ── Team story — renders immediately (no API dependency) ──
+  {
+    const titles=info.titles||0;
+    const allWins=info.wins||0;
+    const yearsActive=info.f1Since?2026-info.f1Since:null;
+    const leaderCon=liveConstructors[0];
+    const gapToLeader=leaderCon&&pos>1?parseFloat(leaderCon.points)-pts:0;
+    let story='';
+    if(titles>0&&allWins>50){
+      story=`${name} is one of Formula 1's most successful teams, with ${titles} world championship${titles>1?'s':''} and ${allWins} race wins across their history.`;
+    } else if(titles>0){
+      story=`${name} have won ${titles} world championship${titles>1?'s':''} and ${allWins} race${allWins!==1?'s':''} in their F1 career.`;
+    } else if(allWins>0){
+      story=`${name} have won ${allWins} race${allWins!==1?'s':''} but are yet to win a constructors' championship.`;
+    } else if(yearsActive&&yearsActive<=2){
+      story=`${name} are a new team, having joined the Formula 1 grid in ${info.f1Since}. Building competitiveness takes time for any new constructor.`;
+    } else {
+      story=`${name} are working to move up the championship standings.`;
+    }
+    if(pos===1){
+      story+=` In 2026 they lead the constructors' championship with ${pts} points.`;
+    } else if(gapToLeader>0){
+      story+=` In 2026 they sit P${pos} in the constructors' championship, ${gapToLeader} point${gapToLeader!==1?'s':''} behind the leaders.`;
+    }
+    const storyEl=document.getElementById('con-story');
+    if(storyEl) storyEl.innerHTML=`<div style="font-size:13px;color:var(--text2);line-height:1.6;padding:10px 12px;background:var(--bg2);border-radius:6px;border-left:3px solid ${color};margin-bottom:10px">${story}</div>`;
+  }
 
   // ── Bio renders immediately — no API dependency ──
   const bioEl=document.getElementById('con-bio');
@@ -1952,37 +1982,6 @@ async function openConstructorModal(constructorId){
   }
 
 
-  // ── Team story — plain-English context ──
-    const titles=info.titles||0;
-    const allWins=info.wins||0;
-    const yearsActive=info.f1Since?2026-info.f1Since:null;
-    const leaderCon=liveConstructors[0];
-    const gapToLeader=leaderCon&&pos>1?parseFloat(leaderCon.points)-pts:0;
-
-    let story='';
-    if(titles>0&&allWins>50){
-      story=`${name} is one of Formula 1's most successful teams, with ${titles} world championship${titles>1?'s':''} and ${allWins} race wins across their history.`;
-    } else if(titles>0){
-      story=`${name} have won ${titles} world championship${titles>1?'s':''} and ${allWins} race${allWins!==1?'s':''} in their F1 career.`;
-    } else if(allWins>0){
-      story=`${name} have won ${allWins} race${allWins!==1?'s':''} but are yet to win a constructors' championship.`;
-    } else if(yearsActive&&yearsActive<=2){
-      story=`${name} are a new team, having joined the Formula 1 grid in ${info.f1Since}. Building competitiveness takes time for any new constructor.`;
-    } else {
-      story=`${name} are working to move up the championship standings.`;
-    }
-
-    if(pos===1){
-      story+=` In 2026 they lead the constructors' championship with ${pts} points.`;
-    } else if(gapToLeader>0){
-      story+=` In 2026 they sit P${pos} in the constructors' championship, ${gapToLeader} point${gapToLeader!==1?'s':''} behind the leaders.`;
-    }
-
-    const storyEl=document.createElement('div');
-    storyEl.style.cssText='font-size:13px;color:var(--text2);line-height:1.6;padding:10px 12px;background:var(--bg2);border-radius:6px;border-left:3px solid '+color+';margin-top:10px';
-    storyEl.textContent=story;
-    const bioSection=document.getElementById('con-bio');
-    if(bioSection) bioSection.insertAdjacentElement('afterend',storyEl);
 }
 
 function closeConModal(e){
