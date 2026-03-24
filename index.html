@@ -154,12 +154,6 @@
     .con-driver-card-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:16px; color:var(--text); text-transform:uppercase; }
     .con-driver-card-pts { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; color:var(--text); margin-top:4px; }
     .con-driver-card-sub { font-family:'Space Grotesk',sans-serif; font-size:11px; color:var(--text2); margin-top:2px; }
-    /* Mini points-per-round bar chart */
-    .con-round-chart { display:flex; align-items:flex-end; gap:3px; height:60px; margin-top:6px; }
-    .con-round-bar-wrap { display:flex; flex-direction:column; align-items:center; flex:1; height:100%; justify-content:flex-end; }
-    .con-round-bar { width:100%; border-radius:2px 2px 0 0; min-height:2px; transition:opacity .15s; }
-    .con-round-bar:hover { opacity:.75; }
-    .con-round-label { font-family:'Space Grotesk',sans-serif; font-size:8px; color:var(--text2); margin-top:3px; text-align:center; white-space:nowrap; overflow:hidden; }
 
     /* Calendar */
     .race-list{display:flex;flex-direction:column;gap:6px;}
@@ -1796,6 +1790,7 @@ async function openConstructorModal(constructorId){
     <hr class="modal-divider">
     <div class="modal-section-title">Points per round <span id="con-rounds-loading" class="modal-loading-tag">Loading...</span></div>
     <div id="con-round-chart-wrap"><div class="loading-text" style="font-size:12px;padding:8px 0">Loading...</div></div>
+    <div id="con-round-canvas-wrap" style="position:relative;height:140px;margin-bottom:8px;display:none"><canvas id="con-round-chart"></canvas></div>
     <hr class="modal-divider">
     <div class="modal-section-title">Driver points split <span id="con-split-loading" class="modal-loading-tag">Loading...</span></div>
     <div style="position:relative;height:160px;margin-bottom:8px"><canvas id="con-split-chart"></canvas></div>
@@ -1861,10 +1856,11 @@ async function openConstructorModal(constructorId){
   const rlEl=document.getElementById('con-rounds-loading');
   if(rlEl) rlEl.textContent='';
   const chartWrap=document.getElementById('con-round-chart-wrap');
+  const canvasWrap=document.getElementById('con-round-canvas-wrap');
+  const roundCtx=document.getElementById('con-round-chart');
   if(chartWrap){
     if(roundsData.status==='fulfilled'){
       const races=roundsData.value.MRData?.RaceTable?.Races||[];
-      // Aggregate points per round (sum both drivers)
       const roundPts={};
       const roundNames={};
       races.forEach(r=>{
@@ -1875,19 +1871,11 @@ async function openConstructorModal(constructorId){
       });
       const rounds=Object.keys(roundPts).map(Number).sort((a,b)=>a-b);
       if(rounds.length){
-        const maxPts=Math.max(...rounds.map(r=>roundPts[r]),1);
         const totalPts=rounds.reduce((s,r)=>s+roundPts[r],0);
         const avgPts=(totalPts/rounds.length).toFixed(1);
         const maxAvail=rounds.length*43;
         const pctAvail=Math.round((totalPts/maxAvail)*100);
-        chartWrap.innerHTML=`<div class="con-round-chart">${rounds.map(rnd=>{
-          const h=Math.max(4,Math.round((roundPts[rnd]/maxPts)*56));
-          return `<div class="con-round-bar-wrap" title="Rd ${rnd}: ${roundNames[rnd]} — ${roundPts[rnd]} pts">
-            <div class="con-round-bar" style="height:${h}px;background:${color}"></div>
-            <div class="con-round-label">R${rnd}</div>
-          </div>`;
-        }).join('')}</div>
-        <div style="display:flex;gap:8px;margin-top:10px">
+        chartWrap.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:10px">
           <div style="flex:1;background:var(--bg2);border-radius:6px;padding:7px 12px">
             <div style="font-size:11px;color:var(--text2);margin-bottom:2px">Total</div>
             <div class="modal-stat-value">${totalPts} pts</div>
@@ -1901,6 +1889,23 @@ async function openConstructorModal(constructorId){
             <div class="modal-stat-value" style="color:#0F6E56">${pctAvail}%</div>
           </div>
         </div>`;
+        if(canvasWrap) canvasWrap.style.display='';
+        if(roundCtx){
+          if(roundCtx._chart) roundCtx._chart.destroy();
+          const rOpts=chartDefaults();
+          rOpts.scales.x={...rOpts.scales.x,grid:{display:false}};
+          rOpts.scales.y={...rOpts.scales.y,beginAtZero:true};
+          rOpts.plugins.legend={display:false};
+          rOpts.plugins.tooltip={callbacks:{title:items=>roundNames[rounds[items[0].dataIndex]],label:ctx=>ctx.parsed.y+' pts'}};
+          roundCtx._chart=new Chart(roundCtx,{
+            type:'bar',
+            data:{
+              labels:rounds.map((_,i)=>'R'+(i+1)),
+              datasets:[{data:rounds.map(r=>roundPts[r]),backgroundColor:color+'cc',borderColor:color,borderWidth:1,borderRadius:2}]
+            },
+            options:rOpts
+          });
+        }
       } else {
         chartWrap.innerHTML='<div style="font-size:13px;color:var(--text2);padding:8px 0">No round data yet this season.</div>';
       }
