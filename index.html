@@ -884,7 +884,6 @@ let liveDrivers=[], liveConstructors=[], standingsHistory=[];
 let fastestLapCounts={};  // driverId -> FL count for 2026
 let resultsMap={}, sprintMap={}, qualiMap={}, sprintQualiMap={};
 let pitStopData={};       // round -> {driverId -> [{lap,duration}]}
-function parsePitDuration(s){ if(!s) return NaN; s=String(s).trim(); if(s.includes(':')){ const p=s.split(':'); return parseFloat(p[0])*60+parseFloat(p[1]); } return parseFloat(s); }
 let penaltyData={};       // round -> [{driver,penalty,reason}]
 let qualifyingH2H={};     // driverId -> {teammate, driverAhead, teammateAhead}
 
@@ -1338,10 +1337,6 @@ async function openDriverModal(driverId){
       <div class="modal-stat"><div class="modal-stat-label">Height</div><div class="modal-stat-value">${bio.height||'—'}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Weight</div><div class="modal-stat-value">${bio.weight||'—'}</div></div>
       <div class="modal-stat" style="grid-column:span 3"><div class="modal-stat-label">Birthplace</div><div class="modal-stat-value small">${bio.birthplace||'—'}</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Car number</div><div class="modal-stat-value">${bio.number||d.number||'—'}</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Helmet colours</div><div class="modal-stat-value" style="display:flex;align-items:center;gap:6px">${bio.helmet?bio.helmet.map(c=>'<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:'+c+';border:0.5px solid var(--border);flex-shrink:0"></span>').join('')+'<span style="font-size:11px;color:var(--text3)">'+bio.helmet.join(' · ')+'</span>':'—'}</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Nationality</div><div class="modal-stat-value small">${d.nationality||'—'}</div></div>
-      <div class="modal-stat" style="grid-column:span 3"><div class="modal-stat-label">Junior career</div><div class="modal-stat-value small">${bio.junior||'—'}</div></div>
     </div>
 
     <hr class="modal-divider">
@@ -1368,7 +1363,6 @@ async function openDriverModal(driverId){
       <div class="modal-stat"><div class="modal-stat-label">H2H race wins</div><div class="modal-stat-value" id="ms-h2hrace">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Did Not Finish</div><div class="modal-stat-value" id="ms-dnf">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Laps led</div><div class="modal-stat-value" id="ms-lapsled">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Avg pit stop</div><div class="modal-stat-value" id="ms-pitavg">—</div></div>
       <div class="modal-stat" style="grid-column:span 2"><div class="modal-stat-label">Max pts available</div><div class="modal-stat-value small" id="ms-maxpts">—</div></div>
     </div>
     <hr class="modal-divider">
@@ -1511,7 +1505,7 @@ async function openDriverModal(driverId){
         return(grid>0&&pos>0&&!isDNF)?grid-pos:null;
       }).filter(x=>x!==null);
       const qDelta=deltas.length?(deltas.reduce((a,b)=>a+b,0)/deltas.length):null;
-      const qDeltaText=qDelta===null?'—':(qDelta>=0?'+':'')+qDelta.toFixed(1);
+      const qDeltaText=qDelta===null?'—':(qDelta>=0?'+':'')+Math.round(qDelta);
       // Last 3 races points — include sprint points
       const last3=results.slice(-3);
       const last3pts=last3.reduce((s,r)=>s+parseFloat(r.Results[0]?.points||0)+(sprintPtsMap[r.round]?.pts||0),0);
@@ -1575,22 +1569,7 @@ async function openDriverModal(driverId){
       const gapToP2=d.pos<=2?'—':(p2PtsModal-d.pts>0?'–'+(p2PtsModal-d.pts):'—');
       const gapToP3=d.pos<=3?'—':(p3PtsModal-d.pts>0?'–'+(p3PtsModal-d.pts):'—');
       const maxPtsText=(d.pts+maxPossibleModal)+' max ('+racesLeftModal+' races left)';
-      // Avg pit stop for this driver from pitStopData cache
-      let pitAvgText='—';
-      const allDriverPits=[];
-      Object.values(pitStopData).forEach(stops=>{
-        stops.forEach(stop=>{
-          if(stop.driverId===driverId){
-            const dur=parsePitDuration(stop.duration);
-            if(!isNaN(dur)&&dur>1.5&&dur<120) allDriverPits.push(dur);
-          }
-        });
-      });
-      if(allDriverPits.length){
-        const avgPit=(allDriverPits.reduce((a,b)=>a+b,0)/allDriverPits.length).toFixed(3);
-        const bestPit=Math.min(...allDriverPits).toFixed(3);
-        pitAvgText=avgPit+'s avg · '+bestPit+'s best';
-      }
+
       // H2H points vs teammate text
       let h2hText='—';
       if(teammate){
@@ -1615,7 +1594,6 @@ async function openDriverModal(driverId){
       const q3El=document.getElementById('ms-q3rate');    if(q3El) q3El.textContent=q3Rate;
       const stEl=document.getElementById('ms-streak');    if(stEl) stEl.textContent=streak>0?streak+' race'+(streak>1?'s':''):results.length>0?'0':'—';
       const h2rEl=document.getElementById('ms-h2hrace');  if(h2rEl) h2rEl.textContent=h2hRaceText;
-      const pitEl=document.getElementById('ms-pitavg');   if(pitEl) pitEl.textContent=pitAvgText;
       const mpEl=document.getElementById('ms-maxpts');    if(mpEl) mpEl.textContent=maxPtsText;
       const g1El=document.getElementById('ms-gap1');      if(g1El) g1El.textContent=gapToP1;
       const g2El=document.getElementById('ms-gap2');      if(g2El) g2El.textContent=gapToP2;
@@ -1829,9 +1807,6 @@ async function openConstructorModal(constructorId){
     <div class="modal-section-title">Qualifying vs race performance <span id="con-qr-loading" class="modal-loading-tag">Loading...</span></div>
     <div style="position:relative;height:180px;margin-bottom:8px"><canvas id="con-qr-chart"></canvas></div>
     <hr class="modal-divider">
-    <div class="modal-section-title">Average pit stop time <span id="con-pit-loading" class="modal-loading-tag">Loading...</span></div>
-    <div id="con-pit-avg" style="padding:6px 0;font-size:13px;color:var(--text2)">Loading...</div>
-    <hr class="modal-divider">
     <div class="modal-section-title">All-time stats <span id="con-career-loading" class="modal-loading-tag">Loading...</span></div>
     <div class="modal-stats" id="con-career-stats">
       <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value" id="cc-wins">—</div></div>
@@ -1980,32 +1955,6 @@ async function openConstructorModal(constructorId){
       qrCtx._chart=new Chart(qrCtx,{type:'line',data:{labels:rLabels,datasets:[{label:'Avg grid',data:avgGrid,borderColor:qrTick,borderWidth:1.5,borderDash:[4,3],pointRadius:2,spanGaps:true},{label:'Avg finish',data:avgFin,borderColor:color,borderWidth:2,pointRadius:2,pointBackgroundColor:color,spanGaps:true}]},options:qrOpts});
     }
   }
-
-  // ── Average pit stop time ──
-  const pitLoadEl=document.getElementById('con-pit-loading');
-  if(pitLoadEl) pitLoadEl.textContent='';
-  const pitAvgEl=document.getElementById('con-pit-avg');
-  if(pitAvgEl){
-    // Gather pit stop data from pitStopData cache if available
-    let allDurations=[];
-    Object.values(pitStopData).forEach(stops=>{
-      stops.forEach(stop=>{
-        const drivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
-        if(drivers.some(d=>d.driverId===stop.driverId)){
-          const dur=parsePitDuration(stop.duration);
-          if(!isNaN(dur)&&dur>1.5&&dur<120) allDurations.push(dur);
-        }
-      });
-    });
-    if(allDurations.length){
-      const avg=(allDurations.reduce((a,b)=>a+b,0)/allDurations.length).toFixed(3);
-      const best=Math.min(...allDurations).toFixed(3);
-      pitAvgEl.innerHTML='<span style="font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:18px;color:var(--text)">'+avg+'s</span> <span style="font-family:\'Space Grotesk\',sans-serif;font-size:12px;color:var(--text2)">average · Best: '+best+'s</span>';
-    } else {
-      pitAvgEl.textContent='No pit stop data yet — open race cards to load pit data.';
-    }
-  }
-
   // ── All-time career stats ──
   const clEl=document.getElementById('con-career-loading');
   if(clEl) clEl.textContent='';
