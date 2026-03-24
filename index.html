@@ -1779,10 +1779,6 @@ async function openConstructorModal(constructorId){
         <div class="modal-stat-label">In F1 Since</div>
         <div class="modal-stat-value small">${yearsInF1}</div>
       </div>
-      <div class="modal-stat" style="grid-column:span 3">
-        <div class="modal-stat-label">Factory</div>
-        <div class="modal-stat-value small">${info.base||'—'}</div>
-      </div>
     </div>
 
     <hr class="modal-divider">
@@ -1880,6 +1876,10 @@ async function openConstructorModal(constructorId){
       const rounds=Object.keys(roundPts).map(Number).sort((a,b)=>a-b);
       if(rounds.length){
         const maxPts=Math.max(...rounds.map(r=>roundPts[r]),1);
+        const totalPts=rounds.reduce((s,r)=>s+roundPts[r],0);
+        const avgPts=(totalPts/rounds.length).toFixed(1);
+        const maxAvail=rounds.length*43;
+        const pctAvail=Math.round((totalPts/maxAvail)*100);
         chartWrap.innerHTML=`<div class="con-round-chart">${rounds.map(rnd=>{
           const h=Math.max(4,Math.round((roundPts[rnd]/maxPts)*56));
           return `<div class="con-round-bar-wrap" title="Rd ${rnd}: ${roundNames[rnd]} — ${roundPts[rnd]} pts">
@@ -1887,7 +1887,20 @@ async function openConstructorModal(constructorId){
             <div class="con-round-label">R${rnd}</div>
           </div>`;
         }).join('')}</div>
-        <div style="font-size:11px;color:var(--text2);margin-top:4px;text-align:right">${rounds.map(r=>`R${r}: ${roundPts[r]}pts`).join(' · ')}</div>`;
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <div style="flex:1;background:var(--bg2);border-radius:6px;padding:7px 12px">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:2px">Total</div>
+            <div class="modal-stat-value">${totalPts} pts</div>
+          </div>
+          <div style="flex:1;background:var(--bg2);border-radius:6px;padding:7px 12px">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:2px">Avg / round</div>
+            <div class="modal-stat-value">${avgPts} pts</div>
+          </div>
+          <div style="flex:1;background:var(--bg2);border-radius:6px;padding:7px 12px">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:2px">% of max avail.</div>
+            <div class="modal-stat-value" style="color:#0F6E56">${pctAvail}%</div>
+          </div>
+        </div>`;
       } else {
         chartWrap.innerHTML='<div style="font-size:13px;color:var(--text2);padding:8px 0">No round data yet this season.</div>';
       }
@@ -1924,13 +1937,15 @@ async function openConstructorModal(constructorId){
     const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
     if(teamDrivers.length>=2&&races.length){
       const [dA,dB]=teamDrivers;
-      const rLabels=races.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
+      const rLabels=races.map((_,i)=>'R'+(i+1));
+      const rNames=races.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
       const ptsA=races.map(r=>{const res=(r.Results||[]).find(x=>x.Driver.driverId===dA.driverId);return parseFloat(res?.points||0);});
       const ptsB=races.map(r=>{const res=(r.Results||[]).find(x=>x.Driver.driverId===dB.driverId);return parseFloat(res?.points||0);});
       if(splitCtx._chart) splitCtx._chart.destroy();
       const splitOpts=chartDefaults('Points');
       splitOpts.scales.x={...splitOpts.scales.x,stacked:true};
       splitOpts.scales.y={...splitOpts.scales.y,stacked:true,title:{display:true,text:'Points',color:getComputedStyle(document.documentElement).getPropertyValue('--text2').trim(),font:{family:"'Space Grotesk',sans-serif",size:9}}};
+      splitOpts.plugins.tooltip={callbacks:{title:items=>rNames[items[0].dataIndex],label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' pts'}};
       splitCtx._chart=new Chart(splitCtx,{type:'bar',data:{labels:rLabels,datasets:[{label:dA.last,data:ptsA,backgroundColor:color+'cc',borderColor:color,borderWidth:1},{label:dB.last,data:ptsB,backgroundColor:color+'55',borderColor:color+'88',borderWidth:1}]},options:splitOpts});
     } else {
       splitCtx.parentElement.innerHTML='<div style="font-size:12px;color:var(--text2);padding:8px 0">Insufficient data.</div>';
