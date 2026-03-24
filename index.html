@@ -851,7 +851,7 @@ async function fetchJSON(url,retries=2,bypassCache=false,ttl=CACHE_TTL){
       const r=await fetch(url,{signal:AbortSignal.timeout(12000)});
       if(!r.ok)throw new Error('HTTP '+r.status);
       const d=await r.json();
-      if(parseInt(d?.MRData?.total||0)>0) cacheSet(url,d);
+      cacheSet(url,d);
       return d;
     }catch(e){ if(i===retries)throw e; await new Promise(r=>setTimeout(r,800*(i+1))); }
   }
@@ -1764,7 +1764,6 @@ function closeModal(e){
 // ── Constructor modal ──
 async function openConstructorModal(constructorId){
   const c=liveConstructors.find(x=>x.Constructor.constructorId===constructorId);
-  console.log('[con-modal] constructorId:',constructorId,'found:',!!c,'roundsStatus will use URL:',`${BASE}/${SEASON}/constructors/${constructorId}/results.json?limit=500`);
   if(!c) return;
   const name=cleanConstructorName(c.Constructor.name);
   const color=teamColor(c.Constructor.name);
@@ -1865,16 +1864,20 @@ async function openConstructorModal(constructorId){
   async function fetchAllConRaces(constructorId){
     const limit=100;
     const TTL_1H=60*60*1000;
+    const delay=ms=>new Promise(r=>setTimeout(r,ms));
     try{
       const first=await fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=0`,2,false,TTL_1H);
       const total=parseInt(first.MRData.total||0);
       const firstRaces=first.MRData?.RaceTable?.Races||[];
       if(total<=limit) return firstRaces;
-      const pages=[];
-      for(let offset=limit;offset<total;offset+=limit) pages.push(offset);
-      const rest=await Promise.allSettled(pages.map(offset=>fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=${offset}`,2,false,TTL_1H)));
       const allRaces=[...firstRaces];
-      rest.forEach(r=>{ if(r.status==='fulfilled') allRaces.push(...(r.value.MRData?.RaceTable?.Races||[])); });
+      for(let offset=limit;offset<total;offset+=limit){
+        await delay(150);
+        try{
+          const page=await fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=${offset}`,2,false,TTL_1H);
+          allRaces.push(...(page.MRData?.RaceTable?.Races||[]));
+        }catch(e){}
+      }
       return allRaces;
     }catch(e){ return []; }
   }
@@ -1884,9 +1887,6 @@ async function openConstructorModal(constructorId){
     fetchAllConRaces(constructorId),
     fetchJSON(`${BASE}/constructors/${constructorId}/constructorstandings/1.json?limit=100`,2,false,60*60*1000),
   ]);
-  console.log('[con-modal] roundsData:',roundsData.status, roundsData.status==='fulfilled'?'total:'+roundsData.value?.MRData?.total:'reason:'+roundsData.reason);
-  console.log('[con-modal] careerRaces:',careerRaces.status, Array.isArray(careerRaces.value)?'races:'+careerRaces.value.length:'');
-  console.log('[con-modal] titlesData:',titlesData.status, titlesData.status==='fulfilled'?'total:'+titlesData.value?.MRData?.total:'');
 
   // ── Points per round bar chart ──
   const rlEl=document.getElementById('con-rounds-loading');
