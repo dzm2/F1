@@ -1769,9 +1769,11 @@ async function openConstructorModal(constructorId){
 
     <div id="con-story"></div>
 
+    <div class="modal-section-title">Season</div>
     <div class="modal-stats">
       <div class="modal-stat"><div class="modal-stat-label">Points</div><div class="modal-stat-value">${pts}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value">${wins}</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="con-podiums">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Position</div><div class="modal-stat-value">P${pos}</div></div>
     </div>
 
@@ -1783,10 +1785,6 @@ async function openConstructorModal(constructorId){
       <div class="modal-stat">
         <div class="modal-stat-label">Power Unit</div>
         <div class="modal-stat-value small">${info.power||'—'}</div>
-      </div>
-      <div class="modal-stat">
-        <div class="modal-stat-label">Podiums</div>
-        <div class="modal-stat-value" id="con-podiums">—</div>
       </div>
     </div>
 
