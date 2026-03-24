@@ -1268,20 +1268,48 @@ const DRIVER_BIO = {
 // ── Team hardcoded data (not available via API) ──
 // Keys match Jolpica constructorId values
 const TEAM_INFO = {
-  'mercedes':      { base:'Brackley, England',      principal:'Toto Wolff',          power:'Mercedes',   founded:1954, f1Since:1954  },
-  'ferrari':       { base:'Maranello, Italy',        principal:'Frédéric Vasseur',    power:'Ferrari',    founded:1929, f1Since:1950  },
-  'mclaren':       { base:'Woking, England',         principal:'Andrea Stella',       power:'Mercedes',   founded:1963, f1Since:1966  },
-  'red_bull':      { base:'Milton Keynes, England',  principal:'Laurent Mekies',      power:'Honda RBPT', founded:2004, f1Since:2005  },
-  'alpine':        { base:'Enstone, England',        principal:'Flavio Briatore',     power:'Mercedes',   founded:2020, f1Since:2021  },
-  'aston_martin':  { base:'Silverstone, England',    principal:'Adrian Newey',        power:'Honda',      founded:2018, f1Since:2021  },
-  'williams':      { base:'Grove, England',          principal:'James Vowles',        power:'Mercedes',   founded:1977, f1Since:1977  },
-  'haas':          { base:'Kannapolis, USA',         principal:'Ayao Komatsu',        power:'Ferrari',    founded:2014, f1Since:2016  },
-  'rb':            { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Honda RBPT', founded:1985, f1Since:1985  },
-  'racing_bulls':  { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Honda RBPT', founded:1985, f1Since:1985  },
-  'kick_sauber':   { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993  },
-  'sauber':        { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993  },
-  'cadillac':      { base:'Concord, USA',            principal:'Graeme Lowdon',       power:'GM/Ferrari', founded:2024, f1Since:2026  },
-  'audi':          { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Audi',       founded:2026, f1Since:2026  },
+  'mercedes':      { base:'Brackley, England',      principal:'Toto Wolff',          power:'Mercedes',   founded:1954, f1Since:1954,
+    bio:['The Mercedes-AMG Petronas Formula One Team traces its roots to the 1954 Silver Arrows that dominated grand prix racing under Juan Manuel Fangio. Reborn as a works constructor in 2010 after buying Brawn GP — itself the rebranded Honda squad that had won the 2009 title — Mercedes embarked on one of the most dominant eras in F1 history, winning eight consecutive constructors\' championships from 2014 to 2021 and producing seven drivers\' titles. Lewis Hamilton claimed six of those driver crowns with the team, cementing himself as the greatest of his generation in a silver car.','The 2026 season opens a new chapter, as Hamilton has departed for Ferrari and the sport transitions to entirely new power unit regulations. Under Toto Wolff, Mercedes enter 2026 as early championship contenders with {D1} and {D2} leading the charge on the new formula.']
+  },
+  'ferrari':       { base:'Maranello, Italy',        principal:'Frédéric Vasseur',    power:'Ferrari',    founded:1929, f1Since:1950,
+    bio:['Scuderia Ferrari is the oldest and most successful constructor in Formula 1 history, having competed in every season since the championship began in 1950. Founded by Enzo Ferrari in Maranello, Italy, the team has won 16 constructors\' championships and 15 drivers\' titles — records that may stand forever. The prancing horse has been driven to glory by legends including Alberto Ascari, Niki Lauda, Alain Prost, and Michael Schumacher, whose five consecutive titles between 2000 and 2004 represent the most dominant stretch any team has produced.','Ferrari\'s last constructors\' title came in 2008, and the drought weighs heavily on the passionate tifosi. The 2026 regulations represent arguably their best opportunity in years, with a new power unit era and the star pairing of {D1} and {D2} — a combination that carries enormous expectation on both sides of the Atlantic.']
+  },
+  'mclaren':       { base:'Woking, England',         principal:'Andrea Stella',       power:'Mercedes',   founded:1963, f1Since:1966,
+    bio:['McLaren was founded by New Zealand racing driver Bruce McLaren in 1963 and has grown into one of the most storied names in motorsport. Based in Woking, Surrey, the team has won eight constructors\' championships and twelve drivers\' titles. Their 1988 season — when Ayrton Senna and Alain Prost won fifteen of sixteen races — remains the most dominant single campaign in F1 history. The team endured a difficult decade after parting ways with Mercedes engines in 2014, but a switch back to Mercedes power in 2021 and a rebuilding effort under Andreas Seidl and then Andrea Stella turned the tide dramatically.','McLaren won back-to-back constructors\' championships in 2024 and 2025, with Lando Norris claiming the drivers\' title in 2025. In 2026 they enter as defending champions, with {D1} and {D2} tasked with defending their crown under sweeping new regulations.']
+  },
+  'red_bull':      { base:'Milton Keynes, England',  principal:'Laurent Mekies',      power:'Honda RBPT', founded:2004, f1Since:2005,
+    bio:['Red Bull Racing was founded in 2004 when energy drink giant Red Bull purchased the Jaguar F1 team from Ford. Based in Milton Keynes, England, the team shocked the establishment by winning four consecutive constructors\' and drivers\' championships between 2010 and 2013 with Sebastian Vettel, then returned to dominance with Max Verstappen, who claimed four straight drivers\' titles from 2021 to 2024. Their 2023 season — twenty-one wins from twenty-two races — stands as the most dominant in the sport\'s modern era.','Red Bull enter 2026 in transition. Verstappen has moved on, and the team faces the double challenge of new regulations and rebuilding around a new driver lineup. With {D1} and {D2} at the wheel and Adrian Newey\'s departure still fresh, Laurent Mekies leads the team into a new era.']
+  },
+  'alpine':        { base:'Enstone, England',        principal:'Flavio Briatore',     power:'Mercedes',   founded:2020, f1Since:2021,
+    bio:['The team based in Enstone has one of the most tangled histories in F1. Originally Jordan Grand Prix, it became BAR-Honda, then Spyker, Force India, Racing Point, and finally Renault before being rebranded as Alpine in 2021. The Enstone factory has produced race-winning machinery under several identities, most notably as Benetton — where Michael Schumacher won his first two titles in 1994 and 1995 — and then as Renault, which won back-to-back championships with Fernando Alonso in 2005 and 2006.','Under the Alpine name the team has won once — Esteban Ocon\'s famous victory in Hungary in 2021 — but struggled for consistency since. For 2026 they have made a significant switch to Mercedes power and brought the experienced Flavio Briatore back into the fold. {D1} and {D2} will be hoping the new regulations and new engine can spark a genuine revival.']
+  },
+  'aston_martin':  { base:'Silverstone, England',    principal:'Adrian Newey',        power:'Honda',      founded:2018, f1Since:2021,
+    bio:['The team now racing as Aston Martin has reinvented itself several times over the years — from Jordan Grand Prix in 1991 through BAR, Spyker, Force India, and Racing Point before Lawrence Stroll\'s consortium rebranded it in 2021. Based opposite Silverstone circuit, the team built an impressive new factory and attracted some of the biggest names in F1, most notably the signing of Adrian Newey as a shareholder and technical director for 2025. Fernando Alonso delivered a spectacular run of eight podiums in the first half of 2023, briefly raising hopes of a title challenge.','In 2026 the team begins a works partnership with Honda, giving them factory-level power unit support for the first time. Newey takes over as team principal, and with {D1} and {D2} driving, this is arguably the most anticipated new chapter in the team\'s history.']
+  },
+  'williams':      { base:'Grove, England',          principal:'James Vowles',        power:'Mercedes',   founded:1977, f1Since:1977,
+    bio:['Founded by Frank Williams and Patrick Head in 1977, Williams Racing is one of the most decorated teams in Formula 1 history. Based in Grove, Oxfordshire, the team dominated the sport through the late 1980s and 1990s, winning nine constructors\' championships and seven drivers\' titles. Their 1992 FW14B — designed by Adrian Newey — is widely regarded as one of the most technically advanced cars ever built, taking Nigel Mansell to the title with nine wins from sixteen races. Ayrton Senna, Damon Hill, and Jacques Villeneuve all raced for Williams at their peak.','After a prolonged decline following their last win in 2012, the Williams family sold the team to US investment firm Dorilton Capital in 2020. Under team principal James Vowles, appointed in 2023, a steady rebuild is underway. In 2026 {D1} and {D2} carry the hopes of one of F1\'s most beloved teams as they push to return to the sharp end of the grid.']
+  },
+  'haas':          { base:'Kannapolis, USA',         principal:'Ayao Komatsu',        power:'Ferrari',    founded:2014, f1Since:2016,
+    bio:['Haas F1 Team is the only American-owned constructor on the current grid, founded by businessman Gene Haas — who also co-owns the Stewart-Haas NASCAR operation — and based in Kannapolis, North Carolina. They entered F1 in 2016 with a unique model, using Ferrari power units and a close technical partnership with the Italian team to accelerate their development. Their debut season was a surprise success, with Romain Grosjean scoring points on the opening lap of the very first race.','Haas have never won a race or stood on the podium, but have carved out a niche as an efficient midfield operation. Ayao Komatsu took over as team principal in 2024 following the departure of Günther Steiner. In 2026, {D1} and {D2} continue the team\'s mission to punch above their weight against better-resourced rivals.']
+  },
+  'rb':            { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Honda RBPT', founded:1985, f1Since:1985,
+    bio:['Racing Bulls — formerly known as Toro Rosso and AlphaTauri — is Red Bull\'s second Formula 1 team, based in Faenza, Italy. Founded in 1985 as Minardi, the team became Scuderia Toro Rosso under Red Bull ownership in 2006, serving as a proving ground for young drivers from the Red Bull academy. The team produced one of F1\'s great shocks at the 2008 Italian Grand Prix, when a teenage Sebastian Vettel drove through wet conditions at Monza to win from pole — the team\'s only victory to date.','Recent graduates of the programme include Max Verstappen, Carlos Sainz, and Charles Leclerc. Rebranded as AlphaTauri in 2020 and then RB in 2024 before settling on Racing Bulls in 2025, the team now fields {D1} and {D2} as they continue their role developing the next generation of F1 talent.']
+  },
+  'racing_bulls':  { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Honda RBPT', founded:1985, f1Since:1985,
+    bio:['Racing Bulls — formerly known as Toro Rosso and AlphaTauri — is Red Bull\'s second Formula 1 team, based in Faenza, Italy. Founded in 1985 as Minardi, the team became Scuderia Toro Rosso under Red Bull ownership in 2006, serving as a proving ground for young drivers from the Red Bull academy. The team produced one of F1\'s great shocks at the 2008 Italian Grand Prix, when a teenage Sebastian Vettel drove through wet conditions at Monza to win from pole — the team\'s only victory to date.','Recent graduates of the programme include Max Verstappen, Carlos Sainz, and Charles Leclerc. Rebranded as AlphaTauri in 2020 and then RB in 2024 before settling on Racing Bulls in 2025, the team now fields {D1} and {D2} as they continue their role developing the next generation of F1 talent.']
+  },
+  'kick_sauber':   { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993,
+    bio:['Sauber has been a fixture of the Formula 1 grid since 1993, operating out of Hinwil, Switzerland — making them one of the few truly independent teams still competing at the top level. Founded by Peter Sauber, the team has never won a race but has a proud record of developing talent, with Kimi Räikkönen, Felipe Massa, and Robert Kubica all making their F1 debuts with the Swiss outfit. They operated as BMW Sauber between 2006 and 2009, briefly becoming a front-running team before BMW\'s withdrawal.','In 2026 the team transitions into the Audi works entry, with the German manufacturer taking full ownership as it makes its Formula 1 debut. Under new team principal Jonathan Wheatley — poached from Red Bull Racing — and with {D1} and {D2} at the wheel, this is the beginning of an entirely new chapter for the Hinwil operation.']
+  },
+  'sauber':        { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993,
+    bio:['Sauber has been a fixture of the Formula 1 grid since 1993, operating out of Hinwil, Switzerland — making them one of the few truly independent teams still competing at the top level. Founded by Peter Sauber, the team has never won a race but has a proud record of developing talent, with Kimi Räikkönen, Felipe Massa, and Robert Kubica all making their F1 debuts with the Swiss outfit. They operated as BMW Sauber between 2006 and 2009, briefly becoming a front-running team before BMW\'s withdrawal.','In 2026 the team transitions into the Audi works entry, with the German manufacturer taking full ownership as it makes its Formula 1 debut. Under new team principal Jonathan Wheatley — poached from Red Bull Racing — and with {D1} and {D2} at the wheel, this is the beginning of an entirely new chapter for the Hinwil operation.']
+  },
+  'cadillac':      { base:'Concord, USA',            principal:'Graeme Lowdon',       power:'GM/Ferrari', founded:2024, f1Since:2026,
+    bio:['Cadillac is one of two new entries joining the Formula 1 grid in 2026, becoming the second American team on the grid alongside Haas. The team is backed by General Motors and Andretti Global — the motorsport outfit founded by racing legend Michael Andretti — and represents a significant moment for American involvement in the sport after a lengthy and at times contentious approval process. Based in Concord, North Carolina, the team uses Ferrari power units while GM develops its own F1-specification power unit for future seasons.','Led by team principal Graeme Lowdon, Cadillac enter their debut season with realistic expectations of learning and developing rather than immediately challenging for points. {D1} and {D2} take on the formidable task of launching a brand new team in one of the most competitive periods in F1 history.']
+  },
+  'audi':          { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Audi',       founded:2026, f1Since:2026,
+    bio:['Audi\'s arrival in Formula 1 in 2026 marks one of the most significant manufacturer entries in the sport\'s history. The German automotive giant acquired a majority stake in the Sauber Group — which had operated the Hinwil-based team since 1993 — and has invested heavily in building a works power unit programme from scratch. It is the first time Audi has competed in Formula 1 as a constructor, though the brand has a distinguished motorsport heritage including multiple Le Mans victories and dominance in the World Rally Championship.','The 2026 season is expected to be a learning year as Audi beds in both its power unit and its structures. Under team principal Jonathan Wheatley — recruited from Red Bull Racing — and with {D1} and {D2} as its first ever F1 drivers, Audi\'s long-term ambition is to become a championship-winning force within the decade.']
+  },
 };
 
 // ── Driver modal ──
@@ -1795,8 +1823,8 @@ async function openConstructorModal(constructorId){
     <div class="modal-section-title">Driver points split <span id="con-split-loading" class="modal-loading-tag">Loading...</span></div>
     <div style="position:relative;height:160px;margin-bottom:8px"><canvas id="con-split-chart"></canvas></div>
     <hr class="modal-divider">
-    <div class="modal-section-title">Qualifying vs race performance <span id="con-qr-loading" class="modal-loading-tag">Loading...</span></div>
-    <div style="position:relative;height:180px;margin-bottom:8px"><canvas id="con-qr-chart"></canvas></div>
+    <div class="modal-section-title">About</div>
+    <div id="con-bio"></div>
     <hr class="modal-divider">
     <div class="modal-section-title">All-time stats <span id="con-career-loading" class="modal-loading-tag">Loading...</span></div>
     <div class="modal-stats" id="con-career-stats">
@@ -1852,6 +1880,19 @@ async function openConstructorModal(constructorId){
     }
   }
 
+  // ── About / bio ──
+  const bioEl=document.getElementById('con-bio');
+  if(bioEl&&info.bio){
+    const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
+    const d1=teamDrivers[0]?.last||'';
+    const d2=teamDrivers[1]?.last||'';
+    const paras=info.bio.map(p=>p.replace('{D1}',d1).replace('{D2}',d2));
+    bioEl.innerHTML=`<div style="border-left:3px solid ${color};border-radius:0;padding:10px 14px;background:var(--bg2)">`
+      +paras.map(p=>`<p style="font-size:13px;color:var(--text2);line-height:1.65;margin:0 0 10px">${p}</p>`).join('')
+      .replace(/<p([^>]*)>([^<]*)<\/p>$/,`<p$1 style="font-size:13px;color:var(--text2);line-height:1.65;margin:0">$2</p>`)
+      +'</div>';
+  }
+
   // ── Points per round bar chart ──
   const rlEl=document.getElementById('con-rounds-loading');
   if(rlEl) rlEl.textContent='';
@@ -1886,7 +1927,7 @@ async function openConstructorModal(constructorId){
           </div>
           <div style="flex:1;background:var(--bg2);border-radius:6px;padding:7px 12px">
             <div style="font-size:11px;color:var(--text2);margin-bottom:2px">% of max avail.</div>
-            <div class="modal-stat-value" style="color:#0F6E56">${pctAvail}%</div>
+            <div class="modal-stat-value">${pctAvail}%</div>
           </div>
         </div>`;
         if(canvasWrap) canvasWrap.style.display='';
@@ -1958,23 +1999,6 @@ async function openConstructorModal(constructorId){
   }
 
   // ── Qualifying vs Race performance ──
-  const qrEl=document.getElementById('con-qr-loading');
-  if(qrEl) qrEl.textContent='';
-  const qrCtx=document.getElementById('con-qr-chart');
-  if(qrCtx&&roundsData.status==='fulfilled'){
-    const races=roundsData.value.MRData?.RaceTable?.Races||[];
-    if(races.length){
-      const rLabels=races.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
-      // Average grid vs average finish per round for both drivers
-      const avgGrid=races.map(r=>{const grids=(r.Results||[]).map(x=>parseInt(x.grid)||0).filter(Boolean);return grids.length?grids.reduce((a,b)=>a+b,0)/grids.length:null;});
-      const avgFin=races.map(r=>{const fins=(r.Results||[]).map(x=>parseInt(x.position)||0).filter(Boolean);return fins.length?fins.reduce((a,b)=>a+b,0)/fins.length:null;});
-      if(qrCtx._chart) qrCtx._chart.destroy();
-      const qrOpts=chartDefaults('Position (lower = better)');
-      const qrTick=getComputedStyle(document.documentElement).getPropertyValue('--text2').trim()||'#73726c';
-      qrOpts.scales.y={...qrOpts.scales.y,reverse:true,min:1,suggestedMax:20,ticks:{...qrOpts.scales.y.ticks,stepSize:5}};
-      qrCtx._chart=new Chart(qrCtx,{type:'line',data:{labels:rLabels,datasets:[{label:'Avg grid',data:avgGrid,borderColor:qrTick,borderWidth:1.5,borderDash:[4,3],pointRadius:2,spanGaps:true},{label:'Avg finish',data:avgFin,borderColor:color,borderWidth:2,pointRadius:2,pointBackgroundColor:color,spanGaps:true}]},options:qrOpts});
-    }
-  }
   // ── All-time career stats ──
   const clEl=document.getElementById('con-career-loading');
   if(clEl) clEl.textContent='';
