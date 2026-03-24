@@ -840,12 +840,12 @@ function resetProgress(){
 
 // ── Cache ──
 function cacheSet(k,d){ try{localStorage.setItem(k,JSON.stringify({ts:Date.now(),data:d}));}catch(e){} }
-function cacheGet(k){ try{const r=JSON.parse(localStorage.getItem(k));if(r&&Date.now()-r.ts<CACHE_TTL)return r.data;}catch(e){}return null; }
+function cacheGet(k,ttl=CACHE_TTL){ try{const r=JSON.parse(localStorage.getItem(k));if(r&&Date.now()-r.ts<ttl)return r.data;}catch(e){}return null; }
 function cacheGetStale(k){ try{const r=JSON.parse(localStorage.getItem(k));if(r)return r.data;}catch(e){}return null; }
 
 // ── Fetch with retry + cache ──
-async function fetchJSON(url,retries=2,bypassCache=false){
-  if(!bypassCache){ const c=cacheGet(url); if(c)return c; }
+async function fetchJSON(url,retries=2,bypassCache=false,ttl=CACHE_TTL){
+  if(!bypassCache){ const c=cacheGet(url,ttl); if(c)return c; }
   for(let i=0;i<=retries;i++){
     try{
       const r=await fetch(url,{signal:AbortSignal.timeout(12000)});
@@ -1804,10 +1804,23 @@ async function openConstructorModal(constructorId){
     </div>
 
     <hr class="modal-divider">
-    <div class="modal-section-title">Drivers <span id="con-drivers-loading" class="modal-loading-tag">Loading...</span></div>
-    <div class="con-driver-cards" id="con-driver-cards">
-      <div class="modal-stat" style="grid-column:span 2"><div class="loading-text" style="font-size:12px">Loading driver data...</div></div>
-    </div>
+    <div class="modal-section-title">Drivers</div>
+    <div class="con-driver-cards" id="con-driver-cards">${(()=>{
+      const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
+      if(!teamDrivers.length) return '<div class="error-msg" style="padding:8px;grid-column:span 2">No driver data available.</div>';
+      const totalTeamPts=teamDrivers.reduce((s,d)=>s+d.pts,0)||1;
+      return teamDrivers.slice(0,2).map(d=>{
+        const pct=Math.round(d.pts/totalTeamPts*100);
+        return '<div class="con-driver-card" style="border-left-color:'+color+'">'
+          +'<div class="con-driver-card-name">'+d.last.toUpperCase()+'</div>'
+          +'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:4px">'+d.first+'</div>'
+          +'<div class="con-driver-card-pts">'+d.pts+' <span style="font-family:\'Space Grotesk\',sans-serif;font-size:11px;font-weight:500;color:var(--text2)">pts</span></div>'
+          +'<div class="con-driver-card-sub">P'+d.pos+' overall · '+d.wins+' win'+(d.wins!==1?'s':'')+'</div>'
+          +'<div style="margin-top:8px"><div style="height:3px;background:var(--border);border-radius:0;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+color+'"></div></div>'
+          +'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:10px;color:var(--text3);margin-top:3px">'+pct+'% of team pts</div></div>'
+          +'</div>';
+      }).join('');
+    })()}</div>
     <hr class="modal-divider">
     <div class="modal-section-title">Reliability <span id="con-rel-loading" class="modal-loading-tag">Loading...</span></div>
     <div class="modal-stats" id="con-reliability">
@@ -1833,17 +1846,30 @@ async function openConstructorModal(constructorId){
       <div class="modal-stat"><div class="modal-stat-label">Titles</div><div class="modal-stat-value" id="cc-titles">—</div></div>
     </div>`;
 
+  // ── Bio renders immediately — no API dependency ──
+  const bioEl=document.getElementById('con-bio');
+  if(bioEl&&info.bio){
+    const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
+    const d1=teamDrivers[0]?.last||'';
+    const d2=teamDrivers[1]?.last||'';
+    const paras=info.bio.map(p=>p.replace('{D1}',d1).replace('{D2}',d2));
+    bioEl.innerHTML=`<div style="border-left:3px solid ${color};border-radius:0;padding:10px 14px;background:var(--bg2)">`
+      +paras.map((p,i)=>`<p style="font-size:13px;color:var(--text2);line-height:1.65;margin:${i<paras.length-1?'0 0 10px':'0'}">${p}</p>`).join('')
+      +'</div>';
+  }
+
   // Fetch all data — career results paginated to handle Ferrari's 1000+ races
   async function fetchAllConRaces(constructorId){
     const limit=100;
+    const TTL_1H=60*60*1000;
     try{
-      const first=await fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=0`);
+      const first=await fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=0`,2,false,TTL_1H);
       const total=parseInt(first.MRData.total||0);
       const firstRaces=first.MRData?.RaceTable?.Races||[];
       if(total<=limit) return firstRaces;
       const pages=[];
       for(let offset=limit;offset<total;offset+=limit) pages.push(offset);
-      const rest=await Promise.allSettled(pages.map(offset=>fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=${offset}`)));
+      const rest=await Promise.allSettled(pages.map(offset=>fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=${offset}`,2,false,TTL_1H)));
       const allRaces=[...firstRaces];
       rest.forEach(r=>{ if(r.status==='fulfilled') allRaces.push(...(r.value.MRData?.RaceTable?.Races||[])); });
       return allRaces;
@@ -1853,45 +1879,8 @@ async function openConstructorModal(constructorId){
   const [roundsData, careerRaces, titlesData] = await Promise.allSettled([
     fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/results.json?limit=500`),
     fetchAllConRaces(constructorId),
-    fetchJSON(`${BASE}/constructors/${constructorId}/constructorstandings/1.json?limit=100`),
+    fetchJSON(`${BASE}/constructors/${constructorId}/constructorstandings/1.json?limit=100`,2,false,60*60*1000),
   ]);
-
-  // ── Drivers — derived from liveDrivers (already loaded) ──
-  const dlEl=document.getElementById('con-drivers-loading');
-  if(dlEl) dlEl.textContent='';
-  const dcEl=document.getElementById('con-driver-cards');
-  if(dcEl){
-    const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
-    if(teamDrivers.length){
-      const totalTeamPts=teamDrivers.reduce((s,d)=>s+d.pts,0)||1;
-      dcEl.innerHTML=teamDrivers.slice(0,2).map(d=>{
-        const pct=Math.round(d.pts/totalTeamPts*100);
-        return '<div class="con-driver-card" style="border-left-color:'+color+'">'
-          +'<div class="con-driver-card-name">'+d.last.toUpperCase()+'</div>'
-          +'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:4px">'+d.first+'</div>'
-          +'<div class="con-driver-card-pts">'+d.pts+' <span style="font-family:\'Space Grotesk\',sans-serif;font-size:11px;font-weight:500;color:var(--text2)">pts</span></div>'
-          +'<div class="con-driver-card-sub">P'+d.pos+' overall · '+d.wins+' win'+(d.wins!==1?'s':'')+'</div>'
-          +'<div style="margin-top:8px"><div style="height:3px;background:var(--border);border-radius:0;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+color+'"></div></div>'
-          +'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:10px;color:var(--text3);margin-top:3px">'+pct+'% of team pts</div></div>'
-          +'</div>';
-      }).join('');
-    } else {
-      dcEl.innerHTML='<div class="error-msg" style="padding:8px;grid-column:span 2">No driver data available.</div>';
-    }
-  }
-
-  // ── About / bio ──
-  const bioEl=document.getElementById('con-bio');
-  if(bioEl&&info.bio){
-    const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
-    const d1=teamDrivers[0]?.last||'';
-    const d2=teamDrivers[1]?.last||'';
-    const paras=info.bio.map(p=>p.replace('{D1}',d1).replace('{D2}',d2));
-    bioEl.innerHTML=`<div style="border-left:3px solid ${color};border-radius:0;padding:10px 14px;background:var(--bg2)">`
-      +paras.map(p=>`<p style="font-size:13px;color:var(--text2);line-height:1.65;margin:0 0 10px">${p}</p>`).join('')
-      .replace(/<p([^>]*)>([^<]*)<\/p>$/,`<p$1 style="font-size:13px;color:var(--text2);line-height:1.65;margin:0">$2</p>`)
-      +'</div>';
-  }
 
   // ── Points per round bar chart ──
   const rlEl=document.getElementById('con-rounds-loading');
