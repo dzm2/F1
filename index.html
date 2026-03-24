@@ -1769,11 +1769,9 @@ async function openConstructorModal(constructorId){
 
     <div id="con-story"></div>
 
-    <div class="modal-section-title">Season</div>
-    <div class="modal-stats" style="grid-template-columns:repeat(4,1fr)">
+    <div class="modal-stats">
       <div class="modal-stat"><div class="modal-stat-label">Points</div><div class="modal-stat-value">${pts}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value">${wins}</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="con-podiums">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Position</div><div class="modal-stat-value">P${pos}</div></div>
     </div>
 
@@ -1815,8 +1813,9 @@ async function openConstructorModal(constructorId){
     </div>
     <hr class="modal-divider">
     <div class="modal-section-title">Season performance <span id="con-perf-loading" class="modal-loading-tag">Loading...</span></div>
-    <div class="modal-stats">
+    <div class="modal-stats" style="grid-template-columns:repeat(4,1fr)">
       <div class="modal-stat"><div class="modal-stat-label">Pole positions</div><div class="modal-stat-value" id="con-poles">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="con-podiums">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Fastest laps</div><div class="modal-stat-value" id="con-fl">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Points finishes</div><div class="modal-stat-value" id="con-pts-fin">—</div></div>
     </div>
@@ -1886,21 +1885,19 @@ async function openConstructorModal(constructorId){
   if(chartWrap){
     if(roundsData.status==='fulfilled'){
       const races=roundsData.value.MRData?.RaceTable?.Races||[];
-      // Count 2026 season podiums
-      let seasonPodiums=0;
-      races.forEach(r=>{(r.Results||[]).forEach(res=>{if(parseInt(res.position||99)<=3) seasonPodiums++;});});
-      const podEl=document.getElementById('con-podiums');
-      if(podEl) podEl.textContent=seasonPodiums;
-      // Fastest laps and points finishes
-      let fastestLaps=0, pointsFinishes=0;
+      // Fastest laps, podiums and points finishes
+      let fastestLaps=0, pointsFinishes=0, podiums=0;
       races.forEach(r=>{(r.Results||[]).forEach(res=>{
         if(res.FastestLap?.rank==='1') fastestLaps++;
         if(parseFloat(res.points||0)>0) pointsFinishes++;
+        if(parseInt(res.position||99)<=3) podiums++;
       });});
       const flEl=document.getElementById('con-fl');
       const pfEl=document.getElementById('con-pts-fin');
+      const podEl=document.getElementById('con-podiums');
       if(flEl) flEl.textContent=fastestLaps;
       if(pfEl) pfEl.textContent=pointsFinishes;
+      if(podEl) podEl.textContent=podiums;
       const roundPts={};
       const roundNames={};
       races.forEach(r=>{
