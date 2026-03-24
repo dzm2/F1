@@ -1866,11 +1866,13 @@ async function openConstructorModal(constructorId){
     }catch(e){ return []; }
   }
 
+  const _t0=performance.now();
   const [roundsData, careerRaces, titlesData] = await Promise.allSettled([
     fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/results.json?limit=500`),
     fetchAllConRaces(constructorId),
     fetchJSON(`${BASE}/constructors/${constructorId}/constructorstandings/1.json?limit=100`,2,false,60*60*1000),
   ]);
+  console.log(`[con-modal] ${constructorId} allSettled in ${(performance.now()-_t0).toFixed(0)}ms — rounds:${roundsData.status} career:${careerRaces.status}(${Array.isArray(careerRaces.value)?careerRaces.value.length:'err'}) titles:${titlesData.status}`);
 
   // ── Points per round bar chart ──
   const rlEl=document.getElementById('con-rounds-loading');
