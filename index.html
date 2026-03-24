@@ -1318,6 +1318,7 @@ async function openDriverModal(driverId){
   const bio=DRIVER_BIO[driverId]||{};
   const isRookie=ROOKIES.has(driverId);
   document.getElementById('driver-modal').classList.remove('hidden');
+  document.getElementById('modal-content').scrollTop=0;
   // Pre-fetch pit stop data for all completed rounds so avg pit is always populated
   const completedRoundsForPit=Object.keys(resultsMap).filter(r=>(resultsMap[r]||[]).length>0);
   await Promise.allSettled(completedRoundsForPit.map(async round=>{
@@ -1773,6 +1774,7 @@ async function openConstructorModal(constructorId){
   const yearsInF1=info.f1Since?`${info.f1Since} (${2026-info.f1Since} yrs)`:'—';
 
   document.getElementById('con-modal').classList.remove('hidden');
+  document.getElementById('con-modal-content').scrollTop=0;
   document.getElementById('con-modal-body').innerHTML=`
     <div class="con-modal-hero" style="background:${color}15;border:0.5px solid ${color}33">
       <div class="con-modal-pip" style="background:${color}"></div>
