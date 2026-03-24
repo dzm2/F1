@@ -1755,7 +1755,6 @@ async function openConstructorModal(constructorId){
   const wins=parseInt(c.wins);
   const pos=parseInt(c.position);
   const info=TEAM_INFO[constructorId]||TEAM_INFO[constructorId.replace('-','_')]||{};
-  const yearsInF1=info.f1Since?`${info.f1Since} (${2026-info.f1Since} yrs)`:'—';
 
   document.getElementById('con-modal').classList.remove('hidden');
   document.getElementById('con-modal-content').scrollTop=0;
@@ -1784,8 +1783,8 @@ async function openConstructorModal(constructorId){
         <div class="modal-stat-value small">${info.power||'—'}</div>
       </div>
       <div class="modal-stat">
-        <div class="modal-stat-label">In F1 Since</div>
-        <div class="modal-stat-value small">${yearsInF1}</div>
+        <div class="modal-stat-label">Podiums</div>
+        <div class="modal-stat-value" id="con-podiums">—</div>
       </div>
     </div>
 
@@ -1824,13 +1823,6 @@ async function openConstructorModal(constructorId){
     <hr class="modal-divider">
     <div class="modal-section-title">About</div>
     <div id="con-bio"></div>
-    <hr class="modal-divider">
-    <div class="modal-section-title">All-time stats <span id="con-career-loading" class="modal-loading-tag">Loading...</span></div>
-    <div class="modal-stats" id="con-career-stats">
-      <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value" id="cc-wins">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="cc-podiums">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Titles</div><div class="modal-stat-value" id="cc-titles">—</div></div>
-    </div>`;
 
   // ── Bio renders immediately — no API dependency ──
   const bioEl=document.getElementById('con-bio');
@@ -1844,31 +1836,8 @@ async function openConstructorModal(constructorId){
       +'</div>';
   }
 
-  // Fetch all data — career results paginated to handle Ferrari's 1000+ races
-  async function fetchAllConRaces(constructorId){
-    const limit=1000;
-    const TTL_1H=60*60*1000;
-    const delay=ms=>new Promise(r=>setTimeout(r,ms));
-    try{
-      const first=await fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=0`,2,false,TTL_1H);
-      const total=parseInt(first.MRData.total||0);
-      const firstRaces=first.MRData?.RaceTable?.Races||[];
-      if(total<=limit) return firstRaces;
-      const allRaces=[...firstRaces];
-      for(let offset=limit;offset<total;offset+=limit){
-        await delay(150);
-        try{
-          const page=await fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=${offset}`,2,false,TTL_1H);
-          allRaces.push(...(page.MRData?.RaceTable?.Races||[]));
-        }catch(e){}
-      }
-      return allRaces;
-    }catch(e){ return []; }
-  }
-
-  const [roundsData, careerRaces] = await Promise.allSettled([
+  const [roundsData] = await Promise.allSettled([
     fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/results.json?limit=500`),
-    fetchAllConRaces(constructorId),
   ]);
 
   // ── Points per round bar chart ──
@@ -1880,6 +1849,11 @@ async function openConstructorModal(constructorId){
   if(chartWrap){
     if(roundsData.status==='fulfilled'){
       const races=roundsData.value.MRData?.RaceTable?.Races||[];
+      // Count 2026 season podiums
+      let seasonPodiums=0;
+      races.forEach(r=>{(r.Results||[]).forEach(res=>{if(parseInt(res.position||99)<=3) seasonPodiums++;});});
+      const podEl=document.getElementById('con-podiums');
+      if(podEl) podEl.textContent=seasonPodiums;
       const roundPts={};
       const roundNames={};
       races.forEach(r=>{
@@ -1976,40 +1950,10 @@ async function openConstructorModal(constructorId){
     }
   }
 
-  // ── Qualifying vs Race performance ──
-  // ── All-time career stats ──
-  const clEl=document.getElementById('con-career-loading');
-  if(clEl) clEl.textContent='';
-  if(careerRaces.status==='fulfilled'){
-    const allRaces=careerRaces.value||[];
-    let allWins=0,allPodiums=0;
-    allRaces.forEach(r=>{
-      (r.Results||[]).forEach(res=>{
-        const p=parseInt(res.position||99);
-        if(p===1) allWins++;
-        if(p<=3) allPodiums++;
-      });
-    });
-    // Use hardcoded values as fallback if API returned incomplete data
-    const wEl=document.getElementById('cc-wins');
-    const pEl=document.getElementById('cc-podiums');
-    if(wEl) wEl.textContent=allWins||info.wins||0;
-    if(pEl) pEl.textContent=allPodiums||info.podiums||0;
-  } else {
-    const wEl=document.getElementById('cc-wins');
-    const pEl=document.getElementById('cc-podiums');
-    if(wEl) wEl.textContent=info.wins??'—';
-    if(pEl) pEl.textContent=info.podiums??'—';
-  }
-  const tEl=document.getElementById('cc-titles');
-  if(tEl) tEl.textContent=info.titles??'—';
-  const titles=info.titles||0;
 
-    // ── Team story — plain-English context ──
-    const allRaces=careerRaces.status==='fulfilled'?careerRaces.value||[]:[];
-    let allWins=0,allPodiums=0;
-    allRaces.forEach(r=>{(r.Results||[]).forEach(res=>{const p=parseInt(res.position||99);if(p===1)allWins++;if(p<=3)allPodiums++;});});
-    allWins=allWins||info.wins||0;
+  // ── Team story — plain-English context ──
+    const titles=info.titles||0;
+    const allWins=info.wins||0;
     const yearsActive=info.f1Since?2026-info.f1Since:null;
     const leaderCon=liveConstructors[0];
     const gapToLeader=leaderCon&&pos>1?parseFloat(leaderCon.points)-pts:0;
@@ -2036,8 +1980,8 @@ async function openConstructorModal(constructorId){
     const storyEl=document.createElement('div');
     storyEl.style.cssText='font-size:13px;color:var(--text2);line-height:1.6;padding:10px 12px;background:var(--bg2);border-radius:6px;border-left:3px solid '+color+';margin-top:10px';
     storyEl.textContent=story;
-    const careerSection=document.getElementById('con-career-stats');
-    if(careerSection) careerSection.insertAdjacentElement('afterend',storyEl);
+    const bioSection=document.getElementById('con-bio');
+    if(bioSection) bioSection.insertAdjacentElement('afterend',storyEl);
 }
 
 function closeConModal(e){
