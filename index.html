@@ -1816,6 +1816,13 @@ async function openConstructorModal(constructorId){
       <div class="modal-stat"><div class="modal-stat-label">Finish rate</div><div class="modal-stat-value" id="con-fin-rate">—</div></div>
     </div>
     <hr class="modal-divider">
+    <div class="modal-section-title">Season performance <span id="con-perf-loading" class="modal-loading-tag">Loading...</span></div>
+    <div class="modal-stats">
+      <div class="modal-stat"><div class="modal-stat-label">Pole positions</div><div class="modal-stat-value" id="con-poles">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Fastest laps</div><div class="modal-stat-value" id="con-fl">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Points finishes</div><div class="modal-stat-value" id="con-pts-fin">—</div></div>
+    </div>
+    <hr class="modal-divider">
     <div class="modal-section-title">Points per round <span id="con-rounds-loading" class="modal-loading-tag">Loading...</span></div>
     <div id="con-round-chart-wrap"><div class="loading-text" style="font-size:12px;padding:8px 0">Loading...</div></div>
     <div id="con-round-canvas-wrap" style="position:relative;height:140px;margin-bottom:8px;display:none"><canvas id="con-round-chart"></canvas></div>
@@ -1867,8 +1874,9 @@ async function openConstructorModal(constructorId){
       +'</div>';
   }
 
-  const [roundsData] = await Promise.allSettled([
+  const [roundsData, qualiData] = await Promise.allSettled([
     fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/results.json?limit=500`),
+    fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/qualifying.json?limit=500`),
   ]);
 
   // ── Points per round bar chart ──
@@ -1885,6 +1893,16 @@ async function openConstructorModal(constructorId){
       races.forEach(r=>{(r.Results||[]).forEach(res=>{if(parseInt(res.position||99)<=3) seasonPodiums++;});});
       const podEl=document.getElementById('con-podiums');
       if(podEl) podEl.textContent=seasonPodiums;
+      // Fastest laps and points finishes
+      let fastestLaps=0, pointsFinishes=0;
+      races.forEach(r=>{(r.Results||[]).forEach(res=>{
+        if(res.FastestLap?.rank==='1') fastestLaps++;
+        if(parseFloat(res.points||0)>0) pointsFinishes++;
+      });});
+      const flEl=document.getElementById('con-fl');
+      const pfEl=document.getElementById('con-pts-fin');
+      if(flEl) flEl.textContent=fastestLaps;
+      if(pfEl) pfEl.textContent=pointsFinishes;
       const roundPts={};
       const roundNames={};
       races.forEach(r=>{
@@ -1955,6 +1973,17 @@ async function openConstructorModal(constructorId){
     const dnfEl=document.getElementById('con-dnf-count'); if(dnfEl) dnfEl.textContent=dnfs;
     const finEl=document.getElementById('con-fin-count'); if(finEl) finEl.textContent=fins;
     const rateEl=document.getElementById('con-fin-rate'); if(rateEl) rateEl.textContent=rate;
+  }
+
+  // ── Season performance — poles ──
+  const perfEl=document.getElementById('con-perf-loading');
+  if(perfEl) perfEl.textContent='';
+  if(qualiData.status==='fulfilled'){
+    const qualiRaces=qualiData.value.MRData?.RaceTable?.Races||[];
+    let poles=0;
+    qualiRaces.forEach(r=>{(r.QualifyingResults||[]).forEach(res=>{if(res.position==='1') poles++;});});
+    const polesEl=document.getElementById('con-poles');
+    if(polesEl) polesEl.textContent=poles;
   }
 
   // ── Driver points split stacked bar ──
