@@ -1755,6 +1755,7 @@ async function openConstructorModal(constructorId){
   const wins=parseInt(c.wins);
   const pos=parseInt(c.position);
   const info=TEAM_INFO[constructorId]||TEAM_INFO[constructorId.replace('-','_')]||{};
+  const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
 
   document.getElementById('con-modal').classList.remove('hidden');
   document.getElementById('con-modal-content').scrollTop=0;
@@ -1874,9 +1875,6 @@ async function openConstructorModal(constructorId){
     fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/results.json?limit=500`),
     fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/qualifying.json?limit=500`),
   ]);
-
-  // ── Pre-compute teamDrivers once (fix 2) ──
-  const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
 
   // ── Points per round bar chart ──
   const rlEl=document.getElementById('con-rounds-loading');
