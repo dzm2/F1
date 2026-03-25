@@ -193,8 +193,8 @@
     .detail-group-body.dg-hidden{display:none;}
     .detail-show-more{display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;border-top:0.5px solid var(--border);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;}
     .detail-show-more:hover{color:var(--red);background:var(--bg2);}
-    .detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:5px;font-size:13px;}
-    .detail-item{color:var(--text2);} .detail-item strong{color:var(--text);font-weight:700;}
+    .detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:5px;font-size:13px;}
+    .detail-item{color:var(--text2);display:flex;align-items:center;gap:8px;padding:4px 0;} .detail-item .detail-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text);text-transform:uppercase;}
 
     /* Tyre chips */
     .tyre { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; font-size:9px; font-weight:700; font-family:'Space Grotesk',sans-serif; flex-shrink:0; }
@@ -2569,7 +2569,7 @@ async function loadCalendar(bypassCache=false){
         if(dnfs.length){
           const dt=document.createElement('div'); dt.className='detail-section-title'; dt.textContent='Retirements (Did Not Finish)'; body.appendChild(dt);
           const dg=document.createElement('div'); dg.className='detail-grid';
-          dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><strong>'+f.Driver.familyName.toUpperCase()+'</strong> <span class="dnf-badge">'+f.status+'</span></div>').join('');
+          dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><span class="detail-name">'+f.Driver.familyName.toUpperCase()+'</span> <span class="dnf-badge">'+f.status+'</span></div>').join('');
           body.appendChild(dg);
         }
 
@@ -2580,29 +2580,6 @@ async function loadCalendar(bypassCache=false){
         body.appendChild(pitWrap);
         pitWrap.dataset.round=r.round;
         pitWrap.dataset.loaded='0';
-
-        const gapTitle=document.createElement('div'); gapTitle.className='detail-section-title'; gapTitle.textContent='Gap to leader at finish'; body.appendChild(gapTitle);
-        const top5gap=finishers.slice(0,5);
-        const maxGap=Math.max(...top5gap.map(f=>{const t=f.Time?.time||'';const m=t.match(/^[+]?(\d+\.?\d*)$/);return m?parseFloat(m[1]):0;}));
-        const gapTbl=document.createElement('table'); gapTbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;margin-top:4px';
-        gapTbl.innerHTML='<tbody>'+top5gap.map((f,i)=>{
-          const color=teamColor(f.Constructor?.name||'');
-          const teamShort=(f.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
-          const rawGap=f.Time?.time||'';
-          const m=rawGap.match(/^[+]?(\d+\.?\d*)$/);
-          const gapSec=m?parseFloat(m[1]):null;
-          const barPct=i===0||!gapSec||!maxGap?0:Math.round((gapSec/maxGap)*100);
-          const gapVal=i===0?'<span style="color:var(--red);font-weight:700">Winner</span>':(rawGap||'—');
-          return '<tr style="border-bottom:0.5px solid var(--border)">'
-            +'<td style="padding:7px 8px;width:24px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:14px;color:'+(i===0?'var(--red)':'var(--text2)')+'">'+(i+1)+'</td>'
-            +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
-            +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+f.Driver.familyName.toUpperCase()+'</span>'
-            +'<br><span style="font-family:\'Space Grotesk\',sans-serif;font-size:11px;color:var(--text3)">'+teamShort+'</span></td>'
-            +'<td style="padding:7px 8px;width:100px"><div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+barPct+'%;background:'+color+(i===0?'':'88')+';border-radius:2px"></div></div></td>'
-            +'<td style="padding:7px 8px;font-family:monospace;font-size:11px;color:var(--text2);text-align:right;white-space:nowrap">'+gapVal+'</td>'
-            +'</tr>';
-        }).join('')+'</tbody>';
-        body.appendChild(gapTbl);
 
         const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap · top 5 finishers'; body.appendChild(flTitle);
         const top5=finishers.slice(0,5).filter(f=>f.FastestLap?.Time?.time);
@@ -2625,7 +2602,7 @@ async function loadCalendar(bypassCache=false){
             return '<tr style="border-bottom:0.5px solid var(--border)">'
               +'<td style="padding:6px 6px;width:22px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:'+(isFastest?'var(--red)':'var(--text2)')+'">'+(i+1)+'</td>'
               +'<td style="padding:6px 6px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
-              +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+f.Driver.familyName.toUpperCase()+flBadge+'</span>'
+              +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:14px;color:var(--text)">'+f.Driver.familyName.toUpperCase()+flBadge+'</span>'
               +'<br><span style="font-size:11px;color:var(--text3)">'+teamShort+'</span></td>'
               +'<td style="padding:6px 6px;font-family:monospace;font-size:12px;color:'+(isFastest?'#7D3C98':'var(--text2)')+';text-align:right">'+time+'</td>'
               +'<td style="padding:6px 6px;font-family:monospace;font-size:11px;color:var(--text3);text-align:right;width:58px">'+(isFastest?'—':'+'+delta.toFixed(3)+'s')+'</td>'
@@ -2664,7 +2641,7 @@ async function loadCalendar(bypassCache=false){
               offset+=laps.length;
             }while(offset<total&&offset<2000);
 
-            if(!allLaps.length){posNote.textContent='Lap data not available for this race.';return;}
+            if(!allLaps.length){posTitle.style.display='none';posWrap.style.display='none';posNote.style.display='none';return;}
 
             // Build per-driver position series: { driverId: { lapNum: position } }
             const driverPos={};
@@ -2706,7 +2683,7 @@ async function loadCalendar(bypassCache=false){
             posCtx._chart=new Chart(posCtx,{type:'line',data:{labels:lapNums,datasets},options:lapOpts});
             posNote.textContent='Top 10 finishers · '+lapNums.length+' laps';
           }catch(e){
-            posNote.textContent='Could not load lap data.';
+            posTitle.style.display='none';posWrap.style.display='none';posNote.style.display='none';
           }
         })();
         });
@@ -2783,7 +2760,7 @@ document.getElementById('race-list').addEventListener('click', e=>{
           const color=teamColor(liveDrivers.find(x=>x.driverId===did)?.team||'');
           const stopsDetail=dStops.map(s=>'<span style="display:inline-block;background:var(--bg2);border-radius:3px;padding:1px 6px;margin:1px 2px;font-size:10px;white-space:nowrap">L'+s.lap+' <span style="color:var(--text2)">'+s.duration+'s</span></span>').join('');
           html+='<tr style="border-top:0.5px solid var(--border)">'
-            +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+dObj.last.toUpperCase()+'</span></td>'
+            +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:14px;color:var(--text)">'+dObj.last.toUpperCase()+'</span></td>'
             +'<td style="padding:7px 8px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text2)">'+dStops.length+'</td>'
             +'<td style="padding:7px 8px">'+stopsDetail+'</td>'
             +'</tr>';
