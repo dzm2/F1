@@ -2334,8 +2334,8 @@ async function loadCalendar(bypassCache=false){
     if(isCompleted){
       const fl=finishers.find(f=>f.FastestLap?.rank==='1');
       const extra=document.createElement('div'); extra.className='race-extra';
-      if(fl) extra.innerHTML+='<span>⚡ Fastest: '+fl.Driver.familyName+' '+(fl.FastestLap?.Time?.time||'')+'</span>';
-      if(dnfs.length) extra.innerHTML+='<span title="'+dnfs.map(f=>f.Driver.familyName+': '+f.status).join(', ')+'">⛔ '+dnfs.length+' DNF'+(dnfs.length>1?'s':'')+'</span>';
+      if(fl) extra.innerHTML+='<span>⚡ Fastest: '+fl.Driver.familyName.toUpperCase()+' '+(fl.FastestLap?.Time?.time||'')+'</span>';
+      if(dnfs.length) extra.innerHTML+='<span title="'+dnfs.map(f=>f.Driver.familyName.toUpperCase()+': '+f.status).join(', ')+'">⛔ '+dnfs.length+' DNF'+(dnfs.length>1?'s':'')+'</span>';
       if(extra.innerHTML) rightCol.appendChild(extra);
     }
 
@@ -2494,7 +2494,7 @@ async function loadCalendar(bypassCache=false){
         const heroCard=(label,name,sub)=>`<div style="background:var(--bg2);border-radius:6px;padding:8px 12px"><div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:2px">${label}</div><div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text)">${name}</div><div style="font-size:11px;color:var(--text2);font-family:monospace">${sub}</div></div>`;
         const poleQ=qualiResults.find(q=>q.Driver?.driverId===poleDriver.Driver.driverId);
         const poleTime=poleQ?.Q3||poleQ?.Q2||poleQ?.Q1||'—';
-        heroEl.innerHTML=heroCard('Winner',winner.Driver.familyName,winner.Time?.time||'—')+heroCard('Pole',poleDriver.Driver.familyName,poleTime)+heroCard('Fastest lap',fl?fl.Driver.familyName:'—',fl?(fl.FastestLap?.Time?.time||'—')+(fl.FastestLap?.lap?' · Lap '+fl.FastestLap.lap:''):'—');
+        heroEl.innerHTML=heroCard('Winner',winner.Driver.familyName.toUpperCase(),winner.Time?.time||'—')+heroCard('Pole',poleDriver.Driver.familyName.toUpperCase(),poleTime)+heroCard('Fastest lap',fl?fl.Driver.familyName.toUpperCase():'—',fl?(fl.FastestLap?.Time?.time||'—')+(fl.FastestLap?.lap?' · Lap '+fl.FastestLap.lap:''):'—');
         body.appendChild(heroEl);
 
         if(qualiResults.length){
@@ -2569,7 +2569,7 @@ async function loadCalendar(bypassCache=false){
         if(dnfs.length){
           const dt=document.createElement('div'); dt.className='detail-section-title'; dt.textContent='Retirements (Did Not Finish)'; body.appendChild(dt);
           const dg=document.createElement('div'); dg.className='detail-grid';
-          dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><strong>'+f.Driver.familyName+'</strong> <span class="dnf-badge">'+f.status+'</span></div>').join('');
+          dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><strong>'+f.Driver.familyName.toUpperCase()+'</strong> <span class="dnf-badge">'+f.status+'</span></div>').join('');
           body.appendChild(dg);
         }
 
@@ -2596,7 +2596,7 @@ async function loadCalendar(bypassCache=false){
           return '<tr style="border-bottom:0.5px solid var(--border)">'
             +'<td style="padding:7px 8px;width:24px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:14px;color:'+(i===0?'var(--red)':'var(--text2)')+'">'+(i+1)+'</td>'
             +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
-            +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+f.Driver.familyName+'</span>'
+            +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+f.Driver.familyName.toUpperCase()+'</span>'
             +'<br><span style="font-family:\'Space Grotesk\',sans-serif;font-size:11px;color:var(--text3)">'+teamShort+'</span></td>'
             +'<td style="padding:7px 8px;width:100px"><div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+barPct+'%;background:'+color+(i===0?'':'88')+';border-radius:2px"></div></div></td>'
             +'<td style="padding:7px 8px;font-family:monospace;font-size:11px;color:var(--text2);text-align:right;white-space:nowrap">'+gapVal+'</td>'
@@ -2625,7 +2625,7 @@ async function loadCalendar(bypassCache=false){
             return '<tr style="border-bottom:0.5px solid var(--border)">'
               +'<td style="padding:6px 6px;width:22px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:'+(isFastest?'var(--red)':'var(--text2)')+'">'+(i+1)+'</td>'
               +'<td style="padding:6px 6px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
-              +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+f.Driver.familyName+flBadge+'</span>'
+              +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+f.Driver.familyName.toUpperCase()+flBadge+'</span>'
               +'<br><span style="font-size:11px;color:var(--text3)">'+teamShort+'</span></td>'
               +'<td style="padding:6px 6px;font-family:monospace;font-size:12px;color:'+(isFastest?'#7D3C98':'var(--text2)')+';text-align:right">'+time+'</td>'
               +'<td style="padding:6px 6px;font-family:monospace;font-size:11px;color:var(--text3);text-align:right;width:58px">'+(isFastest?'—':'+'+delta.toFixed(3)+'s')+'</td>'
@@ -2685,7 +2685,7 @@ async function loadCalendar(bypassCache=false){
               const f=finishers.find(x=>x.Driver.driverId===id);
               const col=teamColor(f?.Constructor?.name||'');
               return {
-                label:f?.Driver.familyName||id,
+                label:(f?.Driver.familyName||id).toUpperCase(),
                 data:lapNums.map(n=>driverPos[id]?.[n]||null),
                 borderColor:col,
                 backgroundColor:'transparent',
@@ -2783,7 +2783,7 @@ document.getElementById('race-list').addEventListener('click', e=>{
           const color=teamColor(liveDrivers.find(x=>x.driverId===did)?.team||'');
           const stopsDetail=dStops.map(s=>'<span style="display:inline-block;background:var(--bg2);border-radius:3px;padding:1px 6px;margin:1px 2px;font-size:10px;white-space:nowrap">L'+s.lap+' <span style="color:var(--text2)">'+s.duration+'s</span></span>').join('');
           html+='<tr style="border-top:0.5px solid var(--border)">'
-            +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+dObj.last+'</span></td>'
+            +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+dObj.last.toUpperCase()+'</span></td>'
             +'<td style="padding:7px 8px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text2)">'+dStops.length+'</td>'
             +'<td style="padding:7px 8px">'+stopsDetail+'</td>'
             +'</tr>';
