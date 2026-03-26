@@ -34,7 +34,7 @@
     .header-divider { width:0.5px; height:28px; background:var(--border); }
     .icon-btn { background:var(--bg2); border:0.5px solid var(--border); border-radius:8px; padding:7px 10px; cursor:pointer; color:var(--text2); display:flex; align-items:center; gap:5px; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; transition:all .15s; white-space:nowrap; }
     .icon-btn:hover { border-color:var(--border2); color:var(--text); }
-    .live-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg2); border:0.5px solid var(--border); border-radius:20px; padding:3px 10px; font-size:10px; color:var(--text3); white-space:nowrap; font-family:'Space Grotesk',sans-serif; }
+    .live-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg2); border:0.5px solid var(--border); border-radius:20px; padding:3px 10px; font-size:10px; color:var(--text2); white-space:nowrap; font-family:'Space Grotesk',sans-serif; }
     .live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
     .stale-dot { background:var(--gold); }
 
@@ -440,7 +440,6 @@
     <div class="f1-header-right">
       <div class="live-badge"><span class="live-dot" id="live-dot"></span><span id="fetch-status">Fetching...</span></div>
       <button class="icon-btn" id="refresh-btn">↻ Refresh</button>
-      <button class="icon-btn" id="share-btn">⎘ Share</button>
       <button class="icon-btn" onclick="openSettings()">⚙ Settings</button>
     </div>
   </div>
@@ -791,15 +790,6 @@ window.addEventListener('load',()=>{
   if(TAB_ORDER.includes(hash)) showTab(hash);
 });
 
-// ── Share ──
-document.getElementById('share-btn').onclick=()=>{
-  const url=location.href.split('#')[0]+'#'+(document.querySelector('.f1-tab.active')?.dataset?.tab||'drivers');
-  navigator.clipboard.writeText(url).then(()=>{
-    const btn=document.getElementById('share-btn');
-    const orig=btn.textContent; btn.textContent='✓ Copied!';
-    setTimeout(()=>btn.textContent=orig,2000);
-  });
-};
 
 // ── Back to top ──
 window.addEventListener('scroll',()=>document.getElementById('back-top').classList.toggle('show',scrollY>400));
