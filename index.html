@@ -1399,7 +1399,7 @@ async function openDriverModal(driverId){
 
   // Fetch career stats and race results in parallel
   // Career endpoint uses all-time data; rookies may have no prior seasons so we fall back to current season only
-  // Career stats — fetch first page to get total, then all remaining pages in parallel
+  // Career stats — fetch first page to get total, then remaining pages sequentially to avoid 429s
   async function fetchAllCareerRaces(driverId){
     const limit=100;
     try{
@@ -1407,12 +1407,15 @@ async function openDriverModal(driverId){
       const total=parseInt(first.MRData.total||0);
       const firstRaces=first.MRData?.RaceTable?.Races||[];
       if(total<=limit) return firstRaces;
-      // Fire remaining pages in parallel
-      const pages=[];
-      for(let offset=limit;offset<total;offset+=limit) pages.push(offset);
-      const rest=await Promise.allSettled(pages.map(offset=>fetchJSON(`${BASE}/drivers/${driverId}/results.json?limit=${limit}&offset=${offset}`)));
+      // Fetch remaining pages sequentially with 500ms delay between each
       const allRaces=[...firstRaces];
-      rest.forEach(r=>{ if(r.status==='fulfilled') allRaces.push(...(r.value.MRData?.RaceTable?.Races||[])); });
+      for(let offset=limit;offset<total;offset+=limit){
+        await new Promise(r=>setTimeout(r,500));
+        try{
+          const page=await fetchJSON(`${BASE}/drivers/${driverId}/results.json?limit=${limit}&offset=${offset}`);
+          allRaces.push(...(page.MRData?.RaceTable?.Races||[]));
+        }catch(e){ break; } // stop on error — return what we have
+      }
       return allRaces;
     }catch(e){ return []; }
   }
