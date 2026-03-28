@@ -23,14 +23,12 @@
     body { font-family:'Barlow',sans-serif; font-weight:700; background:var(--canvas); color:var(--text); min-height:100vh; padding:2rem 1rem; transition:background .2s,color .2s; }
     .container { max-width:960px; margin:0 auto; }
     .dash { background:var(--bg3); border-radius:12px; padding:0; border:none; overflow:hidden; }
-    .dash-inner { padding:1.5rem 2rem; background:var(--bg3); }
 
     /* Header */
     .f1-header { display:grid; grid-template-columns:1fr auto; align-items:stretch; margin-bottom:0; padding:0; border-bottom:3px solid var(--red); background:var(--bg); border-radius:12px 12px 0 0; }
     .f1-header-left { display:flex; align-items:flex-end; padding:14px 24px; gap:12px; }
     .f1-wordmark { font-family:'Barlow',sans-serif; font-weight:900; font-style:italic; font-size:56px; letter-spacing:1px; text-transform:uppercase; line-height:1; color:var(--text); white-space:nowrap; }
     .f1-wordmark span { color:var(--red); }
-    .f1-season { display:none; }
     .f1-header-right { display:flex; align-items:center; gap:20px; padding:0 24px; border-left:0.5px solid var(--border); flex-shrink:0; flex-wrap:wrap; }
     .header-divider { width:0.5px; height:28px; background:var(--border); }
     .icon-btn { background:var(--bg2); border:0.5px solid var(--border); border-radius:8px; padding:7px 10px; cursor:pointer; color:var(--text2); display:flex; align-items:center; gap:5px; font-family:'Barlow',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; transition:all .15s; white-space:nowrap; }
@@ -92,7 +90,6 @@
     .team-name-cell{font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);}
     .pts-cell{font-family:'Barlow',sans-serif;font-size:20px;font-weight:900;letter-spacing:-0.5px;text-align:right;color:var(--text);position:relative;}
     .f1-table tr.p1 .pts-cell { font-size:28px; color:var(--red); }
-    .pts-shade{display:none;}
     .pts-num{position:relative;z-index:1;}
     .wins-cell{font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;text-align:center;color:var(--text3);}
     .gap-cell{font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;color:var(--text2);text-align:right;white-space:nowrap;}
@@ -327,9 +324,6 @@
     .champ-badge{display:inline-block;font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:4px;}
     .champ-winner{background:var(--gold);color:#fff;}
     .champ-eliminated{background:var(--bg3);color:var(--text3);border:0.5px solid var(--border);}
-    .champ-contender{background:#22c55e22;color:#16a34a;border:0.5px solid #22c55e55;}
-    .max-pts-cell{font-size:11px;color:var(--text3);}
-    .fl-col{text-align:center;font-family:'Barlow',sans-serif;font-size:14px;font-weight:900;color:var(--text2);}
 
     /* Session schedule */
     .session-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;}
@@ -340,12 +334,6 @@
     .session-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);}
     .session-time-local{font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;color:var(--text2);}
     .session-tz{font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;color:var(--text3);}
-
-    /* Countdown */
-    .countdown-row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
-    .countdown-unit{background:var(--bg);border-radius:5px;padding:4px 8px;text-align:center;border:0.5px solid var(--border);min-width:42px;}
-    .countdown-num{font-family:'Barlow',sans-serif;font-weight:900;font-size:18px;color:var(--red);line-height:1;}
-    .countdown-lbl{font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);}
 
     /* Weather */
     .weather-strip{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);margin-top:6px;padding:6px 10px;background:var(--bg);border-radius:5px;border:0.5px solid var(--border);}
@@ -824,7 +812,7 @@ window.addEventListener('load',()=>{
 window.addEventListener('scroll',()=>document.getElementById('back-top').classList.toggle('show',scrollY>400));
 
 // ── Progress bar ──
-let _loadDone=0, _loadTotal=3;
+let _loadDone=0, _loadTotal=4;
 function tickProgress(){
   _loadDone++;
   document.getElementById('progress-bar').style.width=Math.round(_loadDone/_loadTotal*100)+'%';
@@ -880,8 +868,6 @@ let liveDrivers=[], liveConstructors=[], standingsHistory=[];
 let fastestLapCounts={};  // driverId -> FL count for 2026
 let resultsMap={}, sprintMap={}, qualiMap={}, sprintQualiMap={};
 let pitStopData={};       // round -> {driverId -> [{lap,duration}]}
-let penaltyData={};       // round -> [{driver,penalty,reason}]
-let qualifyingH2H={};     // driverId -> {teammate, driverAhead, teammateAhead}
 
 // ── Rookies (2026 first full F1 season) ──
 const ROOKIES=new Set(['lindblad','arvid_lindblad']);
@@ -2749,12 +2735,15 @@ async function loadCalendar(bypassCache=false){
   document.getElementById('cal-loading').style.display='none';
   document.getElementById('race-list').style.display='';
   document.getElementById('cal-collapse-row').style.display='flex';
-  // Add collapse button at bottom too
-  const bottomBtn=document.createElement('div');
-  bottomBtn.className='export-row';
-  bottomBtn.style.marginTop='8px';
-  bottomBtn.innerHTML='<button class="icon-btn" onclick="collapseAll()">↑ Collapse all</button>';
-  document.getElementById('race-list').after(bottomBtn);
+  // Add collapse button at bottom — only if not already present
+  if(!document.getElementById('cal-collapse-bottom')){
+    const bottomBtn=document.createElement('div');
+    bottomBtn.id='cal-collapse-bottom';
+    bottomBtn.className='export-row';
+    bottomBtn.style.marginTop='8px';
+    bottomBtn.innerHTML='<button class="icon-btn" onclick="collapseAll()">↑ Collapse all</button>';
+    document.getElementById('race-list').after(bottomBtn);
+  }
   tickProgress();
 }
 
@@ -2845,13 +2834,13 @@ async function loadSeasonTab(background=false){
 
 function renderTimeline(){
   const el=document.getElementById('season-timeline');
+  el.innerHTML='';
   if(!standingsHistory.length){el.innerHTML='<div style="font-size:13px;color:var(--text2)">No completed races yet.</div>';return;}
   const table=document.createElement('table'); table.className='tl-table';
   table.innerHTML='<thead><tr><th>Rnd</th><th>Race</th><th>1st</th><th>2nd</th><th>3rd</th></tr></thead>';
   const tbody=document.createElement('tbody');
   standingsHistory.forEach(h=>{
     const [s1,s2,s3]=h.standings;
-    const raceDate=standingsHistory.indexOf(h); // placeholder — actual date not stored
     const tr=document.createElement('tr');
     function driverCell(s){
       if(!s) return '<td></td>';
@@ -2970,6 +2959,7 @@ function renderChampionshipDeepDive(){
 
 function renderH2H(){
   const el=document.getElementById('h2h-grid');
+  el.innerHTML='';
   if(!liveConstructors.length){el.innerHTML='<div style="font-size:13px;color:var(--text2)">No data yet.</div>';return;}
   liveConstructors.forEach(c=>{
     const name=cleanConstructorName(c.Constructor.name);
@@ -2996,6 +2986,8 @@ function renderH2H(){
 }
 
 function renderRegulations(){
+  const el=document.getElementById('regs-list');
+  el.innerHTML='';
   const regs=[
     {title:'Overtake Mode replaces DRS',body:'The active aerodynamic "Overtake Mode" lets drivers deploy a pre-set drag reduction configuration anywhere on track — not just in designated zones. Unlike DRS, both leading and trailing drivers can use it simultaneously, creating more complex strategic and racing scenarios.'},
     {title:'50/50 power split — MGU-H removed',body:'New power unit regulations require an approximately equal split between the internal combustion engine and electrical systems, with the MGU-K producing around 350kW. The complex MGU-H (Motor Generator Unit — Heat) has been eliminated, reducing costs and enabling new manufacturers. The result is a simpler, more powerful hybrid system with greater emphasis on electrical energy recovery.'},
@@ -3004,7 +2996,6 @@ function renderRegulations(){
     {title:'New team: Cadillac F1',body:'General Motors\' Cadillac brand joined as the 11th constructor — the first new F1 entry in over a decade. Based in Concord, North Carolina, the team uses a Ferrari customer power unit. Cadillac represents F1\'s expanding presence in the American market alongside Miami, Austin, and Las Vegas races.'},
     {title:'Cars lighter and narrower',body:'The 2026 cars are 32kg lighter (minimum weight down from 800kg to 768kg) and 100mm narrower than the 2022–2025 generation. The wheelbase is also 200mm shorter. The narrower width creates more space for side-by-side racing and the lower weight improves handling and agility, particularly at slow-speed corners.'},
   ];
-  const el=document.getElementById('regs-list');
   regs.forEach(reg=>{
     const d=document.createElement('div'); d.className='reg-card';
     d.innerHTML='<div class="reg-card-title">'+reg.title+'</div><div class="reg-card-body">'+reg.body+'</div>';
@@ -3241,7 +3232,7 @@ async function loadPodcasts(){
     return;
   }
   grid.innerHTML='<div class="podcast-grid">'+items.slice(0,20).map(ep=>`
-    <a class="podcast-item" href="${ep.url}" target="_blank" rel="noopener noreferrer" rel="noopener">
+    <a class="podcast-item" href="${ep.url}" target="_blank" rel="noopener noreferrer">
       <div class="podcast-art" style="background:${ep.color}">
         <div class="podcast-art-inner"><div class="podcast-play-tri"></div></div>
       </div>
@@ -3312,7 +3303,7 @@ async function loadVideos(){
     return;
   }
   grid.innerHTML='<div class="video-grid">'+items.slice(0,18).map(v=>`
-    <a class="video-card" href="${v.url}" target="_blank" rel="noopener noreferrer" rel="noopener">
+    <a class="video-card" href="${v.url}" target="_blank" rel="noopener noreferrer">
       <div class="video-thumb">
         ${v.thumb?`<img src="${v.thumb}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'' }
         <div class="video-thumb-fallback" style="${v.thumb?'display:none':'display:flex'};background:${v.color}18;"></div>
