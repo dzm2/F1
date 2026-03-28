@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sector Scope · F1 Dashboard</title>
+  <title>Track Limits · F1 Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,700;0,900;1,900&family=Barlow+Condensed:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
@@ -12,6 +12,13 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --red:#E10600; --gold:#c89b3c; --green:#22c55e;
+      --bg:#ffffff; --bg2:#f5f4f0; --bg3:#edecea;
+      --canvas:#E10600;
+      --text:#1a1a18; --text2:#73726c; --text3:#9c9a92;
+      --border:rgba(0,0,0,0.1); --border2:rgba(0,0,0,0.22);
+      --info:#185fa5; --shadow:rgba(0,0,0,0.08);
+    }
+    [data-theme="dark"] {
       --bg:#1c1c1a; --bg2:#252523; --bg3:#2e2e2b;
       --canvas:#A50400;
       --text:#e8e6de; --text2:#9c9a92; --text3:#6b6963;
@@ -26,15 +33,15 @@
 
     /* Header */
     .f1-header { display:grid; grid-template-columns:1fr auto; align-items:stretch; margin-bottom:0; padding:0; border-bottom:3px solid var(--red); background:var(--bg); border-radius:12px 12px 0 0; }
-    .f1-header-left { display:flex; align-items:flex-end; padding:14px 24px; gap:12px; }
-    .f1-wordmark { font-family:'Barlow',sans-serif; font-weight:900; font-style:italic; font-size:56px; letter-spacing:1px; text-transform:uppercase; line-height:1; color:var(--text); white-space:nowrap; }
+    .f1-header-left { display:flex; align-items:center; padding:16px 24px; gap:0; }
+    .f1-wordmark { font-family:'Barlow',sans-serif; font-weight:900; font-size:32px; letter-spacing:2px; text-transform:uppercase; line-height:1; color:var(--text); white-space:nowrap; }
     .f1-wordmark span { color:var(--red); }
     .f1-season { display:none; }
     .f1-header-right { display:flex; align-items:center; gap:20px; padding:0 24px; border-left:0.5px solid var(--border); flex-shrink:0; flex-wrap:wrap; }
     .header-divider { width:0.5px; height:28px; background:var(--border); }
     .icon-btn { background:var(--bg2); border:0.5px solid var(--border); border-radius:8px; padding:7px 10px; cursor:pointer; color:var(--text2); display:flex; align-items:center; gap:5px; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; transition:all .15s; white-space:nowrap; }
     .icon-btn:hover { border-color:var(--border2); color:var(--text); }
-    .live-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg2); border:0.5px solid var(--border); border-radius:20px; padding:3px 10px; font-size:10px; color:var(--text2); white-space:nowrap; font-family:'Space Grotesk',sans-serif; }
+    .live-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg2); border:0.5px solid var(--border); border-radius:20px; padding:3px 10px; font-size:10px; color:var(--text3); white-space:nowrap; font-family:'Space Grotesk',sans-serif; }
     .live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
     .stale-dot { background:var(--gold); }
 
@@ -147,6 +154,12 @@
     .con-driver-card-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:16px; color:var(--text); text-transform:uppercase; }
     .con-driver-card-pts { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; color:var(--text); margin-top:4px; }
     .con-driver-card-sub { font-family:'Space Grotesk',sans-serif; font-size:11px; color:var(--text2); margin-top:2px; }
+    /* Mini points-per-round bar chart */
+    .con-round-chart { display:flex; align-items:flex-end; gap:3px; height:60px; margin-top:6px; }
+    .con-round-bar-wrap { display:flex; flex-direction:column; align-items:center; flex:1; height:100%; justify-content:flex-end; }
+    .con-round-bar { width:100%; border-radius:2px 2px 0 0; min-height:2px; transition:opacity .15s; }
+    .con-round-bar:hover { opacity:.75; }
+    .con-round-label { font-family:'Space Grotesk',sans-serif; font-size:8px; color:var(--text2); margin-top:3px; text-align:center; white-space:nowrap; overflow:hidden; }
 
     /* Calendar */
     .race-list{display:flex;flex-direction:column;gap:6px;}
@@ -155,9 +168,9 @@
     /* Track map */
     .track-map-wrap { margin-top:8px; background:var(--bg); border-radius:6px; padding:8px; text-align:center; border:0.5px solid var(--border); }
     .track-map-img { max-width:100%; max-height:180px; object-fit:contain; filter:var(--track-map-filter); }
-    :root { --track-map-filter: invert(1); }
+    :root { --track-map-filter: none; }
+    [data-theme="dark"] { --track-map-filter: invert(1) hue-rotate(180deg) brightness(0.85); }
     .track-info-item { background:var(--bg); border:0.5px solid var(--border); border-radius:5px; padding:10px 12px; }
-    .track-info-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
     .track-info-label { font-family:'Space Grotesk',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text2); font-weight:700; margin-bottom:2px; }
     .track-info-value { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:var(--text); }
     .track-info-value.mono { font-size:13px; }
@@ -170,7 +183,7 @@
     .race-extra{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--text2);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;}
     .podium-item{display:flex;align-items:center;gap:4px;}
     .podium-pos{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text2);}
-    .podium-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);text-transform:uppercase;}
+    .podium-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);}
     .sprint-pill{background:var(--gold);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:20px;white-space:nowrap;margin-left:4px;}
     .race-detail{display:none;padding-top:16px;border-top:0.5px solid var(--border);margin-top:12px;}
     .race-detail.open{display:block;min-height:20px;}
@@ -186,8 +199,8 @@
     .detail-group-body.dg-hidden{display:none;}
     .detail-show-more{display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;border-top:0.5px solid var(--border);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;}
     .detail-show-more:hover{color:var(--red);background:var(--bg2);}
-    .detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:5px;font-size:13px;}
-    .detail-item{color:var(--text2);display:flex;align-items:center;gap:8px;padding:4px 0;} .detail-item .detail-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text);text-transform:uppercase;}
+    .detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:5px;font-size:13px;}
+    .detail-item{color:var(--text2);} .detail-item strong{color:var(--text);font-weight:700;}
 
     /* Tyre chips */
     .tyre { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; font-size:9px; font-weight:700; font-family:'Space Grotesk',sans-serif; flex-shrink:0; }
@@ -208,9 +221,11 @@
     .qual-table tr:last-child td { border-bottom:none; }
     .qual-table tr:hover td { background:var(--bg2); }
     .qual-table .q-pos { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text2); width:24px; text-align:center; }
-    .qual-table .q-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text); text-transform:uppercase; }
+    .qual-table .q-pos.pole { color:var(--red); }
+    .qual-table .q-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:13px; color:var(--text); }
     .qual-table .q-team { font-family:'Space Grotesk',sans-serif; font-size:11px; color:var(--text3); }
     .qual-table td.q-time { font-family:monospace; font-size:11px; color:var(--text2); text-align:right; }
+    .qual-table td.q-time.pole { color:var(--red); }
     .qual-table td.q-time.empty { color:var(--text3); }
 
     /* Result rows in expanded detail */
@@ -434,12 +449,13 @@
 
   <div class="f1-header">
     <div class="f1-header-left">
-      <img src="sector_scope_icon.png" alt="" style="height:40px;width:auto;display:block;">
-      <div class="f1-wordmark">SECTOR <span>SCOPE</span></div>
+      <div class="f1-wordmark"><span style="color:var(--text)">TRACK </span><span>LIMITS</span></div>
     </div>
     <div class="f1-header-right">
       <div class="live-badge"><span class="live-dot" id="live-dot"></span><span id="fetch-status">Fetching...</span></div>
       <button class="icon-btn" id="refresh-btn">↻ Refresh</button>
+      <button class="icon-btn" id="share-btn">⎘ Share</button>
+      <button class="icon-btn" id="theme-btn">◐ Theme</button>
       <button class="icon-btn" onclick="openSettings()">⚙ Settings</button>
     </div>
   </div>
@@ -463,7 +479,7 @@
   <!-- Welcome banner -->
   <div id="welcome-banner" style="display:none;background:var(--bg);border:0.5px solid var(--border);border-radius:0;padding:20px 32px;position:relative">
     <button onclick="dismissWelcome()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;padding:0">✕</button>
-    <div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;color:var(--text);margin-bottom:6px">Welcome to Sector Scope</div>
+    <div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;color:var(--text);margin-bottom:6px">Welcome to Track Limits</div>
     <div style="font-size:13px;color:var(--text2);line-height:1.6;padding-right:24px">Your 2026 Formula 1 dashboard — standings, race results, news and records all in one place. Data is sourced from the Jolpica F1 API and typically becomes available 30–60 minutes after each session ends. Click any driver or team to see detailed stats. New to F1? Check out the <strong style="color:var(--text);cursor:pointer" onclick="showTab('season',document.querySelector('[data-tab=season]'))">Season tab</strong> for an explainer on the 2026 regulations.</div>
   </div>
 
@@ -764,6 +780,20 @@ function flag(n){ return flagMap[n]||'🏁'; }
 function lsGet(k,fallback=null){ try{ const v=localStorage.getItem(k); return v===null?fallback:v; }catch(e){ return fallback; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
+// ── Theme ──
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  lsSet('f1theme',t);
+}
+(function(){
+  const saved=lsGet('f1theme');
+  if(saved) applyTheme(saved);
+  else if(matchMedia('(prefers-color-scheme:dark)').matches) applyTheme('dark');
+})();
+document.getElementById('theme-btn').onclick=()=>{
+  applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');
+};
+
 // ── Tab routing ──
 const TAB_ORDER=['drivers','constructors','calendar','season','records','news'];
 function showTab(id,btn){
@@ -790,6 +820,15 @@ window.addEventListener('load',()=>{
   if(TAB_ORDER.includes(hash)) showTab(hash);
 });
 
+// ── Share ──
+document.getElementById('share-btn').onclick=()=>{
+  const url=location.href.split('#')[0]+'#'+(document.querySelector('.f1-tab.active')?.dataset?.tab||'drivers');
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=document.getElementById('share-btn');
+    const orig=btn.textContent; btn.textContent='✓ Copied!';
+    setTimeout(()=>btn.textContent=orig,2000);
+  });
+};
 
 // ── Back to top ──
 window.addEventListener('scroll',()=>document.getElementById('back-top').classList.toggle('show',scrollY>400));
@@ -807,26 +846,20 @@ function resetProgress(){
 
 // ── Cache ──
 function cacheSet(k,d){ try{localStorage.setItem(k,JSON.stringify({ts:Date.now(),data:d}));}catch(e){} }
-function cacheGet(k,ttl=CACHE_TTL){ try{const r=JSON.parse(localStorage.getItem(k));if(r&&Date.now()-r.ts<ttl)return r.data;}catch(e){}return null; }
+function cacheGet(k){ try{const r=JSON.parse(localStorage.getItem(k));if(r&&Date.now()-r.ts<CACHE_TTL)return r.data;}catch(e){}return null; }
 function cacheGetStale(k){ try{const r=JSON.parse(localStorage.getItem(k));if(r)return r.data;}catch(e){}return null; }
 
 // ── Fetch with retry + cache ──
-const _429cache={};
-async function fetchJSON(url,retries=2,bypassCache=false,ttl=CACHE_TTL){
-  if(!bypassCache){ const c=cacheGet(url,ttl); if(c)return c; }
-  if(_429cache[url]&&Date.now()<_429cache[url]) throw new Error('HTTP 429');
+async function fetchJSON(url,retries=2,bypassCache=false){
+  if(!bypassCache){ const c=cacheGet(url); if(c)return c; }
   for(let i=0;i<=retries;i++){
     try{
       const r=await fetch(url,{signal:AbortSignal.timeout(12000)});
-      if(r.status===429){ _429cache[url]=Date.now()+300000; throw new Error('HTTP 429'); }
       if(!r.ok)throw new Error('HTTP '+r.status);
       const d=await r.json();
       cacheSet(url,d);
       return d;
-    }catch(e){
-      if(i===retries||e.message==='HTTP 429') throw e;
-      await new Promise(r=>setTimeout(r,800*(i+1)));
-    }
+    }catch(e){ if(i===retries)throw e; await new Promise(r=>setTimeout(r,800*(i+1))); }
   }
 }
 
@@ -977,7 +1010,7 @@ async function loadDriverStandings(bypassCache=false){
     // Build per-driver sprint points
     if(sprintRes.status==='fulfilled'){
       (sprintRes.value.MRData?.RaceTable?.Races||[]).forEach(r=>{
-        (r.SprintResults||[]).forEach(res=>{
+        (r.SprintResults||r.Results||[]).forEach(res=>{
           const id=res.Driver?.driverId;
           if(id) window._driverSprintPts[id]=(window._driverSprintPts[id]||0)+parseFloat(res.points||0);
         });
@@ -1241,48 +1274,20 @@ const DRIVER_BIO = {
 // ── Team hardcoded data (not available via API) ──
 // Keys match Jolpica constructorId values
 const TEAM_INFO = {
-  'mercedes':      { base:'Brackley, England',      principal:'Toto Wolff',          power:'Mercedes',   founded:1954, f1Since:1954, titles:8,  wins:125, podiums:270,
-    bio:['The Mercedes-AMG Petronas Formula One Team traces its roots to the 1954 Silver Arrows that dominated grand prix racing under Juan Manuel Fangio. Reborn as a works constructor in 2010 after buying Brawn GP — itself the rebranded Honda squad that had won the 2009 title — Mercedes embarked on one of the most dominant eras in F1 history, winning eight consecutive constructors\' championships from 2014 to 2021 and producing seven drivers\' titles. Lewis Hamilton claimed six of those driver crowns with the team, cementing himself as the greatest of his generation in a silver car.','The 2026 season opens a new chapter as the sport transitions to entirely new power unit regulations. Under Toto Wolff, Mercedes enter 2026 as early championship contenders with {D1} and {D2} leading the charge on the new formula.']
-  },
-  'ferrari':       { base:'Maranello, Italy',        principal:'Frédéric Vasseur',    power:'Ferrari',    founded:1929, f1Since:1950, titles:16, wins:248, podiums:848,
-    bio:['Scuderia Ferrari is the oldest and most successful constructor in Formula 1 history, having competed in every season since the championship began in 1950. Founded by Enzo Ferrari in Maranello, Italy, the team has won 16 constructors\' championships and 15 drivers\' titles — records that may stand forever. The prancing horse has been driven to glory by legends including Alberto Ascari, Niki Lauda, Alain Prost, and Michael Schumacher.','Ferrari\'s last constructors\' title came in 2008, and the drought weighs heavily on the passionate tifosi. The 2026 regulations represent arguably their best opportunity in years, with a new power unit era and the star pairing of {D1} and {D2} — a combination that carries enormous expectation on both sides of the Atlantic.']
-  },
-  'mclaren':       { base:'Woking, England',         principal:'Andrea Stella',       power:'Mercedes',   founded:1963, f1Since:1966, titles:10, wins:203, podiums:514,
-    bio:['McLaren was founded by New Zealand racing driver Bruce McLaren in 1963 and has grown into one of the most storied names in motorsport. Based in Woking, Surrey, the team has won eight constructors\' championships and twelve drivers\' titles. Their 1988 season — when Ayrton Senna and Alain Prost won fifteen of sixteen races — remains one of the most dominant single campaigns in F1 history. The team endured a difficult decade after parting ways with Mercedes engines in 2014, but a switch back to Mercedes power in 2021 and a rebuilding effort under Andreas Seidl and then Andrea Stella turned the tide dramatically.','McLaren won back-to-back constructors\' championships in 2024 and 2025, with Lando Norris claiming the drivers\' title in 2025. In 2026 they enter as defending champions, with {D1} and {D2} tasked with defending their crown under sweeping new regulations.']
-  },
-  'red_bull':      { base:'Milton Keynes, England',  principal:'Laurent Mekies',      power:'Honda RBPT', founded:2004, f1Since:2005, titles:6,  wins:122, podiums:280,
-    bio:['Red Bull Racing was founded in 2004 when energy drink giant Red Bull purchased the Jaguar F1 team from Ford. Based in Milton Keynes, England, the team shocked the establishment by winning four consecutive constructors\' and drivers\' championships between 2010 and 2013 with Sebastian Vettel, then returned to dominance with Max Verstappen, who claimed four straight drivers\' titles from 2021 to 2024. Their 2023 season — twenty-one wins from twenty-two races — stands as the most dominant in the sport\'s modern era.','Red Bull enter 2026 in a new era, running their own in-house power unit for the first time in partnership with Ford. Verstappen remains the cornerstone of the team alongside new partner Isack Hadjar, though early 2026 results suggest Mercedes and Ferrari have the edge as the new regulations bed in.']
-  },
-  'alpine':        { base:'Enstone, England',        principal:'Flavio Briatore',     power:'Mercedes',   founded:2020, f1Since:2021, titles:0,  wins:1,   podiums:6,
-    bio:['The team based in Enstone has one of the most storied histories in F1 under several names. Starting as Toleman in 1981, it became Benetton in 1986 — winning back-to-back titles with Michael Schumacher in 1994 and 1995 — before Renault purchased it in 2000. As Renault it won consecutive championships with Fernando Alonso in 2005 and 2006. The team then raced as Lotus from 2012 to 2015 before Renault reclaimed ownership, and was finally rebranded as Alpine in 2021.','Under the Alpine name the team has won once — Esteban Ocon\'s famous victory in Hungary in 2021 — but struggled for consistency since. For 2026 they have switched to Mercedes power and brought the experienced Flavio Briatore back into the fold. {D1} and {D2} will be hoping the new regulations and new engine can spark a genuine revival.']
-  },
-  'aston_martin':  { base:'Silverstone, England',    principal:'Adrian Newey',        power:'Honda',      founded:2018, f1Since:2021, titles:0,  wins:0,   podiums:9,
-    bio:['The team now racing as Aston Martin traces its lineage back to Jordan Grand Prix, which entered F1 in 1991. It subsequently raced as Midland, Spyker, Force India, and Racing Point before Lawrence Stroll\'s consortium rebranded it as Aston Martin in 2021. Based opposite Silverstone circuit, the team built an impressive new factory and attracted some of the biggest names in F1, most notably the signing of Adrian Newey as a shareholder and technical director for 2025. Fernando Alonso delivered a spectacular run of eight podiums in the first half of 2023, briefly raising hopes of a title challenge.','In 2026 the team begins a works partnership with Honda, giving them factory-level power unit support for the first time. Newey takes over as team principal, and with {D1} and {D2} driving, this is arguably the most anticipated new chapter in the team\'s history.']
-  },
-  'williams':      { base:'Grove, England',          principal:'James Vowles',        power:'Mercedes',   founded:1977, f1Since:1977, titles:9,  wins:114, podiums:313,
-    bio:['Founded by Frank Williams and Patrick Head in 1977, Williams Racing is one of the most decorated teams in Formula 1 history. Based in Grove, Oxfordshire, the team dominated the sport through the late 1980s and 1990s, winning nine constructors\' championships and seven drivers\' titles. Their 1992 FW14B — designed by Adrian Newey — is widely regarded as one of the most technically advanced cars ever built, taking Nigel Mansell to the title with nine wins from sixteen races. Ayrton Senna, Damon Hill, and Jacques Villeneuve all raced for Williams at their peak.','After a prolonged decline following their last win in 2012, the Williams family sold the team to US investment firm Dorilton Capital in 2020. Under team principal James Vowles, appointed in 2023, a steady rebuild is underway. In 2026 {D1} and {D2} carry the hopes of one of F1\'s most beloved teams as they push to return to the sharp end of the grid.']
-  },
-  'haas':          { base:'Kannapolis, USA',         principal:'Ayao Komatsu',        power:'Ferrari',    founded:2014, f1Since:2016, titles:0,  wins:0,   podiums:0,
-    bio:['Haas F1 Team is one of two American-owned constructors on the current grid, founded by businessman Gene Haas — who also co-owns the Stewart-Haas NASCAR operation — and based in Kannapolis, North Carolina. They entered F1 in 2016 with a unique model, using Ferrari power units and a close technical partnership with the Italian team to accelerate their development. Their debut season was a surprise success, with Romain Grosjean scoring points on the opening lap of the very first race.','Haas have never won a race or stood on the podium, but have carved out a niche as an efficient midfield operation. Ayao Komatsu took over as team principal in 2024 following the departure of Günther Steiner. In 2026, {D1} and {D2} continue the team\'s mission to punch above their weight against better-resourced rivals.']
-  },
-  'rb':            { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Honda RBPT', founded:1985, f1Since:1985, titles:0,  wins:0,   podiums:1,
-    bio:['Racing Bulls — formerly known as Toro Rosso and AlphaTauri — is Red Bull\'s second Formula 1 team, based in Faenza, Italy. Founded in 1985 as Minardi, the team became Scuderia Toro Rosso under Red Bull ownership in 2006, serving as a proving ground for young drivers from the Red Bull academy. The team produced one of F1\'s great shocks at the 2008 Italian Grand Prix, when a teenage Sebastian Vettel drove through wet conditions at Monza to win from pole — the team\'s only victory to date.','Recent graduates of the programme include Sebastian Vettel, Max Verstappen, and Carlos Sainz. Rebranded as AlphaTauri in 2020 and then RB in 2024 before settling on Racing Bulls in 2025, the team now fields {D1} and {D2} as they continue their role developing the next generation of F1 talent.']
-  },
-  'racing_bulls':  { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Honda RBPT', founded:1985, f1Since:1985, titles:0,  wins:0,   podiums:1,
-    bio:['Racing Bulls — formerly known as Toro Rosso and AlphaTauri — is Red Bull\'s second Formula 1 team, based in Faenza, Italy. Founded in 1985 as Minardi, the team became Scuderia Toro Rosso under Red Bull ownership in 2006, serving as a proving ground for young drivers from the Red Bull academy. The team produced one of F1\'s great shocks at the 2008 Italian Grand Prix, when a teenage Sebastian Vettel drove through wet conditions at Monza to win from pole — the team\'s only victory to date.','Recent graduates of the programme include Sebastian Vettel, Max Verstappen, and Carlos Sainz. Rebranded as AlphaTauri in 2020 and then RB in 2024 before settling on Racing Bulls in 2025, the team now fields {D1} and {D2} as they continue their role developing the next generation of F1 talent.']
-  },
-  'kick_sauber':   { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993, titles:0,  wins:0,   podiums:0,
-    bio:['Sauber has been a fixture of the Formula 1 grid since 1993, operating out of Hinwil, Switzerland — making them one of the few truly independent teams still competing at the top level. Founded by Peter Sauber, the team has never won a race but has a proud record of developing talent, with Kimi Räikkönen, Felipe Massa, and Robert Kubica all making their F1 debuts with the Swiss outfit. They operated as BMW Sauber between 2006 and 2009, briefly becoming a front-running team before BMW\'s withdrawal.','In 2026 the team transitions into the Audi works entry, with the German manufacturer taking full ownership as it makes its Formula 1 debut. Under new team principal Jonathan Wheatley — poached from Red Bull Racing — and with {D1} and {D2} at the wheel, this is the beginning of an entirely new chapter for the Hinwil operation.']
-  },
-  'sauber':        { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993, titles:0,  wins:0,   podiums:0,
-    bio:['Sauber has been a fixture of the Formula 1 grid since 1993, operating out of Hinwil, Switzerland — making them one of the few truly independent teams still competing at the top level. Founded by Peter Sauber, the team has never won a race but has a proud record of developing talent, with Kimi Räikkönen, Felipe Massa, and Robert Kubica all making their F1 debuts with the Swiss outfit. They operated as BMW Sauber between 2006 and 2009, briefly becoming a front-running team before BMW\'s withdrawal.','In 2026 the team transitions into the Audi works entry, with the German manufacturer taking full ownership as it makes its Formula 1 debut. Under new team principal Jonathan Wheatley — poached from Red Bull Racing — and with {D1} and {D2} at the wheel, this is the beginning of an entirely new chapter for the Hinwil operation.']
-  },
-  'cadillac':      { base:'Concord, USA',            principal:'Graeme Lowdon',       power:'GM/Ferrari', founded:2024, f1Since:2026, titles:0,  wins:0,   podiums:0,
-    bio:['Cadillac is one of two new entries joining the Formula 1 grid in 2026, becoming the second American team on the grid alongside Haas. The team is backed by General Motors and Andretti Global — the motorsport outfit founded by racing legend Michael Andretti — and represents a significant moment for American involvement in the sport after a lengthy and at times contentious approval process. Based in Concord, North Carolina, the team uses Ferrari power units while GM develops its own F1-specification power unit for future seasons.','Led by team principal Graeme Lowdon, Cadillac enter their debut season with realistic expectations of learning and developing rather than immediately challenging for points. {D1} and {D2} take on the formidable task of launching a brand new team in one of the most competitive periods in F1 history.']
-  },
-  'audi':          { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Audi',       founded:2026, f1Since:2026, titles:0,  wins:0,   podiums:0,
-    bio:['Audi\'s arrival in Formula 1 in 2026 marks one of the most significant manufacturer entries in the sport\'s history. The German automotive giant acquired a majority stake in the Sauber Group — which had operated the Hinwil-based team since 1993 — and has invested heavily in building a works power unit programme from scratch. It is the first time Audi has competed in Formula 1 as a constructor, though the brand has a distinguished motorsport heritage including multiple Le Mans victories and dominance in the World Rally Championship.','The 2026 season is expected to be a learning year as Audi develops its new power unit and establishes its structures in Formula 1. Under team principal Jonathan Wheatley — recruited from Red Bull Racing — and with {D1} and {D2} as its first ever F1 drivers, Audi\'s long-term ambition is to become a championship-winning force within the decade.']
-  },
+  'mercedes':      { base:'Brackley, England',      principal:'Toto Wolff',          power:'Mercedes',   founded:1954, f1Since:1954  },
+  'ferrari':       { base:'Maranello, Italy',        principal:'Frédéric Vasseur',    power:'Ferrari',    founded:1929, f1Since:1950  },
+  'mclaren':       { base:'Woking, England',         principal:'Andrea Stella',       power:'Mercedes',   founded:1963, f1Since:1966  },
+  'red_bull':      { base:'Milton Keynes, England',  principal:'Laurent Mekies',      power:'Honda RBPT', founded:2004, f1Since:2005  },
+  'alpine':        { base:'Enstone, England',        principal:'Flavio Briatore',     power:'Mercedes',   founded:2020, f1Since:2021  },
+  'aston_martin':  { base:'Silverstone, England',    principal:'Adrian Newey',        power:'Honda',      founded:2018, f1Since:2021  },
+  'williams':      { base:'Grove, England',          principal:'James Vowles',        power:'Mercedes',   founded:1977, f1Since:1977  },
+  'haas':          { base:'Kannapolis, USA',         principal:'Ayao Komatsu',        power:'Ferrari',    founded:2014, f1Since:2016  },
+  'rb':            { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Honda RBPT', founded:1985, f1Since:1985  },
+  'racing_bulls':  { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Honda RBPT', founded:1985, f1Since:1985  },
+  'kick_sauber':   { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993  },
+  'sauber':        { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993  },
+  'cadillac':      { base:'Concord, USA',            principal:'Graeme Lowdon',       power:'GM/Ferrari', founded:2024, f1Since:2026  },
+  'audi':          { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Audi',       founded:2026, f1Since:2026  },
 };
 
 // ── Driver modal ──
@@ -1291,7 +1296,6 @@ async function openDriverModal(driverId){
   const bio=DRIVER_BIO[driverId]||{};
   const isRookie=ROOKIES.has(driverId);
   document.getElementById('driver-modal').classList.remove('hidden');
-  document.getElementById('modal-content').scrollTop=0;
   // Pre-fetch pit stop data for all completed rounds so avg pit is always populated
   const completedRoundsForPit=Object.keys(resultsMap).filter(r=>(resultsMap[r]||[]).length>0);
   await Promise.allSettled(completedRoundsForPit.map(async round=>{
@@ -1358,6 +1362,7 @@ async function openDriverModal(driverId){
       <div class="modal-stat"><div class="modal-stat-label">Quali delta</div><div class="modal-stat-value small" id="ms-qdelta">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">H2H race wins</div><div class="modal-stat-value" id="ms-h2hrace">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Did Not Finish</div><div class="modal-stat-value" id="ms-dnf">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Laps led</div><div class="modal-stat-value" id="ms-lapsled">—</div></div>
       <div class="modal-stat" style="grid-column:span 2"><div class="modal-stat-label">Max pts available</div><div class="modal-stat-value small" id="ms-maxpts">—</div></div>
     </div>
     <hr class="modal-divider">
@@ -1706,6 +1711,27 @@ async function openDriverModal(driverId){
     mrEl.innerHTML='<div class="error-msg" style="padding:8px">Could not load results.</div>';
   }
 
+  // Laps led — count laps where this driver held P1, paginated
+  const llEl=document.getElementById('ms-lapsled');
+  if(llEl){
+    try{
+      let allRaces=[], offset=0, lapLimit=100, lapTotal=null;
+      do{
+        const d2=await fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/laps.json?limit=${lapLimit}&offset=${offset}`);
+        if(lapTotal===null) lapTotal=parseInt(d2.MRData.total||0);
+        allRaces.push(...(d2.MRData?.RaceTable?.Races||[]));
+        offset+=lapLimit;
+      }while(allRaces.reduce((s,r)=>(r.Laps||[]).length+s,0)<lapTotal&&offset<lapTotal&&offset<5000);
+      let lapsLed=0;
+      allRaces.forEach(race=>{
+        (race.Laps||[]).forEach(lap=>{
+          const leader=(lap.Timings||[]).find(t=>t.position==='1');
+          if(leader&&leader.driverId===driverId) lapsLed++;
+        });
+      });
+      llEl.textContent=lapsLed;
+    }catch(e){ llEl.textContent='—'; }
+  }
 }
 function closeModal(e){
   if(e.target===document.getElementById('driver-modal'))
@@ -1722,10 +1748,9 @@ async function openConstructorModal(constructorId){
   const wins=parseInt(c.wins);
   const pos=parseInt(c.position);
   const info=TEAM_INFO[constructorId]||TEAM_INFO[constructorId.replace('-','_')]||{};
-  const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
+  const yearsInF1=info.f1Since?`${info.f1Since} (${2026-info.f1Since} yrs)`:'—';
 
   document.getElementById('con-modal').classList.remove('hidden');
-  document.getElementById('con-modal-content').scrollTop=0;
   document.getElementById('con-modal-body').innerHTML=`
     <div class="con-modal-hero" style="background:${color}15;border:0.5px solid ${color}33">
       <div class="con-modal-pip" style="background:${color}"></div>
@@ -1735,15 +1760,13 @@ async function openConstructorModal(constructorId){
       </div>
     </div>
 
-    <div id="con-story"></div>
-
     <div class="modal-stats">
       <div class="modal-stat"><div class="modal-stat-label">Points</div><div class="modal-stat-value">${pts}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value">${wins}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Position</div><div class="modal-stat-value">P${pos}</div></div>
     </div>
 
-    <div class="modal-bio" style="grid-template-columns:repeat(2,1fr)">
+    <div class="modal-bio">
       <div class="modal-stat">
         <div class="modal-stat-label">Team Principal</div>
         <div class="modal-stat-value small">${info.principal||'—'}</div>
@@ -1752,60 +1775,217 @@ async function openConstructorModal(constructorId){
         <div class="modal-stat-label">Power Unit</div>
         <div class="modal-stat-value small">${info.power||'—'}</div>
       </div>
+      <div class="modal-stat">
+        <div class="modal-stat-label">In F1 Since</div>
+        <div class="modal-stat-value small">${yearsInF1}</div>
+      </div>
+      <div class="modal-stat" style="grid-column:span 3">
+        <div class="modal-stat-label">Factory</div>
+        <div class="modal-stat-value small">${info.base||'—'}</div>
+      </div>
     </div>
 
     <hr class="modal-divider">
-    <div class="modal-section-title">Drivers</div>
-    <div class="con-driver-cards" id="con-driver-cards">${(()=>{
-      const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
-      if(!teamDrivers.length) return '<div class="error-msg" style="padding:8px;grid-column:span 2">No driver data available.</div>';
+    <div class="modal-section-title">Drivers <span id="con-drivers-loading" class="modal-loading-tag">Loading...</span></div>
+    <div class="con-driver-cards" id="con-driver-cards">
+      <div class="modal-stat" style="grid-column:span 2"><div class="loading-text" style="font-size:12px">Loading driver data...</div></div>
+    </div>
+    <hr class="modal-divider">
+    <div class="modal-section-title">Reliability <span id="con-rel-loading" class="modal-loading-tag">Loading...</span></div>
+    <div class="modal-stats" id="con-reliability">
+      <div class="modal-stat"><div class="modal-stat-label">Did Not Finish</div><div class="modal-stat-value" id="con-dnf-count">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Finishes</div><div class="modal-stat-value" id="con-fin-count">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Finish rate</div><div class="modal-stat-value" id="con-fin-rate">—</div></div>
+    </div>
+    <hr class="modal-divider">
+    <div class="modal-section-title">Points per round <span id="con-rounds-loading" class="modal-loading-tag">Loading...</span></div>
+    <div id="con-round-chart-wrap"><div class="loading-text" style="font-size:12px;padding:8px 0">Loading...</div></div>
+    <hr class="modal-divider">
+    <div class="modal-section-title">Driver points split <span id="con-split-loading" class="modal-loading-tag">Loading...</span></div>
+    <div style="position:relative;height:160px;margin-bottom:8px"><canvas id="con-split-chart"></canvas></div>
+    <hr class="modal-divider">
+    <div class="modal-section-title">Qualifying vs race performance <span id="con-qr-loading" class="modal-loading-tag">Loading...</span></div>
+    <div style="position:relative;height:180px;margin-bottom:8px"><canvas id="con-qr-chart"></canvas></div>
+    <hr class="modal-divider">
+    <div class="modal-section-title">All-time stats <span id="con-career-loading" class="modal-loading-tag">Loading...</span></div>
+    <div class="modal-stats" id="con-career-stats">
+      <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value" id="cc-wins">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="cc-podiums">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Titles</div><div class="modal-stat-value" id="cc-titles">—</div></div>
+    </div>`;
+
+  // Fetch all data — career results paginated to handle Ferrari's 1000+ races
+  async function fetchAllConRaces(constructorId){
+    const limit=100;
+    try{
+      const first=await fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=0`);
+      const total=parseInt(first.MRData.total||0);
+      const firstRaces=first.MRData?.RaceTable?.Races||[];
+      if(total<=limit) return firstRaces;
+      const pages=[];
+      for(let offset=limit;offset<total;offset+=limit) pages.push(offset);
+      const rest=await Promise.allSettled(pages.map(offset=>fetchJSON(`${BASE}/constructors/${constructorId}/results.json?limit=${limit}&offset=${offset}`)));
+      const allRaces=[...firstRaces];
+      rest.forEach(r=>{ if(r.status==='fulfilled') allRaces.push(...(r.value.MRData?.RaceTable?.Races||[])); });
+      return allRaces;
+    }catch(e){ return []; }
+  }
+
+  const [roundsData, careerRaces, titlesData] = await Promise.allSettled([
+    fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/results.json?limit=500`),
+    fetchAllConRaces(constructorId),
+    fetchJSON(`${BASE}/constructors/${constructorId}/constructorstandings/1.json?limit=100`),
+  ]);
+
+  // ── Drivers — derived from liveDrivers (already loaded) ──
+  const dlEl=document.getElementById('con-drivers-loading');
+  if(dlEl) dlEl.textContent='';
+  const dcEl=document.getElementById('con-driver-cards');
+  if(dcEl){
+    const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
+    if(teamDrivers.length){
       const totalTeamPts=teamDrivers.reduce((s,d)=>s+d.pts,0)||1;
-      return teamDrivers.slice(0,2).map(d=>{
+      dcEl.innerHTML=teamDrivers.slice(0,2).map(d=>{
         const pct=Math.round(d.pts/totalTeamPts*100);
         return '<div class="con-driver-card" style="border-left-color:'+color+'">'
           +'<div class="con-driver-card-name">'+d.last.toUpperCase()+'</div>'
           +'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:4px">'+d.first+'</div>'
           +'<div class="con-driver-card-pts">'+d.pts+' <span style="font-family:\'Space Grotesk\',sans-serif;font-size:11px;font-weight:500;color:var(--text2)">pts</span></div>'
-          +'<div class="con-driver-card-sub">P'+d.pos+' championship · '+d.wins+' win'+(d.wins!==1?'s':'')+'</div>'
+          +'<div class="con-driver-card-sub">P'+d.pos+' overall · '+d.wins+' win'+(d.wins!==1?'s':'')+'</div>'
           +'<div style="margin-top:8px"><div style="height:3px;background:var(--border);border-radius:0;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+color+'"></div></div>'
           +'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:10px;color:var(--text3);margin-top:3px">'+pct+'% of team pts</div></div>'
           +'</div>';
       }).join('');
-    })()}</div>
-    <hr class="modal-divider">
-    <div class="modal-section-title">Reliability <span id="con-rel-loading" class="modal-loading-tag">Loading...</span></div>
-    <div class="modal-stats" id="con-reliability">
-      <div class="modal-stat"><div class="modal-stat-label">DNF</div><div class="modal-stat-value" id="con-dnf-count">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Finishes</div><div class="modal-stat-value" id="con-fin-count">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Finish rate</div><div class="modal-stat-value" id="con-fin-rate">—</div></div>
-    </div>
-    <hr class="modal-divider">
-    <div class="modal-section-title">Season performance <span id="con-perf-loading" class="modal-loading-tag">Loading...</span></div>
-    <div class="modal-stats" style="grid-template-columns:repeat(4,1fr)">
-      <div class="modal-stat"><div class="modal-stat-label">Pole positions</div><div class="modal-stat-value" id="con-poles">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="con-podiums">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Fastest laps</div><div class="modal-stat-value" id="con-fl">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Points finishes</div><div class="modal-stat-value" id="con-pts-fin">—</div></div>
-    </div>
-    <hr class="modal-divider">
-    <div class="modal-section-title">Points per round <span id="con-rounds-loading" class="modal-loading-tag">Loading...</span></div>
-    <div id="con-round-chart-wrap"><div class="loading-text" style="font-size:12px;padding:8px 0">Loading...</div></div>
-    <div id="con-round-canvas-wrap" style="position:relative;height:140px;margin-bottom:8px;display:none"><canvas id="con-round-chart"></canvas></div>
-    <hr class="modal-divider">
-    <div class="modal-section-title">Driver points split <span id="con-split-loading" class="modal-loading-tag">Loading...</span></div>
-    <div style="position:relative;height:160px;margin-bottom:8px"><canvas id="con-split-chart"></canvas></div>
-    <hr class="modal-divider">
-    <div class="modal-section-title">About</div>
-    <div id="con-bio"></div>
-  `;
+    } else {
+      dcEl.innerHTML='<div class="error-msg" style="padding:8px;grid-column:span 2">No driver data available.</div>';
+    }
+  }
 
-  // ── Team story — renders immediately (no API dependency) ──
-  {
-    const titles=info.titles||0;
-    const allWins=info.wins||0;
+  // ── Points per round bar chart ──
+  const rlEl=document.getElementById('con-rounds-loading');
+  if(rlEl) rlEl.textContent='';
+  const chartWrap=document.getElementById('con-round-chart-wrap');
+  if(chartWrap){
+    if(roundsData.status==='fulfilled'){
+      const races=roundsData.value.MRData?.RaceTable?.Races||[];
+      // Aggregate points per round (sum both drivers)
+      const roundPts={};
+      const roundNames={};
+      races.forEach(r=>{
+        const rnd=parseInt(r.round);
+        const pts=(r.Results||[]).reduce((sum,res)=>sum+parseFloat(res.points||0),0);
+        roundPts[rnd]=(roundPts[rnd]||0)+pts;
+        roundNames[rnd]=r.raceName.replace(' Grand Prix','').replace('Grand Prix','');
+      });
+      const rounds=Object.keys(roundPts).map(Number).sort((a,b)=>a-b);
+      if(rounds.length){
+        const maxPts=Math.max(...rounds.map(r=>roundPts[r]),1);
+        chartWrap.innerHTML=`<div class="con-round-chart">${rounds.map(rnd=>{
+          const h=Math.max(4,Math.round((roundPts[rnd]/maxPts)*56));
+          return `<div class="con-round-bar-wrap" title="Rd ${rnd}: ${roundNames[rnd]} — ${roundPts[rnd]} pts">
+            <div class="con-round-bar" style="height:${h}px;background:${color}"></div>
+            <div class="con-round-label">R${rnd}</div>
+          </div>`;
+        }).join('')}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px;text-align:right">${rounds.map(r=>`R${r}: ${roundPts[r]}pts`).join(' · ')}</div>`;
+      } else {
+        chartWrap.innerHTML='<div style="font-size:13px;color:var(--text2);padding:8px 0">No round data yet this season.</div>';
+      }
+    } else {
+      chartWrap.innerHTML='<div class="error-msg" style="padding:8px">Could not load round data.</div>';
+    }
+  }
+
+  // ── Reliability ──
+  const relEl=document.getElementById('con-rel-loading');
+  if(relEl) relEl.textContent='';
+  if(roundsData.status==='fulfilled'){
+    const races=roundsData.value.MRData?.RaceTable?.Races||[];
+    let dnfs=0,fins=0;
+    races.forEach(r=>{
+      (r.Results||[]).forEach(res=>{
+        const s=res.status||'';
+        if(s&&s!=='Finished'&&!s.startsWith('+')&&!s.toLowerCase().includes('lap')) dnfs++; else fins++;
+      });
+    });
+    const total=dnfs+fins;
+    const rate=total>0?Math.round(fins/total*100)+'%':'—';
+    const dnfEl=document.getElementById('con-dnf-count'); if(dnfEl) dnfEl.textContent=dnfs;
+    const finEl=document.getElementById('con-fin-count'); if(finEl) finEl.textContent=fins;
+    const rateEl=document.getElementById('con-fin-rate'); if(rateEl) rateEl.textContent=rate;
+  }
+
+  // ── Driver points split stacked bar ──
+  const splitEl=document.getElementById('con-split-loading');
+  if(splitEl) splitEl.textContent='';
+  const splitCtx=document.getElementById('con-split-chart');
+  if(splitCtx&&roundsData.status==='fulfilled'){
+    const races=roundsData.value.MRData?.RaceTable?.Races||[];
+    const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
+    if(teamDrivers.length>=2&&races.length){
+      const [dA,dB]=teamDrivers;
+      const rLabels=races.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
+      const ptsA=races.map(r=>{const res=(r.Results||[]).find(x=>x.Driver.driverId===dA.driverId);return parseFloat(res?.points||0);});
+      const ptsB=races.map(r=>{const res=(r.Results||[]).find(x=>x.Driver.driverId===dB.driverId);return parseFloat(res?.points||0);});
+      if(splitCtx._chart) splitCtx._chart.destroy();
+      const splitOpts=chartDefaults('Points');
+      splitOpts.scales.x={...splitOpts.scales.x,stacked:true};
+      splitOpts.scales.y={...splitOpts.scales.y,stacked:true,title:{display:true,text:'Points',color:getComputedStyle(document.documentElement).getPropertyValue('--text2').trim(),font:{family:"'Space Grotesk',sans-serif",size:9}}};
+      splitCtx._chart=new Chart(splitCtx,{type:'bar',data:{labels:rLabels,datasets:[{label:dA.last,data:ptsA,backgroundColor:color+'cc',borderColor:color,borderWidth:1},{label:dB.last,data:ptsB,backgroundColor:color+'55',borderColor:color+'88',borderWidth:1}]},options:splitOpts});
+    } else {
+      splitCtx.parentElement.innerHTML='<div style="font-size:12px;color:var(--text2);padding:8px 0">Insufficient data.</div>';
+    }
+  }
+
+  // ── Qualifying vs Race performance ──
+  const qrEl=document.getElementById('con-qr-loading');
+  if(qrEl) qrEl.textContent='';
+  const qrCtx=document.getElementById('con-qr-chart');
+  if(qrCtx&&roundsData.status==='fulfilled'){
+    const races=roundsData.value.MRData?.RaceTable?.Races||[];
+    if(races.length){
+      const rLabels=races.map(r=>r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
+      // Average grid vs average finish per round for both drivers
+      const avgGrid=races.map(r=>{const grids=(r.Results||[]).map(x=>parseInt(x.grid)||0).filter(Boolean);return grids.length?grids.reduce((a,b)=>a+b,0)/grids.length:null;});
+      const avgFin=races.map(r=>{const fins=(r.Results||[]).map(x=>parseInt(x.position)||0).filter(Boolean);return fins.length?fins.reduce((a,b)=>a+b,0)/fins.length:null;});
+      if(qrCtx._chart) qrCtx._chart.destroy();
+      const qrOpts=chartDefaults('Position (lower = better)');
+      const qrTick=getComputedStyle(document.documentElement).getPropertyValue('--text2').trim()||'#73726c';
+      qrOpts.scales.y={...qrOpts.scales.y,reverse:true,min:1,suggestedMax:20,ticks:{...qrOpts.scales.y.ticks,stepSize:5}};
+      qrCtx._chart=new Chart(qrCtx,{type:'line',data:{labels:rLabels,datasets:[{label:'Avg grid',data:avgGrid,borderColor:qrTick,borderWidth:1.5,borderDash:[4,3],pointRadius:2,spanGaps:true},{label:'Avg finish',data:avgFin,borderColor:color,borderWidth:2,pointRadius:2,pointBackgroundColor:color,spanGaps:true}]},options:qrOpts});
+    }
+  }
+  // ── All-time career stats ──
+  const clEl=document.getElementById('con-career-loading');
+  if(clEl) clEl.textContent='';
+  if(careerRaces.status==='fulfilled'){
+    const allRaces=careerRaces.value||[];
+    let allWins=0,allPodiums=0;
+    allRaces.forEach(r=>{
+      (r.Results||[]).forEach(res=>{
+        const p=parseInt(res.position||99);
+        if(p===1) allWins++;
+        if(p<=3) allPodiums++;
+      });
+    });
+    const wEl=document.getElementById('cc-wins');
+    const pEl=document.getElementById('cc-podiums');
+    if(wEl) wEl.textContent=allWins;
+    if(pEl) pEl.textContent=allPodiums;
+  }
+  if(titlesData.status==='fulfilled'){
+    const titles=titlesData.value.MRData?.StandingsTable?.StandingsLists?.length||0;
+    const tEl=document.getElementById('cc-titles');
+    if(tEl) tEl.textContent=titles;
+
+    // ── Team story — plain-English context ──
+    const allRaces=careerRaces.status==='fulfilled'?careerRaces.value||[]:[];
+    let allWins=0,allPodiums=0;
+    allRaces.forEach(r=>{(r.Results||[]).forEach(res=>{const p=parseInt(res.position||99);if(p===1)allWins++;if(p<=3)allPodiums++;});});
     const yearsActive=info.f1Since?2026-info.f1Since:null;
     const leaderCon=liveConstructors[0];
     const gapToLeader=leaderCon&&pos>1?parseFloat(leaderCon.points)-pts:0;
+
     let story='';
     if(titles>0&&allWins>50){
       story=`${name} is one of Formula 1's most successful teams, with ${titles} world championship${titles>1?'s':''} and ${allWins} race wins across their history.`;
@@ -1818,167 +1998,19 @@ async function openConstructorModal(constructorId){
     } else {
       story=`${name} are working to move up the championship standings.`;
     }
+
     if(pos===1){
       story+=` In 2026 they lead the constructors' championship with ${pts} points.`;
     } else if(gapToLeader>0){
       story+=` In 2026 they sit P${pos} in the constructors' championship, ${gapToLeader} point${gapToLeader!==1?'s':''} behind the leaders.`;
     }
-    const storyEl=document.getElementById('con-story');
-    if(storyEl) storyEl.innerHTML=`<div style="font-size:13px;color:var(--text2);line-height:1.6;padding:10px 12px;background:var(--bg2);border-radius:6px;border-left:3px solid ${color};margin-bottom:10px">${story}</div>`;
+
+    const storyEl=document.createElement('div');
+    storyEl.style.cssText='font-size:13px;color:var(--text2);line-height:1.6;padding:10px 12px;background:var(--bg2);border-radius:6px;border-left:3px solid '+color+';margin-top:10px';
+    storyEl.textContent=story;
+    const careerSection=document.getElementById('con-career-stats');
+    if(careerSection) careerSection.insertAdjacentElement('afterend',storyEl);
   }
-
-  // ── Bio renders immediately — no API dependency ──
-  const bioEl=document.getElementById('con-bio');
-  if(bioEl&&info.bio){
-    const d1=teamDrivers[0]?.last||'';
-    const d2=teamDrivers[1]?.last||'';
-    const paras=info.bio.map(p=>p.replace('{D1}',d1).replace('{D2}',d2));
-    bioEl.innerHTML=`<div style="border-left:3px solid ${color};border-radius:6px;padding:10px 14px;background:var(--bg2)">`
-      +paras.map((p,i)=>`<p style="font-size:13px;color:var(--text2);line-height:1.65;margin:${i<paras.length-1?'0 0 10px':'0'}">${p}</p>`).join('')
-      +'</div>';
-  }
-
-  const [roundsData, qualiData] = await Promise.allSettled([
-    fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/results.json?limit=500`),
-    fetchJSON(`${BASE}/${SEASON}/constructors/${constructorId}/qualifying.json?limit=500`),
-  ]);
-
-  // ── Points per round bar chart ──
-  const rlEl=document.getElementById('con-rounds-loading');
-  if(rlEl) rlEl.textContent='';
-  const chartWrap=document.getElementById('con-round-chart-wrap');
-  const canvasWrap=document.getElementById('con-round-canvas-wrap');
-  const roundCtx=document.getElementById('con-round-chart');
-
-  if(roundsData.status==='fulfilled'){
-    const races=roundsData.value.MRData?.RaceTable?.Races||[];
-
-    // ── Single-pass over races (fix 1) — compute all stats at once ──
-    let fastestLaps=0, pointsFinishes=0, podiums=0, dnfs=0, fins=0;
-    const roundPts={}, roundNames={};
-    const [dA,dB]=teamDrivers;
-    const ptsA=[], ptsB=[], rLabels=[], rNames=[];
-
-    races.forEach(r=>{
-      const rnd=parseInt(r.round);
-      let roundTotal=0;
-      rLabels.push('R'+rnd);
-      rNames.push(r.raceName.replace(' Grand Prix','').replace('Grand Prix',''));
-      roundNames[rnd]=rNames[rNames.length-1];
-
-      // per-driver split points
-      if(dA) ptsA.push(parseFloat((r.Results||[]).find(x=>x.Driver.driverId===dA.driverId)?.points||0));
-      if(dB) ptsB.push(parseFloat((r.Results||[]).find(x=>x.Driver.driverId===dB.driverId)?.points||0));
-
-      (r.Results||[]).forEach(res=>{
-        const resPts=parseFloat(res.points||0);
-        const resPos=parseInt(res.position||99);
-        const s=res.status||'';
-        const laps=parseInt(res.laps||0);
-        roundTotal+=resPts;
-        if(res.FastestLap?.rank==='1') fastestLaps++;
-        if(resPts>0) pointsFinishes++;
-        if(resPos<=3) podiums++;
-        if(s&&laps>0){
-          if(s==='Finished'||s.startsWith('+')||s.toLowerCase().includes('lap')) fins++;
-          else dnfs++;
-        }
-      });
-      roundPts[rnd]=(roundPts[rnd]||0)+roundTotal;
-    });
-
-    // ── Populate stat elements (fix 3: batch getElementById) ──
-    const elMap={
-      'con-fl':fastestLaps, 'con-pts-fin':pointsFinishes, 'con-podiums':podiums,
-      'con-dnf-count':dnfs, 'con-fin-count':fins,
-    };
-    Object.entries(elMap).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.textContent=val;});
-    const total=dnfs+fins;
-    const rateEl=document.getElementById('con-fin-rate');
-    if(rateEl) rateEl.textContent=total>0?Math.round(fins/total*100)+'%':'—';
-
-    // ── Clear loading tags ──
-    const relEl=document.getElementById('con-rel-loading'); if(relEl) relEl.textContent='';
-
-    // ── Points per round chart ──
-    if(chartWrap){
-      const rounds=Object.keys(roundPts).map(Number).sort((a,b)=>a-b);
-      if(rounds.length){
-        const totalPts=rounds.reduce((s,r)=>s+roundPts[r],0);
-        const avgPts=(totalPts/rounds.length).toFixed(1);
-        const maxAvail=rounds.length*44;
-        const pctAvail=Math.round((totalPts/maxAvail)*100);
-        chartWrap.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:10px">
-          <div style="flex:1;background:var(--bg2);border-radius:6px;padding:7px 12px">
-            <div style="font-size:11px;color:var(--text2);margin-bottom:2px">Total</div>
-            <div class="modal-stat-value">${totalPts} pts</div>
-          </div>
-          <div style="flex:1;background:var(--bg2);border-radius:6px;padding:7px 12px">
-            <div style="font-size:11px;color:var(--text2);margin-bottom:2px">Avg / round</div>
-            <div class="modal-stat-value">${avgPts} pts</div>
-          </div>
-          <div style="flex:1;background:var(--bg2);border-radius:6px;padding:7px 12px">
-            <div style="font-size:11px;color:var(--text2);margin-bottom:2px">% of max avail.</div>
-            <div class="modal-stat-value">${pctAvail}%</div>
-          </div>
-        </div>`;
-        if(canvasWrap) canvasWrap.style.display='';
-        if(roundCtx){
-          if(roundCtx._chart) roundCtx._chart.destroy();
-          const rOpts=chartDefaults();
-          rOpts.scales.x={...rOpts.scales.x,grid:{display:false}};
-          rOpts.scales.y={...rOpts.scales.y,beginAtZero:true};
-          rOpts.plugins.legend={display:false};
-          rOpts.plugins.tooltip={callbacks:{title:items=>roundNames[rounds[items[0].dataIndex]],label:ctx=>ctx.parsed.y+' pts'}};
-          roundCtx._chart=new Chart(roundCtx,{
-            type:'bar',
-            data:{labels:rounds.map((_,i)=>'R'+(i+1)),datasets:[{data:rounds.map(r=>roundPts[r]),backgroundColor:color+'cc',borderColor:color,borderWidth:1,borderRadius:2}]},
-            options:rOpts
-          });
-        }
-      } else {
-        chartWrap.innerHTML='<div style="font-size:13px;color:var(--text2);padding:8px 0">No round data yet this season.</div>';
-      }
-    }
-
-    // ── Driver points split (fix 2: reuse teamDrivers and pre-computed ptsA/ptsB) ──
-    const splitEl=document.getElementById('con-split-loading'); if(splitEl) splitEl.textContent='';
-    const splitCtx=document.getElementById('con-split-chart');
-    // fix 4: cache computed style once
-    const tick=getComputedStyle(document.documentElement).getPropertyValue('--text2').trim();
-    if(splitCtx&&teamDrivers.length>=2&&races.length){
-      if(splitCtx._chart) splitCtx._chart.destroy();
-      const splitOpts=chartDefaults('Points');
-      splitOpts.scales.x={...splitOpts.scales.x,stacked:true};
-      splitOpts.scales.y={...splitOpts.scales.y,stacked:true,title:{display:true,text:'Points',color:tick,font:{family:"'Space Grotesk',sans-serif",size:9}}};
-      splitOpts.plugins.tooltip={callbacks:{title:items=>rNames[items[0].dataIndex],label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' pts'}};
-      splitCtx._chart=new Chart(splitCtx,{type:'bar',data:{labels:rLabels,datasets:[{label:dA.last,data:ptsA,backgroundColor:color+'cc',borderColor:color,borderWidth:1},{label:dB.last,data:ptsB,backgroundColor:color+'55',borderColor:color+'88',borderWidth:1}]},options:splitOpts});
-    } else if(splitCtx){
-      splitCtx.parentElement.innerHTML='<div style="font-size:12px;color:var(--text2);padding:8px 0">Insufficient data.</div>';
-    }
-
-  } else {
-    if(chartWrap) chartWrap.innerHTML='<div class="error-msg" style="padding:8px">Could not load round data.</div>';
-    const relEl=document.getElementById('con-rel-loading'); if(relEl) relEl.textContent='';
-    const splitEl=document.getElementById('con-split-loading'); if(splitEl) splitEl.textContent='';
-  }
-
-  // ── Season performance — poles ──
-  const perfEl=document.getElementById('con-perf-loading');
-  if(perfEl) perfEl.textContent='';
-  if(qualiData.status==='fulfilled'){
-    const qualiRaces=qualiData.value.MRData?.RaceTable?.Races||[];
-    let poles=0;
-    qualiRaces.forEach(r=>{
-      const results=r.QualifyingResults||[];
-      const hasQ3=results.some(res=>res.Q3);
-      if(hasQ3) results.forEach(res=>{if(res.position==='1') poles++;});
-    });
-    const polesEl=document.getElementById('con-poles');
-    if(polesEl) polesEl.textContent=poles;
-  }
-
-
 }
 
 function closeConModal(e){
@@ -1999,13 +2031,13 @@ async function loadConstructorStandings(bypassCache=false){
   }
   liveConstructors=list;
   const maxPts=parseFloat(list[0]?.points||1);
-  const ctb=document.getElementById('con-tbody');
-  ctb.innerHTML=list.map(c=>{
+  const ctb=document.getElementById('con-tbody');ctb.innerHTML='';
+  list.forEach(c=>{
     const pos=parseInt(c.position),pts=parseFloat(c.points),name=cleanConstructorName(c.Constructor.name),color=teamColor(c.Constructor.name);
     const gap=pos===1?'—':'–'+(parseFloat(list[0].points)-pts);
     const pct=Math.round(pts/maxPts*100);
     const winsClass=parseInt(c.wins)>0?'wins-cell has-wins':'wins-cell';
-    return `<tr class="${pos===1?'p1':''}" data-search="${name}" onclick="openConstructorModal('${c.Constructor.constructorId}')" style="cursor:pointer">
+    ctb.innerHTML+=`<tr class="${pos===1?'p1':''}" data-search="${name}" onclick="openConstructorModal('${c.Constructor.constructorId}')" style="cursor:pointer">
       <td class="f1-pos">${pos}</td>
       <td style="padding-right:0;width:4px"><div class="team-pip" style="background:${color}"></div></td>
       <td><div class="driver-info-wrap">
@@ -2016,7 +2048,7 @@ async function loadConstructorStandings(bypassCache=false){
       <td class="${winsClass}" data-val="${c.wins}">${c.wins}</td>
       <td class="gap-cell">${gap}</td>
     </tr>`;
-  }).join('');
+  });
   document.getElementById('con-loading').style.display='none';
   if(!liveConstructors.length){
     document.getElementById('con-loading').innerHTML='<div class="error-msg" style="text-align:center;padding:2rem">No constructor standings yet — the 2026 season has not started.</div>';
@@ -2035,58 +2067,58 @@ async function loadConstructorStandings(bypassCache=false){
 // ── Circuit data (hardcoded — keyed by Jolpica circuitId) ──
 // lengthMi = length in miles, corners, laps, lapRecordTime, lapRecordHolder, lapRecordYear, firstGP, type, overtakeModeZones, characteristics
 const CIRCUIT_INFO = {
-  'albert_park':       { lengthKm:5.278, lengthMi:3.279, corners:14, laps:58, raceDistKm:306.1,  lapRecord:'1:20.235', lapRecordHolder:'Pérez',      lapRecordYear:2023, firstGP:1996, type:'Street/park',  overtakeModeZones:4, altitudeM:12,   chars:['High-speed','Good overtaking','Bumpy surface'],
-                         mapUrl:'circuits/melbourne-2.svg' },
-  'shanghai':          { lengthKm:5.451, lengthMi:3.387, corners:16, laps:56, raceDistKm:305.1,  lapRecord:'1:32.238', lapRecordHolder:'M.Schumacher',lapRecordYear:2004, firstGP:2004, type:'Permanent',     overtakeModeZones:2, altitudeM:4,    chars:['Long back straight','High tyre wear','Mixed conditions'],
-                         mapUrl:'circuits/shanghai-1.svg' },
-  'suzuka':            { lengthKm:5.807, lengthMi:3.608, corners:18, laps:53, raceDistKm:307.5,  lapRecord:'1:30.965', lapRecordHolder:'Antonelli',   lapRecordYear:2025, firstGP:1987, type:'Permanent',     overtakeModeZones:1, altitudeM:43,   chars:['Figure-of-eight','High-speed','Driver favourite'],
-                         mapUrl:'circuits/suzuka-2.svg' },
-  'bahrain':           { lengthKm:5.412, lengthMi:3.363, corners:15, laps:57, raceDistKm:308.2,  lapRecord:'1:31.447', lapRecordHolder:'de la Rosa',  lapRecordYear:2005, firstGP:2004, type:'Permanent',     overtakeModeZones:2, altitudeM:7,    chars:['Night race','High tyre deg','Desert heat'],
-                         mapUrl:'circuits/bahrain-1.svg' },
-  'jeddah':            { lengthKm:6.174, lengthMi:3.836, corners:27, laps:50, raceDistKm:308.7,  lapRecord:'1:30.734', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:2021, type:'Street',        overtakeModeZones:3, altitudeM:4,    chars:['Fastest street circuit','High-speed walls','Intense battles'],
-                         mapUrl:'circuits/jeddah-1.svg' },
-  'miami':             { lengthKm:5.412, lengthMi:3.363, corners:19, laps:57, raceDistKm:308.5,  lapRecord:'1:29.708', lapRecordHolder:'Verstappen',  lapRecordYear:2023, firstGP:2022, type:'Street/park',  overtakeModeZones:3, altitudeM:2,    chars:['High-speed','Multiple overtaking zones','Hot & humid'],
-                         mapUrl:'circuits/miami-1.svg' },
-  'villeneuve':        { lengthKm:4.361, lengthMi:2.710, corners:14, laps:70, raceDistKm:305.3,  lapRecord:'1:13.078', lapRecordHolder:'Bottas',      lapRecordYear:2019, firstGP:1978, type:'Street/park',  overtakeModeZones:2, altitudeM:23,   chars:['Wall of Champions','Chicanes','Changeable weather'],
-                         mapUrl:'circuits/montreal-6.svg' },
-  'monaco':            { lengthKm:3.337, lengthMi:2.074, corners:19, laps:78, raceDistKm:260.3,  lapRecord:'1:12.909', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:1950, type:'Street',        overtakeModeZones:1, altitudeM:48,   chars:['Narrowest circuit','Historic','Qualifying decisive'],
-                         mapUrl:'circuits/monaco-6.svg' },
-  'catalunya':         { lengthKm:4.657, lengthMi:2.894, corners:16, laps:66, raceDistKm:307.4,  lapRecord:'1:16.330', lapRecordHolder:'Piastri',     lapRecordYear:2025, firstGP:1991, type:'Permanent',     overtakeModeZones:2, altitudeM:115,  chars:['High tyre wear','Technical','Testing benchmark'],
-                         mapUrl:'circuits/catalunya-6.svg' },
-  'red_bull_ring':     { lengthKm:4.318, lengthMi:2.683, corners:10, laps:71, raceDistKm:306.5,  lapRecord:'1:05.619', lapRecordHolder:'Sainz',       lapRecordYear:2020, firstGP:1970, type:'Permanent',     overtakeModeZones:3, altitudeM:700,  chars:['Short lap','Elevation changes','Power-sensitive'],
-                         mapUrl:'circuits/spielberg-3.svg' },
-  'silverstone':       { lengthKm:5.891, lengthMi:3.661, corners:18, laps:52, raceDistKm:306.2,  lapRecord:'1:27.097', lapRecordHolder:'Verstappen',  lapRecordYear:2020, firstGP:1950, type:'Permanent',     overtakeModeZones:2, altitudeM:153,  chars:['Home of F1','High-speed corners','Unpredictable weather'],
-                         mapUrl:'circuits/silverstone-8.svg' },
-  'spa':               { lengthKm:7.004, lengthMi:4.352, corners:19, laps:44, raceDistKm:308.1,  lapRecord:'1:44.701', lapRecordHolder:'Pérez',       lapRecordYear:2024, firstGP:1950, type:'Permanent',     overtakeModeZones:2, altitudeM:370,  chars:['Longest circuit','Eau Rouge','Changeable weather'],
-                         mapUrl:'circuits/spa-francorchamps-4.svg' },
-  'hungaroring':       { lengthKm:4.381, lengthMi:2.722, corners:14, laps:70, raceDistKm:306.6,  lapRecord:'1:16.627', lapRecordHolder:'Hamilton',    lapRecordYear:2020, firstGP:1986, type:'Permanent',     overtakeModeZones:1, altitudeM:270,  chars:['Technical','Low overtaking','Hot & grippy'],
-                         mapUrl:'circuits/hungaroring-3.svg' },
-  'zandvoort':         { lengthKm:4.259, lengthMi:2.646, corners:14, laps:72, raceDistKm:306.6,  lapRecord:'1:11.097', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:1952, type:'Permanent',     overtakeModeZones:2, altitudeM:5,    chars:['Banked corners','Orange army','Technical'],
-                         mapUrl:'circuits/zandvoort-5.svg' },
-  'monza':             { lengthKm:5.793, lengthMi:3.600, corners:11, laps:53, raceDistKm:306.7,  lapRecord:'1:20.901', lapRecordHolder:'Norris',      lapRecordYear:2025, firstGP:1950, type:'Permanent',     overtakeModeZones:2, altitudeM:162,  chars:['Temple of Speed','Low downforce','Slipstreaming'],
-                         mapUrl:'circuits/monza-7.svg' },
-  'madrid':            { lengthKm:5.400, lengthMi:3.355, corners:22, laps:57, raceDistKm:307.8,  lapRecord:'—',        lapRecordHolder:'TBD',         lapRecordYear:2026, firstGP:2026, type:'Street',        overtakeModeZones:3, altitudeM:612,  chars:['Brand new','Hybrid layout','High-speed main straight'],
-                         mapUrl:'circuits/madring-1.svg' },
-  'madring':           { lengthKm:5.400, lengthMi:3.355, corners:22, laps:57, raceDistKm:307.8,  lapRecord:'—',        lapRecordHolder:'TBD',         lapRecordYear:2026, firstGP:2026, type:'Street',        overtakeModeZones:3, altitudeM:612,  chars:['Brand new','Hybrid layout','High-speed main straight'],
-                         mapUrl:'circuits/madring-1.svg' },
-  'baku':              { lengthKm:6.003, lengthMi:3.730, corners:20, laps:51, raceDistKm:306.0,  lapRecord:'1:43.009', lapRecordHolder:'Leclerc',     lapRecordYear:2019, firstGP:2016, type:'Street',        overtakeModeZones:2, altitudeM:-28,  chars:['Long straight','Castle section','Street thrills'],
-                         mapUrl:'circuits/baku-1.svg' },
-  'marina_bay':        { lengthKm:5.063, lengthMi:3.146, corners:23, laps:61, raceDistKm:308.7,  lapRecord:'1:33.808', lapRecordHolder:'Hamilton',    lapRecordYear:2025, firstGP:2008, type:'Street',        overtakeModeZones:3, altitudeM:5,    chars:['Night race','Most corners','Physically demanding'],
-                         mapUrl:'circuits/marina-bay-4.svg' },
-  'americas':          { lengthKm:5.516, lengthMi:3.427, corners:20, laps:56, raceDistKm:308.4,  lapRecord:'1:36.169', lapRecordHolder:'Leclerc',     lapRecordYear:2019, firstGP:2012, type:'Permanent',     overtakeModeZones:2, altitudeM:152,  chars:['Big elevation changes','Inspired by classics','Fan favourite'],
-                         mapUrl:'circuits/austin-1.svg' },
-  'rodriguez':         { lengthKm:4.304, lengthMi:2.674, corners:17, laps:71, raceDistKm:305.4,  lapRecord:'1:17.774', lapRecordHolder:'Bottas',      lapRecordYear:2021, firstGP:1963, type:'Permanent',     overtakeModeZones:2, altitudeM:2285, chars:['High altitude','Thin air','Stadium section'],
-                         mapUrl:'circuits/mexico-city-3.svg' },
-  'interlagos':        { lengthKm:4.309, lengthMi:2.677, corners:15, laps:71, raceDistKm:305.9,  lapRecord:'1:10.540', lapRecordHolder:'Bottas',      lapRecordYear:2018, firstGP:1973, type:'Permanent',     overtakeModeZones:2, altitudeM:800,  chars:['Anti-clockwise','Unpredictable weather','Iconic'],
-                         mapUrl:'circuits/interlagos-2.svg' },
-  'las_vegas':         { lengthKm:6.201, lengthMi:3.854, corners:17, laps:50, raceDistKm:309.9,  lapRecord:'1:33.365', lapRecordHolder:'Verstappen',  lapRecordYear:2025, firstGP:2023, type:'Street',        overtakeModeZones:3, altitudeM:620,  chars:['Night race','Long straights','Entertainment spectacle'],
-                         mapUrl:'circuits/las-vegas-1.svg' },
-  'vegas':             { lengthKm:6.201, lengthMi:3.854, corners:17, laps:50, raceDistKm:309.9,  lapRecord:'1:33.365', lapRecordHolder:'Verstappen',  lapRecordYear:2025, firstGP:2023, type:'Street',        overtakeModeZones:3, altitudeM:620,  chars:['Night race','Long straights','Entertainment spectacle'],
-                         mapUrl:'circuits/las-vegas-1.svg' },
-  'losail':            { lengthKm:5.380, lengthMi:3.343, corners:16, laps:57, raceDistKm:307.0,  lapRecord:'1:22.384', lapRecordHolder:'Norris',      lapRecordYear:2024, firstGP:2021, type:'Permanent',     overtakeModeZones:2, altitudeM:32,   chars:['MotoGP circuit','High-speed','Desert heat'],
-                         mapUrl:'circuits/lusail-1.svg' },
-  'yas_marina':        { lengthKm:5.281, lengthMi:3.281, corners:16, laps:58, raceDistKm:306.2,  lapRecord:'1:25.637', lapRecordHolder:'Magnussen',   lapRecordYear:2024, firstGP:2009, type:'Permanent',     overtakeModeZones:2, altitudeM:3,    chars:['Season finale','Night race','Revised 2021 layout'],
-                         mapUrl:'circuits/yas-marina-2.svg' },
+  'albert_park':       { lengthKm:5.278, lengthMi:3.279, corners:14, laps:58, raceDistKm:306.1,  lapRecord:'1:20.235', lapRecordHolder:'Pérez',      lapRecordYear:2023, firstGP:1996, type:'Street/park',  overtakeModeZones:4, chars:['High-speed','Good overtaking','Bumpy surface'],
+                         mapUrl:'https://formula-timer.com/circuits/albert_park.png' },
+  'shanghai':          { lengthKm:5.451, lengthMi:3.387, corners:16, laps:56, raceDistKm:305.1,  lapRecord:'1:32.238', lapRecordHolder:'M.Schumacher',lapRecordYear:2004, firstGP:2004, type:'Permanent',     overtakeModeZones:2, chars:['Long back straight','High tyre wear','Mixed conditions'],
+                         mapUrl:'https://formula-timer.com/circuits/shanghai.png' },
+  'suzuka':            { lengthKm:5.807, lengthMi:3.608, corners:18, laps:53, raceDistKm:307.5,  lapRecord:'1:30.965', lapRecordHolder:'Antonelli',   lapRecordYear:2025, firstGP:1987, type:'Permanent',     overtakeModeZones:1, chars:['Figure-of-eight','High-speed','Driver favourite'],
+                         mapUrl:'https://formula-timer.com/circuits/suzuka.png' },
+  'bahrain':           { lengthKm:5.412, lengthMi:3.363, corners:15, laps:57, raceDistKm:308.2,  lapRecord:'1:31.447', lapRecordHolder:'de la Rosa',  lapRecordYear:2005, firstGP:2004, type:'Permanent',     overtakeModeZones:2, chars:['Night race','High tyre deg','Desert heat'],
+                         mapUrl:'https://formula-timer.com/circuits/bahrain.png' },
+  'jeddah':            { lengthKm:6.174, lengthMi:3.836, corners:27, laps:50, raceDistKm:308.7,  lapRecord:'1:30.734', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:2021, type:'Street',        overtakeModeZones:3, chars:['Fastest street circuit','High-speed walls','Intense battles'],
+                         mapUrl:'https://formula-timer.com/circuits/jeddah.png' },
+  'miami':             { lengthKm:5.412, lengthMi:3.363, corners:19, laps:57, raceDistKm:308.5,  lapRecord:'1:29.708', lapRecordHolder:'Verstappen',  lapRecordYear:2023, firstGP:2022, type:'Street/park',  overtakeModeZones:3, chars:['High-speed','Multiple overtaking zones','Hot & humid'],
+                         mapUrl:'https://formula-timer.com/circuits/miami.png' },
+  'villeneuve':        { lengthKm:4.361, lengthMi:2.710, corners:14, laps:70, raceDistKm:305.3,  lapRecord:'1:13.078', lapRecordHolder:'Bottas',      lapRecordYear:2019, firstGP:1978, type:'Street/park',  overtakeModeZones:2, chars:['Wall of Champions','Chicanes','Changeable weather'],
+                         mapUrl:'https://formula-timer.com/circuits/villeneuve.png' },
+  'monaco':            { lengthKm:3.337, lengthMi:2.074, corners:19, laps:78, raceDistKm:260.3,  lapRecord:'1:12.909', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:1950, type:'Street',        overtakeModeZones:1, chars:['Narrowest circuit','Historic','Qualifying decisive'],
+                         mapUrl:'https://formula-timer.com/circuits/monaco.png' },
+  'catalunya':         { lengthKm:4.657, lengthMi:2.894, corners:16, laps:66, raceDistKm:307.4,  lapRecord:'1:16.330', lapRecordHolder:'Piastri',     lapRecordYear:2025, firstGP:1991, type:'Permanent',     overtakeModeZones:2, chars:['High tyre wear','Technical','Testing benchmark'],
+                         mapUrl:'https://formula-timer.com/circuits/catalunya.png' },
+  'red_bull_ring':     { lengthKm:4.318, lengthMi:2.683, corners:10, laps:71, raceDistKm:306.5,  lapRecord:'1:05.619', lapRecordHolder:'Sainz',       lapRecordYear:2020, firstGP:1970, type:'Permanent',     overtakeModeZones:3, chars:['Short lap','Elevation changes','Power-sensitive'],
+                         mapUrl:'https://formula-timer.com/circuits/red_bull_ring.png' },
+  'silverstone':       { lengthKm:5.891, lengthMi:3.661, corners:18, laps:52, raceDistKm:306.2,  lapRecord:'1:27.097', lapRecordHolder:'Verstappen',  lapRecordYear:2020, firstGP:1950, type:'Permanent',     overtakeModeZones:2, chars:['Home of F1','High-speed corners','Unpredictable weather'],
+                         mapUrl:'https://formula-timer.com/circuits/silverstone.png' },
+  'spa':               { lengthKm:7.004, lengthMi:4.352, corners:19, laps:44, raceDistKm:308.1,  lapRecord:'1:44.701', lapRecordHolder:'Pérez',       lapRecordYear:2024, firstGP:1950, type:'Permanent',     overtakeModeZones:2, chars:['Longest circuit','Eau Rouge','Changeable weather'],
+                         mapUrl:'https://formula-timer.com/circuits/spa.png' },
+  'hungaroring':       { lengthKm:4.381, lengthMi:2.722, corners:14, laps:70, raceDistKm:306.6,  lapRecord:'1:16.627', lapRecordHolder:'Hamilton',    lapRecordYear:2020, firstGP:1986, type:'Permanent',     overtakeModeZones:1, chars:['Technical','Low overtaking','Hot & grippy'],
+                         mapUrl:'https://formula-timer.com/circuits/hungaroring.png' },
+  'zandvoort':         { lengthKm:4.259, lengthMi:2.646, corners:14, laps:72, raceDistKm:306.6,  lapRecord:'1:11.097', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:1952, type:'Permanent',     overtakeModeZones:2, chars:['Banked corners','Orange army','Technical'],
+                         mapUrl:'https://formula-timer.com/circuits/zandvoort.png' },
+  'monza':             { lengthKm:5.793, lengthMi:3.600, corners:11, laps:53, raceDistKm:306.7,  lapRecord:'1:20.901', lapRecordHolder:'Norris',      lapRecordYear:2025, firstGP:1950, type:'Permanent',     overtakeModeZones:2, chars:['Temple of Speed','Low downforce','Slipstreaming'],
+                         mapUrl:'https://formula-timer.com/circuits/monza.png' },
+  'madrid':            { lengthKm:5.400, lengthMi:3.355, corners:22, laps:57, raceDistKm:307.8,  lapRecord:'—',        lapRecordHolder:'TBD',         lapRecordYear:2026, firstGP:2026, type:'Street',        overtakeModeZones:3, chars:['Brand new','Hybrid layout','High-speed main straight'],
+                         mapUrl:null },
+  'madring':           { lengthKm:5.400, lengthMi:3.355, corners:22, laps:57, raceDistKm:307.8,  lapRecord:'—',        lapRecordHolder:'TBD',         lapRecordYear:2026, firstGP:2026, type:'Street',        overtakeModeZones:3, chars:['Brand new','Hybrid layout','High-speed main straight'],
+                         mapUrl:null },
+  'baku':              { lengthKm:6.003, lengthMi:3.730, corners:20, laps:51, raceDistKm:306.0,  lapRecord:'1:43.009', lapRecordHolder:'Leclerc',     lapRecordYear:2019, firstGP:2016, type:'Street',        overtakeModeZones:2, chars:['Long straight','Castle section','Street thrills'],
+                         mapUrl:'https://formula-timer.com/circuits/baku.png' },
+  'marina_bay':        { lengthKm:5.063, lengthMi:3.146, corners:23, laps:61, raceDistKm:308.7,  lapRecord:'1:33.808', lapRecordHolder:'Hamilton',    lapRecordYear:2025, firstGP:2008, type:'Street',        overtakeModeZones:3, chars:['Night race','Most corners','Physically demanding'],
+                         mapUrl:'https://formula-timer.com/circuits/marina_bay.png' },
+  'americas':          { lengthKm:5.516, lengthMi:3.427, corners:20, laps:56, raceDistKm:308.4,  lapRecord:'1:36.169', lapRecordHolder:'Leclerc',     lapRecordYear:2019, firstGP:2012, type:'Permanent',     overtakeModeZones:2, chars:['Big elevation changes','Inspired by classics','Fan favourite'],
+                         mapUrl:'https://formula-timer.com/circuits/americas.png' },
+  'rodriguez':         { lengthKm:4.304, lengthMi:2.674, corners:17, laps:71, raceDistKm:305.4,  lapRecord:'1:17.774', lapRecordHolder:'Bottas',      lapRecordYear:2021, firstGP:1963, type:'Permanent',     overtakeModeZones:2, chars:['High altitude','Thin air','Stadium section'],
+                         mapUrl:'https://formula-timer.com/circuits/rodriguez.png' },
+  'interlagos':        { lengthKm:4.309, lengthMi:2.677, corners:15, laps:71, raceDistKm:305.9,  lapRecord:'1:10.540', lapRecordHolder:'Bottas',      lapRecordYear:2018, firstGP:1973, type:'Permanent',     overtakeModeZones:2, chars:['Anti-clockwise','Unpredictable weather','Iconic'],
+                         mapUrl:'https://formula-timer.com/circuits/interlagos.png' },
+  'las_vegas':         { lengthKm:6.201, lengthMi:3.854, corners:17, laps:50, raceDistKm:309.9,  lapRecord:'1:33.365', lapRecordHolder:'Verstappen',  lapRecordYear:2025, firstGP:2023, type:'Street',        overtakeModeZones:3, chars:['Night race','Long straights','Entertainment spectacle'],
+                         mapUrl:'https://formula-timer.com/circuits/las_vegas.png' },
+  'vegas':             { lengthKm:6.201, lengthMi:3.854, corners:17, laps:50, raceDistKm:309.9,  lapRecord:'1:33.365', lapRecordHolder:'Verstappen',  lapRecordYear:2025, firstGP:2023, type:'Street',        overtakeModeZones:3, chars:['Night race','Long straights','Entertainment spectacle'],
+                         mapUrl:'https://formula-timer.com/circuits/las_vegas.png' },
+  'losail':            { lengthKm:5.380, lengthMi:3.343, corners:16, laps:57, raceDistKm:307.0,  lapRecord:'1:22.384', lapRecordHolder:'Norris',      lapRecordYear:2024, firstGP:2021, type:'Permanent',     overtakeModeZones:2, chars:['MotoGP circuit','High-speed','Desert heat'],
+                         mapUrl:'https://formula-timer.com/circuits/losail.png' },
+  'yas_marina':        { lengthKm:5.281, lengthMi:3.281, corners:16, laps:58, raceDistKm:306.2,  lapRecord:'1:25.637', lapRecordHolder:'Magnussen',   lapRecordYear:2024, firstGP:2009, type:'Permanent',     overtakeModeZones:2, chars:['Season finale','Night race','Revised 2021 layout'],
+                         mapUrl:'https://formula-timer.com/circuits/yas_marina.png' },
 };
 
 // ── Calendar + Results (with quali, sprint quali, tyre strategy, DNF tracking) ──
@@ -2303,8 +2335,8 @@ async function loadCalendar(bypassCache=false){
     if(isCompleted){
       const fl=finishers.find(f=>f.FastestLap?.rank==='1');
       const extra=document.createElement('div'); extra.className='race-extra';
-      if(fl) extra.innerHTML+='<span>⚡ Fastest: '+fl.Driver.familyName.toUpperCase()+' '+(fl.FastestLap?.Time?.time||'')+'</span>';
-      if(dnfs.length) extra.innerHTML+='<span title="'+dnfs.map(f=>f.Driver.familyName.toUpperCase()+': '+f.status).join(', ')+'">⛔ '+dnfs.length+' DNF'+(dnfs.length>1?'s':'')+'</span>';
+      if(fl) extra.innerHTML+='<span>⚡ Fastest: '+fl.Driver.familyName+' '+(fl.FastestLap?.Time?.time||'')+'</span>';
+      if(dnfs.length) extra.innerHTML+='<span title="'+dnfs.map(f=>f.Driver.familyName+': '+f.status).join(', ')+'">⛔ '+dnfs.length+' DNF'+(dnfs.length>1?'s':'')+'</span>';
       if(extra.innerHTML) rightCol.appendChild(extra);
     }
 
@@ -2331,11 +2363,10 @@ async function loadCalendar(bypassCache=false){
         ['First GP', ci.firstGP||'—'],
       ];
       infoItems.forEach(([label,val])=>{ const d=document.createElement('div'); d.className='track-info-item'; d.innerHTML='<div class="track-info-label">'+label+'</div><div class="track-info-value">'+val+'</div>'; grid.appendChild(d); });
-      const lr=document.createElement('div'); lr.className='track-info-item';
-      lr.innerHTML='<div class="track-info-label">Lap record</div><div class="track-info-value mono">'+(ci.lapRecord||'—')+' <span style="font-size:11px;font-weight:400;color:var(--text2)">'+(ci.lapRecordHolder||'')+' '+(ci.lapRecordYear?'('+ci.lapRecordYear+')':'')+'</span></div>';
+      const lr=document.createElement('div'); lr.className='track-info-item'; lr.style.gridColumn='span 3';
+      lr.innerHTML='<div class="track-info-label">Lap record</div><div class="track-info-value mono">'+(ci.lapRecord||'—')+' <span style="font-size:12px;font-weight:400;color:var(--text2)">'+(ci.lapRecordHolder||'')+' '+(ci.lapRecordYear?'('+ci.lapRecordYear+')':'')+'</span></div>';
       grid.appendChild(lr);
-      if(ci.overtakeModeZones!=null){ const d=document.createElement('div'); d.className='track-info-item'; d.innerHTML='<div class="track-info-label">Overtake Mode zones</div><div class="track-info-value">'+ci.overtakeModeZones+'</div>'; grid.appendChild(d); }
-      if(ci.altitudeM!=null){ const d=document.createElement('div'); d.className='track-info-item'; d.innerHTML='<div class="track-info-label">Altitude</div><div class="track-info-value">'+(ci.altitudeM>=0?ci.altitudeM+'m':ci.altitudeM+'m')+'</div>'; grid.appendChild(d); }
+      if(ci.overtakeModeZones!=null){ const d=document.createElement('div'); d.className='track-info-item'; d.style.gridColumn='span 3'; d.innerHTML='<div class="track-info-label">Overtake Mode zones</div><div class="track-info-value">'+ci.overtakeModeZones+'</div>'; grid.appendChild(d); }
       if(ci.chars&&ci.chars.length){ const d=document.createElement('div'); d.className='track-info-item'; d.style.gridColumn='span 3'; d.innerHTML='<div class="track-info-label">Characteristics</div><div style="margin-top:4px">'+ci.chars.map(c=>'<span class="track-char-pill">'+c+'</span>').join('')+'</div>'; grid.appendChild(d); }
       trackBody.appendChild(grid);
       trackGrp.appendChild(trackHdr);
@@ -2464,7 +2495,7 @@ async function loadCalendar(bypassCache=false){
         const heroCard=(label,name,sub)=>`<div style="background:var(--bg2);border-radius:6px;padding:8px 12px"><div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:2px">${label}</div><div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text)">${name}</div><div style="font-size:11px;color:var(--text2);font-family:monospace">${sub}</div></div>`;
         const poleQ=qualiResults.find(q=>q.Driver?.driverId===poleDriver.Driver.driverId);
         const poleTime=poleQ?.Q3||poleQ?.Q2||poleQ?.Q1||'—';
-        heroEl.innerHTML=heroCard('Winner',winner.Driver.familyName.toUpperCase(),winner.Time?.time||'—')+heroCard('Pole',poleDriver.Driver.familyName.toUpperCase(),poleTime)+heroCard('Fastest lap',fl?fl.Driver.familyName.toUpperCase():'—',fl?(fl.FastestLap?.Time?.time||'—')+(fl.FastestLap?.lap?' · Lap '+fl.FastestLap.lap:''):'—');
+        heroEl.innerHTML=heroCard('Winner',winner.Driver.familyName,winner.Time?.time||'—')+heroCard('Pole',poleDriver.Driver.familyName,poleTime)+heroCard('Fastest lap',fl?fl.Driver.familyName:'—',fl?(fl.FastestLap?.Time?.time||'—')+(fl.FastestLap?.lap?' · Lap '+fl.FastestLap.lap:''):'—');
         body.appendChild(heroEl);
 
         if(qualiResults.length){
@@ -2539,7 +2570,7 @@ async function loadCalendar(bypassCache=false){
         if(dnfs.length){
           const dt=document.createElement('div'); dt.className='detail-section-title'; dt.textContent='Retirements (Did Not Finish)'; body.appendChild(dt);
           const dg=document.createElement('div'); dg.className='detail-grid';
-          dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><span class="detail-name">'+f.Driver.familyName.toUpperCase()+'</span> <span class="dnf-badge">'+f.status+'</span></div>').join('');
+          dg.innerHTML=dnfs.map(f=>'<div class="detail-item"><strong>'+f.Driver.familyName+'</strong> <span class="dnf-badge">'+f.status+'</span></div>').join('');
           body.appendChild(dg);
         }
 
@@ -2550,6 +2581,29 @@ async function loadCalendar(bypassCache=false){
         body.appendChild(pitWrap);
         pitWrap.dataset.round=r.round;
         pitWrap.dataset.loaded='0';
+
+        const gapTitle=document.createElement('div'); gapTitle.className='detail-section-title'; gapTitle.textContent='Gap to leader at finish'; body.appendChild(gapTitle);
+        const top5gap=finishers.slice(0,5);
+        const maxGap=Math.max(...top5gap.map(f=>{const t=f.Time?.time||'';const m=t.match(/^[+]?(\d+\.?\d*)$/);return m?parseFloat(m[1]):0;}));
+        const gapTbl=document.createElement('table'); gapTbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;margin-top:4px';
+        gapTbl.innerHTML='<tbody>'+top5gap.map((f,i)=>{
+          const color=teamColor(f.Constructor?.name||'');
+          const teamShort=(f.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
+          const rawGap=f.Time?.time||'';
+          const m=rawGap.match(/^[+]?(\d+\.?\d*)$/);
+          const gapSec=m?parseFloat(m[1]):null;
+          const barPct=i===0||!gapSec||!maxGap?0:Math.round((gapSec/maxGap)*100);
+          const gapVal=i===0?'<span style="color:var(--red);font-weight:700">Winner</span>':(rawGap||'—');
+          return '<tr style="border-bottom:0.5px solid var(--border)">'
+            +'<td style="padding:7px 8px;width:24px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:14px;color:'+(i===0?'var(--red)':'var(--text2)')+'">'+(i+1)+'</td>'
+            +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
+            +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+f.Driver.familyName+'</span>'
+            +'<br><span style="font-family:\'Space Grotesk\',sans-serif;font-size:11px;color:var(--text3)">'+teamShort+'</span></td>'
+            +'<td style="padding:7px 8px;width:100px"><div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+barPct+'%;background:'+color+(i===0?'':'88')+';border-radius:2px"></div></div></td>'
+            +'<td style="padding:7px 8px;font-family:monospace;font-size:11px;color:var(--text2);text-align:right;white-space:nowrap">'+gapVal+'</td>'
+            +'</tr>';
+        }).join('')+'</tbody>';
+        body.appendChild(gapTbl);
 
         const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap · top 5 finishers'; body.appendChild(flTitle);
         const top5=finishers.slice(0,5).filter(f=>f.FastestLap?.Time?.time);
@@ -2572,7 +2626,7 @@ async function loadCalendar(bypassCache=false){
             return '<tr style="border-bottom:0.5px solid var(--border)">'
               +'<td style="padding:6px 6px;width:22px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:'+(isFastest?'var(--red)':'var(--text2)')+'">'+(i+1)+'</td>'
               +'<td style="padding:6px 6px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
-              +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:14px;color:var(--text)">'+f.Driver.familyName.toUpperCase()+flBadge+'</span>'
+              +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+f.Driver.familyName+flBadge+'</span>'
               +'<br><span style="font-size:11px;color:var(--text3)">'+teamShort+'</span></td>'
               +'<td style="padding:6px 6px;font-family:monospace;font-size:12px;color:'+(isFastest?'#7D3C98':'var(--text2)')+';text-align:right">'+time+'</td>'
               +'<td style="padding:6px 6px;font-family:monospace;font-size:11px;color:var(--text3);text-align:right;width:58px">'+(isFastest?'—':'+'+delta.toFixed(3)+'s')+'</td>'
@@ -2611,7 +2665,7 @@ async function loadCalendar(bypassCache=false){
               offset+=laps.length;
             }while(offset<total&&offset<2000);
 
-            if(!allLaps.length){posTitle.style.display='none';posWrap.style.display='none';posNote.style.display='none';return;}
+            if(!allLaps.length){posNote.textContent='Lap data not available for this race.';return;}
 
             // Build per-driver position series: { driverId: { lapNum: position } }
             const driverPos={};
@@ -2632,7 +2686,7 @@ async function loadCalendar(bypassCache=false){
               const f=finishers.find(x=>x.Driver.driverId===id);
               const col=teamColor(f?.Constructor?.name||'');
               return {
-                label:(f?.Driver.familyName||id).toUpperCase(),
+                label:f?.Driver.familyName||id,
                 data:lapNums.map(n=>driverPos[id]?.[n]||null),
                 borderColor:col,
                 backgroundColor:'transparent',
@@ -2653,7 +2707,7 @@ async function loadCalendar(bypassCache=false){
             posCtx._chart=new Chart(posCtx,{type:'line',data:{labels:lapNums,datasets},options:lapOpts});
             posNote.textContent='Top 10 finishers · '+lapNums.length+' laps';
           }catch(e){
-            posTitle.style.display='none';posWrap.style.display='none';posNote.style.display='none';
+            posNote.textContent='Could not load lap data.';
           }
         })();
         });
@@ -2730,7 +2784,7 @@ document.getElementById('race-list').addEventListener('click', e=>{
           const color=teamColor(liveDrivers.find(x=>x.driverId===did)?.team||'');
           const stopsDetail=dStops.map(s=>'<span style="display:inline-block;background:var(--bg2);border-radius:3px;padding:1px 6px;margin:1px 2px;font-size:10px;white-space:nowrap">L'+s.lap+' <span style="color:var(--text2)">'+s.duration+'s</span></span>').join('');
           html+='<tr style="border-top:0.5px solid var(--border)">'
-            +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:14px;color:var(--text)">'+dObj.last.toUpperCase()+'</span></td>'
+            +'<td style="padding:7px 8px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span><span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text)">'+dObj.last+'</span></td>'
             +'<td style="padding:7px 8px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text2)">'+dStops.length+'</td>'
             +'<td style="padding:7px 8px">'+stopsDetail+'</td>'
             +'</tr>';
