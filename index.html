@@ -19,7 +19,7 @@
       --info:#85b7eb; --shadow:rgba(0,0,0,0.3);
     }
     html { scroll-behavior:smooth; }
-    body { font-family:'Barlow',sans-serif; background:var(--canvas); color:var(--text); min-height:100vh; padding:2rem 1rem; transition:background .2s,color .2s; }
+    body { font-family:'Barlow',sans-serif; font-weight:700; background:var(--canvas); color:var(--text); min-height:100vh; padding:2rem 1rem; transition:background .2s,color .2s; }
     .container { max-width:960px; margin:0 auto; }
     .dash { background:var(--bg3); border-radius:12px; padding:0; border:none; overflow:hidden; }
     .dash-inner { padding:1.5rem 2rem; background:var(--bg3); }
@@ -34,7 +34,7 @@
     .header-divider { width:0.5px; height:28px; background:var(--border); }
     .icon-btn { background:var(--bg2); border:0.5px solid var(--border); border-radius:8px; padding:7px 10px; cursor:pointer; color:var(--text2); display:flex; align-items:center; gap:5px; font-family:'Barlow',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; transition:all .15s; white-space:nowrap; }
     .icon-btn:hover { border-color:var(--border2); color:var(--text); }
-    .live-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg2); border:0.5px solid var(--border); border-radius:20px; padding:3px 10px; font-size:10px; color:var(--text2); white-space:nowrap; font-family:'Barlow',sans-serif; }
+    .live-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg2); border:0.5px solid var(--border); border-radius:20px; padding:3px 10px; font-size:10px; color:var(--text2); white-space:nowrap; font-family:'Barlow',sans-serif; font-weight:700; }
     .live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
     .stale-dot { background:var(--gold); }
 
@@ -49,7 +49,7 @@
     .season-stat-val { font-family:'Barlow',sans-serif; font-weight:900; font-size:28px; letter-spacing:-1px; color:var(--text); line-height:1; }
     .season-stat-val.season-stat-countdown { font-size:20px; letter-spacing:-0.5px; color:var(--red); }
     .season-stat-val.race-on { color:var(--red); font-size:16px; letter-spacing:0; }
-    .season-stat-label { font-family:'Barlow',sans-serif; font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text2); margin-top:6px; }
+    .season-stat-label { font-family:'Barlow',sans-serif; font-size:9px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--text2); margin-top:6px; }
 
     /* Tabs */
     .f1-tabs { display:flex; width:100%; margin-bottom:0; border-bottom:1px solid var(--border); background:var(--bg); }
@@ -81,14 +81,14 @@
     .driver-info-wrap { display:flex; flex-direction:column; gap:2px; min-width:0; }
     .driver-info-name { font-family:'Barlow',sans-serif; font-size:18px; font-weight:900; letter-spacing:0.3px; text-transform:uppercase; color:var(--text); line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .f1-table tr.p1 .driver-info-name { font-size:26px; letter-spacing:-0.3px; }
-    .driver-info-first { font-family:'Barlow',sans-serif; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text2); margin-top:2px; }
+    .driver-info-first { font-family:'Barlow',sans-serif; font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text2); margin-top:2px; }
     .driver-pts-bar { height:2px; background:var(--border); margin-top:4px; }
     .f1-table tr.p1 .driver-pts-bar { height:3px; margin-top:6px; }
     .driver-pts-bar-fill { height:100%; }
     .team-col{display:flex;align-items:center;gap:8px;}
     .team-pip{width:4px;height:38px;border-radius:0;flex-shrink:0;}
     .f1-table tr.p1 .team-pip { height:52px; }
-    .team-name-cell{font-family:'Barlow',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);}
+    .team-name-cell{font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);}
     .pts-cell{font-family:'Barlow',sans-serif;font-size:20px;font-weight:900;letter-spacing:-0.5px;text-align:right;color:var(--text);position:relative;}
     .f1-table tr.p1 .pts-cell { font-size:28px; color:var(--red); }
     .pts-shade{display:none;}
@@ -96,7 +96,7 @@
     .wins-cell{font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;text-align:center;color:var(--text3);}
     .gap-cell{font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;color:var(--text2);text-align:right;white-space:nowrap;}
 
-    .sprint-pts-cell{font-family:'Barlow',sans-serif;font-size:11px;color:var(--text3);text-align:center;white-space:nowrap;}
+    .sprint-pts-cell{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text3);text-align:center;white-space:nowrap;}
     .finrate-cell{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text3);text-align:center;}
     .con-name{font-family:'Barlow',sans-serif;font-size:16px;font-weight:900;letter-spacing:.3px;}
     .export-row { display:flex; justify-content:flex-end; margin-bottom:8px; }
@@ -111,7 +111,7 @@
     .modal-driver-hero { display:flex; gap:16px; align-items:center; margin-bottom:1.25rem; padding-bottom:1.25rem; border-bottom:0.5px solid var(--border); }
     .modal-avatar-placeholder { width:56px; height:56px; border-radius:50%; background:var(--bg2); border:0.5px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'Barlow',sans-serif; font-weight:900; font-size:18px; color:var(--text2); }
     .modal-driver-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:24px; letter-spacing:-0.3px; color:var(--text); line-height:1; text-transform:uppercase; }
-    .modal-driver-sub { font-family:'Barlow',sans-serif; font-size:12px; color:var(--text2); margin-top:4px; }
+    .modal-driver-sub { font-family:'Barlow',sans-serif; font-size:12px; font-weight:700; color:var(--text2); margin-top:4px; }
     .modal-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:1rem; }
     .modal-bio { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:1rem; }
     .modal-stat { background:var(--bg2); border-radius:6px; padding:10px 12px; }
@@ -128,7 +128,7 @@
     .modal-result-race { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text); text-transform:uppercase; letter-spacing:0.2px; }
     .modal-result-pos { font-family:'Barlow',sans-serif; font-weight:900; font-size:15px; color:var(--text); }
     .modal-result-pos.dnf { color:var(--text2); }
-    .modal-result-pts { font-family:'Barlow',sans-serif; font-size:12px; color:var(--text2); }
+    .modal-result-pts { font-family:'Barlow',sans-serif; font-size:12px; font-weight:700; color:var(--text2); }
     .modal-result-meta { display:flex; gap:10px; flex-wrap:wrap; }
     .modal-result-chip { font-family:'Barlow',sans-serif; font-size:10px; font-weight:700; color:var(--text3); display:flex; align-items:center; gap:3px; }
     .modal-result-chip.highlight { color:var(--text2); }
@@ -142,12 +142,12 @@
     .con-modal-hero { border-radius:8px; padding:16px; margin-bottom:1rem; display:flex; align-items:center; gap:14px; }
     .con-modal-pip { width:6px; border-radius:0; flex-shrink:0; align-self:stretch; min-height:48px; }
     .con-modal-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:28px; letter-spacing:-0.5px; color:var(--text); line-height:1; text-transform:uppercase; }
-    .con-modal-sub { font-family:'Barlow',sans-serif; font-size:12px; color:var(--text2); margin-top:5px; }
+    .con-modal-sub { font-family:'Barlow',sans-serif; font-size:12px; font-weight:700; color:var(--text2); margin-top:5px; }
     .con-driver-cards { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:1rem; }
     .con-driver-card { background:var(--bg2); border-radius:8px; padding:12px; border-left:3px solid transparent; }
     .con-driver-card-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:16px; color:var(--text); text-transform:uppercase; }
     .con-driver-card-pts { font-family:'Barlow',sans-serif; font-weight:700; font-size:18px; color:var(--text); margin-top:4px; }
-    .con-driver-card-sub { font-family:'Barlow',sans-serif; font-size:11px; color:var(--text2); margin-top:2px; }
+    .con-driver-card-sub { font-family:'Barlow',sans-serif; font-size:11px; font-weight:700; color:var(--text2); margin-top:2px; }
 
     /* Calendar */
     .race-list{display:flex;flex-direction:column;gap:6px;}
@@ -166,7 +166,7 @@
     .race-rnd{font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);text-align:center;}
     .race-rnd-num{font-family:'Barlow',sans-serif;font-weight:900;font-size:24px;color:var(--text);line-height:1;text-align:center;}
     .race-name-text{font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;letter-spacing:-0.2px;color:var(--text);}
-    .race-meta{font-family:'Barlow',sans-serif;font-size:11px;color:var(--text2);margin-top:3px;}
+    .race-meta{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text2);margin-top:3px;}
     .race-podium{font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;color:var(--text2);margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
     .race-extra{font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;color:var(--text2);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;}
     .podium-item{display:flex;align-items:center;gap:4px;}
@@ -210,7 +210,7 @@
     .qual-table tr:hover td { background:var(--bg2); }
     .qual-table .q-pos { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text2); width:24px; text-align:center; }
     .qual-table .q-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text); text-transform:uppercase; }
-    .qual-table .q-team { font-family:'Barlow',sans-serif; font-size:11px; color:var(--text3); }
+    .qual-table .q-team { font-family:'Barlow',sans-serif; font-size:11px; font-weight:700; color:var(--text3); }
     .qual-table td.q-time { font-family:monospace; font-size:11px; color:var(--text2); text-align:right; }
     .qual-table td.q-time.empty { color:var(--text3); }
 
@@ -222,14 +222,14 @@
     .r-pos { font-family:'Barlow',sans-serif; font-weight:900; font-size:15px; color:var(--text2); width:26px; text-align:center; }
     .r-pos.p1c { color:var(--red); }
     .r-name { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text); min-width:90px; text-transform:uppercase; }
-    .r-team { font-family:'Barlow',sans-serif; color:var(--text2); font-size:11px; }
-    .r-grid { font-family:'Barlow',sans-serif; color:var(--text2); font-size:12px; text-align:center; width:36px; }
+    .r-team { font-family:'Barlow',sans-serif; font-size:11px; font-weight:700; color:var(--text2); }
+    .r-grid { font-family:'Barlow',sans-serif; font-size:12px; font-weight:700; color:var(--text2); text-align:center; width:36px; }
     .r-gain { font-family:'Barlow',sans-serif; font-weight:900; font-size:13px; text-align:center; width:36px; }
     .r-gain.up { color:#22c55e; }
     .r-gain.down { color:var(--red); }
     .r-gain.same { color:var(--text2); }
     .r-pts { font-family:'Barlow',sans-serif; font-weight:900; font-size:14px; color:var(--text); text-align:right; width:36px; }
-    .r-status { font-family:'Barlow',sans-serif; font-size:11px; color:var(--text2); text-align:right; }
+    .r-status { font-family:'Barlow',sans-serif; font-size:11px; font-weight:700; color:var(--text2); text-align:right; }
 
     /* DNF badge */
     .dnf-badge { display:inline-block; background:var(--red); color:#fff; font-family:'Barlow',sans-serif; font-size:9px; font-weight:700; letter-spacing:1px; padding:2px 6px; border-radius:3px; border:0.5px solid var(--red); }
@@ -313,7 +313,7 @@
     .src-pill{font-family:'Barlow',sans-serif;font-size:11px;font-weight:500;color:var(--info);text-decoration:none;display:flex;align-items:center;gap:5px;background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;transition:border-color .15s;}
     .src-pill:hover{border-color:var(--border2);}
     .src-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
-    .src-tag{font-family:'Barlow',sans-serif;font-size:9px;color:var(--text3);letter-spacing:1px;}
+    .src-tag{font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1px;}
 
     /* Back to top */
     #back-top{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:8px 12px;font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);cursor:pointer;display:none;transition:all .15s;z-index:100;}
@@ -338,13 +338,13 @@
     .session-table tr:last-child td{border-bottom:none;}
     .session-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);}
     .session-time-local{font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;color:var(--text2);}
-    .session-tz{font-family:'Barlow',sans-serif;font-size:10px;color:var(--text3);}
+    .session-tz{font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;color:var(--text3);}
 
     /* Countdown */
     .countdown-row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
     .countdown-unit{background:var(--bg);border-radius:5px;padding:4px 8px;text-align:center;border:0.5px solid var(--border);min-width:42px;}
     .countdown-num{font-family:'Barlow',sans-serif;font-weight:900;font-size:18px;color:var(--red);line-height:1;}
-    .countdown-lbl{font-family:'Barlow',sans-serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);}
+    .countdown-lbl{font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);}
 
     /* Weather */
     .weather-strip{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);margin-top:6px;padding:6px 10px;background:var(--bg);border-radius:5px;border:0.5px solid var(--border);}
@@ -370,11 +370,11 @@
     .tl-table tr:hover td{background:var(--bg2);}
     .tl-rnd{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text3);width:28px;}
     .tl-race{font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text);}
-    .tl-date{font-family:'Barlow',sans-serif;font-size:11px;color:var(--text3);margin-top:1px;}
+    .tl-date{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text3);margin-top:1px;}
     .tl-driver{display:flex;align-items:center;gap:6px;}
     .tl-pip{width:3px;height:16px;border-radius:0;flex-shrink:0;}
     .tl-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text);}
-    .tl-pts{font-family:'Barlow',sans-serif;font-size:11px;color:var(--text3);}
+    .tl-pts{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text3);}
 
     /* H2H */
     .h2h-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:4px;}
@@ -395,8 +395,8 @@
     .rc-category{font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;}
     .rc-hero-num{font-family:'Barlow',sans-serif;font-weight:900;font-size:52px;letter-spacing:-2px;color:var(--red);line-height:1;}
     .rc-hero-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:18px;text-transform:uppercase;letter-spacing:-0.2px;color:var(--text);margin-top:4px;line-height:1;}
-    .rc-hero-context{font-family:'Barlow',sans-serif;font-size:11px;color:var(--text2);margin-top:5px;}
-    .rc-note{font-family:'Barlow',sans-serif;font-size:11px;color:var(--text2);line-height:1.55;padding:10px 18px;border-bottom:0.5px solid var(--border);}
+    .rc-hero-context{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text2);margin-top:5px;}
+    .rc-note{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text2);line-height:1.55;padding:10px 18px;border-bottom:0.5px solid var(--border);}
     .rc-list{padding:0 0 10px;}
     .rc-row{display:grid;grid-template-columns:20px 1fr auto;gap:6px;align-items:start;padding:8px 18px 0;}
     .rc-bar-wrap{padding:4px 18px 0;}
@@ -412,7 +412,7 @@
     /* Regs + Team assessments */
     .reg-card{background:var(--bg);border-radius:8px;padding:16px 18px;border:0.5px solid var(--border);border-left:4px solid var(--red);margin-bottom:8px;}
     .reg-card-title{font-family:'Barlow',sans-serif;font-weight:900;font-size:16px;color:var(--text);margin-bottom:6px;}
-    .reg-card-body{font-family:'Barlow',sans-serif;font-size:13px;color:var(--text2);line-height:1.6;}
+    .reg-card-body{font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:var(--text2);line-height:1.6;}
     .assess-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
     .assess-card{background:var(--bg);border-radius:8px;padding:14px 16px;border:0.5px solid var(--border);}
     .assess-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
@@ -421,7 +421,7 @@
     .rating-strong{background:#22c55e22;color:#16a34a;border:0.5px solid #22c55e55;}
     .rating-mid{background:#f59e0b22;color:#b45309;border:0.5px solid #f59e0b55;}
     .rating-struggling{background:#ef444422;color:#b91c1c;border:0.5px solid #ef444455;}
-    .assess-body{font-family:'Barlow',sans-serif;font-size:13px;color:var(--text2);line-height:1.6;}
+    .assess-body{font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:var(--text2);line-height:1.6;}
 
     /* Section group label */
     .section-group-label{font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;margin-top:1.5rem;display:flex;align-items:center;gap:10px;}
@@ -1313,7 +1313,7 @@ async function openDriverModal(driverId){
         <div class="modal-driver-sub">${d.team} · #${d.number||'—'} · ${d.flag} ${d.nationality}</div>
       </div>
     </div>
-    <div style="font-family:'Barlow',sans-serif;font-size:13px;color:var(--text2);line-height:1.6;padding:12px 14px;background:var(--bg2);border-radius:6px;border-left:3px solid ${d.color};margin-bottom:1rem">${summary}</div>
+    <div style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:var(--text2);line-height:1.6;padding:12px 14px;background:var(--bg2);border-radius:6px;border-left:3px solid ${d.color};margin-bottom:1rem">${summary}</div>
 
     <div class="modal-bio">
       <div class="modal-stat"><div class="modal-stat-label">Age</div><div class="modal-stat-value">${age}</div></div>
