@@ -929,12 +929,18 @@ function weatherIcon(code){
 
 // ── Countdown ──
 let _cdInterval=null;
-function startCountdown(dateStr,name){
+function startCountdown(dateStr,name,timeStr){
   if(_cdInterval) clearInterval(_cdInterval);
-  const raceDay=new Date(dateStr);
-  if(isNaN(raceDay.getTime())) return; // invalid date — bail silently
-  const raceStart=new Date(raceDay); raceStart.setUTCHours(13,0,0,0); // conservative: 1pm UTC
-  const raceEnd=new Date(raceDay);   raceEnd.setUTCHours(17,0,0,0);   // generous: 5pm UTC
+  // Use actual race time from API if available, otherwise fall back to 13:00 UTC
+  let raceStart;
+  if(timeStr){
+    raceStart=new Date(dateStr+'T'+timeStr);
+  } else {
+    raceStart=new Date(dateStr);
+    raceStart.setUTCHours(13,0,0,0);
+  }
+  if(isNaN(raceStart.getTime())) return; // invalid date — bail silently
+  const raceEnd=new Date(raceStart.getTime()+2*60*60*1000); // 2 hours after start
   const el=document.getElementById('h-countdown');
   function tick(){
     const now=Date.now();
@@ -2251,7 +2257,7 @@ async function loadCalendar(bypassCache=false){
   // Start countdown to next race in the metrics bar
   if(nextRace){
     const shortName=nextRace.raceName.replace(' Grand Prix','').replace('Grand Prix','');
-    startCountdown(nextRace.date,shortName+' GP');
+    startCountdown(nextRace.date,shortName+' GP',nextRace.time||null);
   }
 
   const rl=document.getElementById('race-list');rl.innerHTML='';
