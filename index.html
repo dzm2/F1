@@ -3218,14 +3218,19 @@ async function loadVideos(){
       return data.items.slice(0,6).map(item=>{
         const vidId=(item.link||'').match(/[?&]v=([^&]+)/)?.[1]||
                      (item.link||'').match(/youtu\.be\/([^?]+)/)?.[1]||
-                     (item.guid||'').match(/[?&]v=([^&]+)/)?.[1]||'';
+                     (item.guid||'').match(/[?&]v=([^&]+)/)?.[1]||
+                     (item.guid||'').match(/video:([^<]+)/)?.[1]||'';
+        // Decode HTML entities before sanitising to avoid double-encoding (&amp; → &amp;amp;)
+        const decodeEntities=s=>{ const d=document.createElement('textarea'); d.innerHTML=s; return d.value; };
+        const thumb=vidId?`https://img.youtube.com/vi/${vidId}/mqdefault.jpg`:
+                    (item.thumbnail||item.enclosure?.link||'');
         return {
-          title:sanitise((item.title||'').trim()),
+          title:sanitise(decodeEntities((item.title||'').trim())),
           channel:sanitise(f.channel), color:f.color,
           date:formatDate(item.pubDate||''),
           sortDate:toIso(item.pubDate||''),
           url:item.link||item.guid||'#',
-          thumb:vidId?`https://img.youtube.com/vi/${vidId}/mqdefault.jpg`:'',
+          thumb,
         };
       });
     }catch(e){ return []; }
