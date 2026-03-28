@@ -3203,29 +3203,23 @@ async function loadVideos(){
   window._videosLoaded=true;
   const grid=document.getElementById('video-grid');
   grid.innerHTML='<div class="loading"><div class="loading-spinner"></div><div class="loading-text">Fetching latest videos...</div></div>';
-  // Fetch YouTube Atom feeds via allorigins CORS proxy, parse XML directly
-  const ALLORIGINS='https://api.allorigins.win/raw?url=';
+  // Fetch via rss2json proxy — direct fetch and allorigins are both CORS blocked
   const fetchVideoFeed=async f=>{
     try{
-      const res=await fetch(ALLORIGINS+encodeURIComponent(f.url),{signal:AbortSignal.timeout(15000)});
+      const res=await fetch(RSS2JSON+encodeURIComponent(f.url),{signal:AbortSignal.timeout(15000)});
       if(!res.ok) return [];
-      const xml=await res.text();
-      const doc=new DOMParser().parseFromString(xml,'application/xml');
-      const entries=[...doc.querySelectorAll('entry')];
-      if(!entries.length) return [];
-      return entries.slice(0,6).map(entry=>{
-        const vidId=entry.querySelector('videoId')?.textContent||
-                    (entry.querySelector('id')?.textContent||'').split('video:')[1]||'';
-        const title=entry.querySelector('title')?.textContent||'';
-        const published=entry.querySelector('published')?.textContent||'';
-        const link=entry.querySelector('link')?.getAttribute('href')||
-                   (vidId?`https://www.youtube.com/watch?v=${vidId}`:'#');
+      const data=await res.json();
+      if(data.status!=='ok'||!data.items?.length) return [];
+      return data.items.slice(0,6).map(item=>{
+        const vidId=(item.link||'').match(/[?&]v=([^&]+)/)?.[1]||
+                     (item.link||'').match(/youtu\.be\/([^?]+)/)?.[1]||
+                     (item.guid||'').match(/[?&]v=([^&]+)/)?.[1]||'';
         return {
-          title:sanitise(title.trim()),
+          title:sanitise((item.title||'').trim()),
           channel:sanitise(f.channel), color:f.color,
-          date:formatDate(published),
-          sortDate:toIso(published),
-          url:link,
+          date:formatDate(item.pubDate||''),
+          sortDate:toIso(item.pubDate||''),
+          url:item.link||item.guid||'#',
           thumb:vidId?`https://img.youtube.com/vi/${vidId}/mqdefault.jpg`:'',
         };
       });
