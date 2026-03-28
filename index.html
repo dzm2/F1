@@ -2607,80 +2607,45 @@ async function loadCalendar(bypassCache=false){
           const noFl=document.createElement('div'); noFl.style.cssText='font-size:12px;color:var(--text3);padding:4px 0'; noFl.textContent='Fastest lap data not available'; body.appendChild(noFl);
         }
 
-        const posTitle=document.createElement('div'); posTitle.className='detail-section-title'; posTitle.textContent='Position changes lap by lap'; body.appendChild(posTitle);
-        const posWrap=document.createElement('div'); posWrap.style.cssText='position:relative;height:220px;margin-bottom:8px';
-        const posCanvas=document.createElement('canvas'); posCanvas.id='pos-chart-'+r.round;
-        posWrap.appendChild(posCanvas); body.appendChild(posWrap);
-        const posNote=document.createElement('div'); posNote.style.cssText='font-size:11px;color:var(--text3);margin-bottom:8px;text-align:center'; posNote.textContent='Loading lap data...'; body.appendChild(posNote);
+        // ── Positions gained/lost bar chart (built from finishers — no API call needed) ──
+        const gainedDrivers=finishers.filter(f=>{
+          const grid=parseInt(f.grid)||0;
+          return grid>0 && parseInt(f.position)>0;
+        }).map(f=>({
+          name:f.Driver.familyName.toUpperCase(),
+          gained:(parseInt(f.grid)||0)-(parseInt(f.position)||0),
+          color:teamColor(f.Constructor?.name||''),
+        })).filter(d=>d.gained!==0);
 
-        // Build charts after DOM is rendered
-        requestAnimationFrame(()=>{
-        const cOpts=chartDefaults();
-        cOpts.plugins.legend={display:false};
-        cOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.dataset.label||ctx.label}};
+        if(gainedDrivers.length){
+          const posTitle=document.createElement('div'); posTitle.className='detail-section-title'; posTitle.textContent='Positions gained / lost'; body.appendChild(posTitle);
+          const posWrap=document.createElement('div'); posWrap.style.cssText='position:relative;height:200px;margin-bottom:8px';
+          const posCanvas=document.createElement('canvas'); posCanvas.id='pos-chart-'+r.round;
+          posWrap.appendChild(posCanvas); body.appendChild(posWrap);
+          const posNote=document.createElement('div'); posNote.style.cssText='font-size:11px;color:var(--text3);margin-bottom:8px;text-align:center'; posNote.textContent='Grid position vs finish position · finishers only'; body.appendChild(posNote);
 
-        // ── Lap-by-lap position changes ──
-        (async()=>{
-          const posCtx=posCanvas;
-          if(!posCtx||posCtx._chart) return;
-          try{
-            // Fetch all laps — MRData.total is the number of lap objects, limit=100 fetches 100 laps at a time
-            let allLaps=[], offset=0, total=null;
-            do{
-              const data=await fetchJSON(`${BASE}/${SEASON}/${r.round}/laps.json?limit=100&offset=${offset}`);
-              if(total===null) total=parseInt(data.MRData.total||0);
-              const laps=data.MRData?.RaceTable?.Races?.[0]?.Laps||[];
-              if(!laps.length) break;
-              allLaps.push(...laps);
-              offset+=laps.length;
-            }while(offset<total&&offset<2000);
-
-            if(!allLaps.length){posTitle.style.display='none';posWrap.style.display='none';posNote.style.display='none';return;}
-
-            // Build per-driver position series: { driverId: { lapNum: position } }
-            const driverPos={};
-            const lapNumsSet=new Set();
-            allLaps.forEach(lap=>{
-              const lapNum=parseInt(lap.number);
-              lapNumsSet.add(lapNum);
-              (lap.Timings||[]).forEach(t=>{
-                if(!driverPos[t.driverId]) driverPos[t.driverId]={};
-                driverPos[t.driverId][lapNum]=parseInt(t.position);
-              });
+          requestAnimationFrame(()=>{
+            if(posCanvas._chart) return;
+            const gainOpts=chartDefaults('Positions');
+            gainOpts.plugins.legend={display:false};
+            gainOpts.plugins.tooltip={callbacks:{label:ctx=>{const v=ctx.parsed.y;return ctx.label+': '+(v>0?'+':'')+v+' place'+(Math.abs(v)===1?'':'s');}}};
+            gainOpts.scales.y={...gainOpts.scales.y,ticks:{...gainOpts.scales.y.ticks,stepSize:1},grid:{color:getComputedStyle(document.documentElement).getPropertyValue('--border').trim()}};
+            posCanvas._chart=new Chart(posCanvas,{
+              type:'bar',
+              data:{
+                labels:gainedDrivers.map(d=>d.name),
+                datasets:[{
+                  data:gainedDrivers.map(d=>d.gained),
+                  backgroundColor:gainedDrivers.map(d=>d.gained>0?d.color+'cc':'var(--red)'),
+                  borderColor:gainedDrivers.map(d=>d.gained>0?d.color:'var(--red)'),
+                  borderWidth:1,
+                  borderRadius:2,
+                }]
+              },
+              options:gainOpts
             });
-            const lapNums=[...lapNumsSet].sort((a,b)=>a-b);
-
-            // Only show top 10 finishers to keep chart readable
-            const top10ids=finishers.slice(0,10).map(f=>f.Driver.driverId);
-            const datasets=top10ids.map(id=>{
-              const f=finishers.find(x=>x.Driver.driverId===id);
-              const col=teamColor(f?.Constructor?.name||'');
-              return {
-                label:(f?.Driver.familyName||id).toUpperCase(),
-                data:lapNums.map(n=>driverPos[id]?.[n]||null),
-                borderColor:col,
-                backgroundColor:'transparent',
-                borderWidth:1.5,
-                pointRadius:0,
-                pointHoverRadius:4,
-                tension:0.2,
-                spanGaps:true,
-              };
-            });
-
-            const lapOpts=chartDefaults('Position');
-            lapOpts.interaction={mode:'index',intersect:false};
-            lapOpts.plugins.legend={display:false};
-            lapOpts.plugins.tooltip={callbacks:{title:items=>'Lap '+items[0].label,label:ctx=>ctx.dataset.label+': P'+ctx.parsed.y}};
-            lapOpts.scales.x={...lapOpts.scales.x,ticks:{...lapOpts.scales.x.ticks,maxTicksLimit:15},title:{display:true,text:'Lap',color:getComputedStyle(document.documentElement).getPropertyValue('--text2').trim(),font:{family:"'Space Grotesk',sans-serif",size:9}}};
-            lapOpts.scales.y={...lapOpts.scales.y,reverse:true,min:1,max:20,ticks:{...lapOpts.scales.y.ticks,stepSize:5}};
-            posCtx._chart=new Chart(posCtx,{type:'line',data:{labels:lapNums,datasets},options:lapOpts});
-            posNote.textContent='Top 10 finishers · '+lapNums.length+' laps';
-          }catch(e){
-            posTitle.style.display='none';posWrap.style.display='none';posNote.style.display='none';
-          }
-        })();
-        });
+          });
+        }
       });
       detail.appendChild(raceGrp);
     }
