@@ -1327,7 +1327,7 @@ async function openDriverModal(driverId){
       <div class="modal-avatar-placeholder" style="background:${d.color}22;border-color:${d.color}44;color:${d.color}">${initials}</div>
       <div style="min-width:0">
         <div class="modal-driver-name">${d.first.toUpperCase()} ${d.last.toUpperCase()}${isRookie?'<span class="rookie-badge" style="font-size:8px;margin-left:8px">ROOKIE</span>':''}</div>
-        <div class="modal-driver-sub">${d.team} · #${d.number||'—'} · ${d.nationality}</div>
+        <div class="modal-driver-sub">${d.team} · #${d.number||'—'} · ${d.flag} ${d.nationality}</div>
       </div>
     </div>
     <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--text2);line-height:1.6;padding:12px 14px;background:var(--bg2);border-radius:6px;border-left:3px solid ${d.color};margin-bottom:1rem">${summary}</div>
