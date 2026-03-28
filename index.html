@@ -1897,6 +1897,15 @@ async function openConstructorModal(constructorId){
       roundPts[rnd]=(roundPts[rnd]||0)+roundTotal;
     });
 
+    // ── Add sprint points from sprintMap (already loaded globally) ──
+    Object.entries(sprintMap).forEach(([round,results])=>{
+      const rnd=parseInt(round);
+      const sprintTotal=results
+        .filter(res=>teamDrivers.some(d=>d.driverId===res.Driver?.driverId))
+        .reduce((sum,res)=>sum+parseFloat(res.points||0),0);
+      if(sprintTotal>0) roundPts[rnd]=(roundPts[rnd]||0)+sprintTotal;
+    });
+
     // ── Populate stat elements (fix 3: batch getElementById) ──
     const elMap={
       'con-fl':fastestLaps, 'con-pts-fin':pointsFinishes, 'con-podiums':podiums,
