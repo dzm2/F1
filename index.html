@@ -880,23 +880,6 @@ const CIRCUIT_COORDS={
   'losail':{lat:25.49,lon:51.4542},'yas_marina':{lat:24.4672,lon:54.6031},
 };
 
-// ── Session schedule (hardcoded — not in Jolpica) ──
-// Times are local circuit time, approximate FIA standard
-const SESSIONS_NORMAL=[
-  {name:'Practice 1',abbr:'FP1',dayOffset:4,time:'13:30'},
-  {name:'Practice 2',abbr:'FP2',dayOffset:4,time:'17:00'},
-  {name:'Practice 3',abbr:'FP3',dayOffset:5,time:'12:30'},
-  {name:'Qualifying', abbr:'Q',  dayOffset:5,time:'16:00'},
-  {name:'Race',       abbr:'R',  dayOffset:6,time:'15:00'},
-];
-const SESSIONS_SPRINT=[
-  {name:'Practice 1',                    abbr:'FP1',dayOffset:4,time:'13:30'},
-  {name:'Sprint Qualifying (grid for Sprint Race)', abbr:'SQ', dayOffset:4,time:'17:00'},
-  {name:'Sprint Race (shorter race)',     abbr:'SR', dayOffset:5,time:'12:00'},
-  {name:'Qualifying (grid for main race)',abbr:'Q',  dayOffset:5,time:'16:00'},
-  {name:'Race',                           abbr:'R',  dayOffset:6,time:'15:00'},
-];
-
 // ── Weather helpers ──
 async function fetchWeather(lat,lon){
   try{
@@ -2364,19 +2347,41 @@ async function loadCalendar(bypassCache=false){
 
     // Session schedule (for upcoming races) and weather
     if(!isCompleted){
-      const sessions=isSprint?SESSIONS_SPRINT:SESSIONS_NORMAL;
-      const raceDate=new Date(r.date);
-      const schedTitle=document.createElement('div'); schedTitle.className='detail-section-title'; schedTitle.textContent='Weekend schedule'; detail.appendChild(schedTitle);
-      const schedTbl=document.createElement('table'); schedTbl.className='session-table';
       const userTz=Intl.DateTimeFormat().resolvedOptions().timeZone;
-      schedTbl.innerHTML='<tbody>'+sessions.map(s=>{
-        const d=new Date(raceDate); d.setDate(d.getDate()-(6-s.dayOffset));
-        const [hh,mm]=s.time.split(':');
-        d.setHours(parseInt(hh),parseInt(mm),0,0);
-        const localTime=d.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:userTz});
-        return '<tr><td class="session-name">'+s.name+'</td><td class="session-time-local">'+localTime+'</td></tr>';
-      }).join('')+'</tbody>';
-      detail.appendChild(schedTbl);
+      const tzAbbr=new Intl.DateTimeFormat('en-US',{timeZone:userTz,timeZoneName:'short'})
+        .formatToParts(new Date()).find(p=>p.type==='timeZoneName')?.value||'';
+
+      // Map Jolpica session fields to display names, in order
+      const sessionFields=[
+        {key:'FirstPractice',   name:'Practice 1'},
+        {key:'SecondPractice',  name:isSprint?'Sprint Qualifying':  'Practice 2'},
+        {key:'ThirdPractice',   name:'Practice 3'},
+        {key:'Sprint',          name:'Sprint Race'},
+        {key:'Qualifying',      name:'Qualifying'},
+        {key:'Race',            name:'Race'},
+      ];
+
+      const rows=sessionFields
+        .filter(s=>r[s.key]&&r[s.key].date&&r[s.key].time)
+        .map(s=>{
+          const utcStr=r[s.key].date+'T'+r[s.key].time; // e.g. "2026-03-15T10:00:00Z"
+          const d=new Date(utcStr);
+          const localTime=d.toLocaleString('en-GB',{
+            weekday:'short',day:'numeric',month:'short',
+            hour:'2-digit',minute:'2-digit',
+            timeZone:userTz
+          });
+          return '<tr><td class="session-name">'+s.name+'</td>'
+            +'<td class="session-time-local">'+localTime
+            +' <span style="font-size:10px;color:var(--text3)">'+tzAbbr+'</span></td></tr>';
+        });
+
+      if(rows.length){
+        const schedTitle=document.createElement('div'); schedTitle.className='detail-section-title'; schedTitle.textContent='Weekend schedule'; detail.appendChild(schedTitle);
+        const schedTbl=document.createElement('table'); schedTbl.className='session-table';
+        schedTbl.innerHTML='<tbody>'+rows.join('')+'</tbody>';
+        detail.appendChild(schedTbl);
+      }
       // Weather (async — append placeholder then fill)
       const coords=CIRCUIT_COORDS[circuitId];
       if(coords&&isNext){
@@ -3470,15 +3475,18 @@ function getNextSessionFetch(){
     const daysUntil=(raceDay-now)/(1000*60*60*24);
     if(daysUntil>7||daysUntil<-1) continue;
 
-    const isSprint=SPRINT_ROUNDS.has(parseInt(r.round));
-    const sessions=isSprint?SESSIONS_SPRINT:SESSIONS_NORMAL;
+    const sessionFields=[
+      {key:'FirstPractice',  name:'Practice 1'},
+      {key:'SecondPractice', name:'Practice 2 / Sprint Qualifying'},
+      {key:'ThirdPractice',  name:'Practice 3'},
+      {key:'Sprint',         name:'Sprint Race'},
+      {key:'Qualifying',     name:'Qualifying'},
+      {key:'Race',           name:'Race'},
+    ];
 
-    for(const s of sessions){
-      // Reconstruct session start time using same dayOffset logic as calendar
-      const sessionStart=new Date(raceDay);
-      sessionStart.setDate(raceDay.getDate()-(6-s.dayOffset));
-      const [h,m]=s.time.split(':').map(Number);
-      sessionStart.setHours(h,m,0,0);
+    for(const s of sessionFields){
+      if(!r[s.key]||!r[s.key].date||!r[s.key].time) continue;
+      const sessionStart=new Date(r[s.key].date+'T'+r[s.key].time);
 
       const durMins=SESSION_DURATION[s.name]||90;
       const fetchAt=new Date(sessionStart.getTime()+(durMins+FETCH_DELAY_MINS)*60*1000);
