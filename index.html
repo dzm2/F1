@@ -2098,43 +2098,45 @@ async function loadCalendar(bypassCache=false){
     const completed=allRaces.filter(r=>new Date(r.date)<=today);
     const completedSprints=completed.filter(r=>SPRINT_ROUNDS.has(parseInt(r.round)));
     if(completed.length>0){
-      const [gpRes,sprintRes,qualiRes,sprintQualiRes]=await Promise.all([
-        Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/results.json?limit=20`,2,bypassCache).catch(()=>null))),
-        Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/sprint.json?limit=20`,2,bypassCache).catch(()=>null))),
-        Promise.all(completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null))),
-        Promise.all(completedSprints.map(r=>fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null))),
-      ]);
-      completed.forEach((r,i)=>{
-        if(gpRes[i])    resultsMap[r.round]   =gpRes[i].MRData?.RaceTable?.Races?.[0]?.Results||[];
-        if(qualiRes[i]) qualiMap[r.round]     =qualiRes[i].MRData?.RaceTable?.Races?.[0]?.QualifyingResults||[];
-      });
-      completedSprints.forEach((r,i)=>{
-        if(sprintRes[i]){
-          const sr=sprintRes[i].MRData?.RaceTable?.Races?.[0]?.SprintResults||[];
+      // Fetch per-round data sequentially to avoid 429 rate limiting
+      for(let i=0;i<completed.length;i++){
+        if(i>0) await new Promise(r=>setTimeout(r,300));
+        const r=completed[i];
+        const isSprint=SPRINT_ROUNDS.has(parseInt(r.round));
+        const fetches=[
+          fetchJSON(`${BASE}/${SEASON}/${r.round}/results.json?limit=20`,2,bypassCache).catch(()=>null),
+          fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null),
+          isSprint?fetchJSON(`${BASE}/${SEASON}/${r.round}/sprint.json?limit=20`,2,bypassCache).catch(()=>null):Promise.resolve(null),
+          isSprint?fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null):Promise.resolve(null),
+        ];
+        const [gpRes,qualiRes,sprintRes,sprintQualiRes]=await Promise.all(fetches);
+        if(gpRes)    resultsMap[r.round]    =gpRes.MRData?.RaceTable?.Races?.[0]?.Results||[];
+        if(qualiRes) qualiMap[r.round]      =qualiRes.MRData?.RaceTable?.Races?.[0]?.QualifyingResults||[];
+        if(sprintRes){
+          const sr=sprintRes.MRData?.RaceTable?.Races?.[0]?.SprintResults||[];
           sprintMap[r.round]=sr;
-          if(sr.length) SPRINT_ROUNDS.add(parseInt(r.round)); // dynamic detection
+          if(sr.length) SPRINT_ROUNDS.add(parseInt(r.round));
         }
-        if(sprintQualiRes[i])sprintQualiMap[r.round]=sprintQualiRes[i].MRData?.RaceTable?.Races?.[0]?.QualifyingResults||[];
-      });
-      // Build standings history for trend chart — all rounds in parallel
+        if(sprintQualiRes) sprintQualiMap[r.round]=sprintQualiRes.MRData?.RaceTable?.Races?.[0]?.QualifyingResults||[];
+      }
+      // Build standings history for trend chart — sequential to avoid 429s
       standingsHistory=[];
-      const historyResults=await Promise.allSettled(
-        completed.map(r=>fetchJSON(`${BASE}/${SEASON}/${parseInt(r.round)}/driverstandings.json?limit=10`))
-      );
-      historyResults.forEach((res,i)=>{
-        if(res.status!=='fulfilled') return;
-        const round=parseInt(completed[i].round);
-        const sl=res.value.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings||[];
-        const raceResults=resultsMap[completed[i].round]||[];
-        const podium=raceResults.slice(0,3).map(r=>({last:r.Driver.familyName,color:teamColor(r.Constructor?.name||'')}));
-        const driverFinishes={};
-        raceResults.forEach(r=>{
-          const isDNF=r.status&&r.status!=='Finished'&&!r.status.startsWith('+')&&!r.status.toLowerCase().includes('lap');
-          driverFinishes[r.Driver.driverId]=isDNF?'DNF':parseInt(r.position||99);
-        });
-        standingsHistory.push({round,race:completed[i].raceName.replace(' Grand Prix',''),standings:sl.slice(0,5).map(d=>({id:d.Driver.driverId,last:d.Driver.familyName,pts:parseFloat(d.points),color:teamColor(d.Constructors[0]?.name||'')})),podium,driverFinishes});
-      });
-      // Sort by round in case responses arrived out of order
+      for(let i=0;i<completed.length;i++){
+        if(i>0) await new Promise(r=>setTimeout(r,200));
+        try{
+          const res=await fetchJSON(`${BASE}/${SEASON}/${parseInt(completed[i].round)}/driverstandings.json?limit=10`);
+          const round=parseInt(completed[i].round);
+          const sl=res.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings||[];
+          const raceResults=resultsMap[completed[i].round]||[];
+          const podium=raceResults.slice(0,3).map(r=>({last:r.Driver.familyName,color:teamColor(r.Constructor?.name||'')}));
+          const driverFinishes={};
+          raceResults.forEach(r=>{
+            const isDNF=r.status&&r.status!=='Finished'&&!r.status.startsWith('+')&&!r.status.toLowerCase().includes('lap');
+            driverFinishes[r.Driver.driverId]=isDNF?'DNF':parseInt(r.position||99);
+          });
+          standingsHistory.push({round,race:completed[i].raceName.replace(' Grand Prix',''),standings:sl.slice(0,5).map(d=>({id:d.Driver.driverId,last:d.Driver.familyName,pts:parseFloat(d.points),color:teamColor(d.Constructors[0]?.name||'')})),podium,driverFinishes});
+        }catch(e){}
+      }
       standingsHistory.sort((a,b)=>a.round-b.round);
     }
   }catch(e){
@@ -2144,15 +2146,15 @@ async function loadCalendar(bypassCache=false){
       const today=new Date();
       const completedFb=allRaces.filter(r=>new Date(r.date)<=today);
       standingsHistory=[];
-      const fbHistoryResults=await Promise.allSettled(
-        completedFb.map(r=>fetchJSON(`${BASE}/${SEASON}/${parseInt(r.round)}/driverstandings.json?limit=10`))
-      );
-      fbHistoryResults.forEach((res,i)=>{
-        if(res.status!=='fulfilled') return;
-        const round=parseInt(completedFb[i].round);
-        const sl=res.value.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings||[];
-        standingsHistory.push({round,race:completedFb[i].raceName.replace(' Grand Prix',''),standings:sl.slice(0,5).map(d=>({id:d.Driver.driverId,last:d.Driver.familyName,pts:parseFloat(d.points),color:teamColor(d.Constructors[0]?.name||'')})),podium:[],driverFinishes:{}});
-      });
+      for(let i=0;i<completedFb.length;i++){
+        if(i>0) await new Promise(r=>setTimeout(r,200));
+        try{
+          const res=await fetchJSON(`${BASE}/${SEASON}/${parseInt(completedFb[i].round)}/driverstandings.json?limit=10`);
+          const round=parseInt(completedFb[i].round);
+          const sl=res.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings||[];
+          standingsHistory.push({round,race:completedFb[i].raceName.replace(' Grand Prix',''),standings:sl.slice(0,5).map(d=>({id:d.Driver.driverId,last:d.Driver.familyName,pts:parseFloat(d.points),color:teamColor(d.Constructors[0]?.name||'')})),podium:[],driverFinishes:{}});
+        }catch(e){}
+      }
       standingsHistory.sort((a,b)=>a.round-b.round);
     }
     else{document.getElementById('cal-loading').innerHTML=`<div class="error-msg">Could not load calendar.<br><small>${sanitise(e.message)}</small></div>`;tickProgress();return;}
