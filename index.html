@@ -135,7 +135,8 @@
     .modal-result-chip.fl { color:var(--gold); }
     .modal-result-chip.gain { color:#22c55e; }
     .modal-result-chip.loss { color:var(--red); }
-    .modal-result-sprint { background:var(--bg3); border-radius:4px; padding:4px 8px; margin-top:5px; display:flex; justify-content:space-between; align-items:center; }
+    .modal-result-sprint { display:flex; justify-content:space-between; align-items:center; margin-top:5px; padding-top:5px; border-top:0.5px dashed var(--border); }
+    .modal-result-sprint-label { font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text3); }
 
     /* Constructor modal specifics */
     .con-modal-hero { border-radius:8px; padding:16px; margin-bottom:1rem; display:flex; align-items:center; gap:14px; }
@@ -977,7 +978,7 @@ async function loadDriverStandings(bypassCache=false){
     // Build per-driver sprint points
     if(sprintRes.status==='fulfilled'){
       (sprintRes.value.MRData?.RaceTable?.Races||[]).forEach(r=>{
-        (r.SprintResults||[]).forEach(res=>{
+        (r.SprintResults||r.Results||[]).forEach(res=>{
           const id=res.Driver?.driverId;
           if(id) window._driverSprintPts[id]=(window._driverSprintPts[id]||0)+parseFloat(res.points||0);
         });
@@ -1343,7 +1344,7 @@ async function openDriverModal(driverId){
       <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value">${d.wins}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="ms-podiums">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Position</div><div class="modal-stat-value">P${d.pos}</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Fastest laps</div><div class="modal-stat-value">${fastestLapCounts[driverId]||0}</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Race pts</div><div class="modal-stat-value" id="ms-racepts">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Sprint pts</div><div class="modal-stat-value" id="ms-sprintpts">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Avg finish</div><div class="modal-stat-value" id="ms-avgfin">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Avg grid</div><div class="modal-stat-value" id="ms-avggrid">—</div></div>
@@ -1516,6 +1517,7 @@ async function openDriverModal(driverId){
       const top10=finPositions.filter(p=>p<=10).length;
       // Sprint points from global map
       const sprintPtsTotal=Object.values(sprintPtsMap).reduce((s,v)=>s+(v.pts||0),0);
+      const racePtsTotal=totalPts-sprintPtsTotal;
       // Average qualifying position
       const avgQPos=qualiPositions.length?(qualiPositions.reduce((a,b)=>a+b,0)/qualiPositions.length).toFixed(1):'—';
       // Q3 reach rate
@@ -1580,6 +1582,7 @@ async function openDriverModal(driverId){
       const l3El=document.getElementById('ms-last3');     if(l3El) l3El.textContent=results.length>=1?last3pts+' pts':'—';
       const dnEl=document.getElementById('ms-dnf');       if(dnEl) dnEl.textContent=dnfCount;
       const h2El=document.getElementById('ms-h2h');       if(h2El) h2El.textContent=h2hText;
+      const rpEl=document.getElementById('ms-racepts');   if(rpEl) rpEl.textContent=racePtsTotal>0?racePtsTotal:'0';
       const spEl=document.getElementById('ms-sprintpts'); if(spEl) spEl.textContent=sprintPtsTotal>0?'+'+sprintPtsTotal:'0';
       const afEl=document.getElementById('ms-avgfin');    if(afEl) afEl.textContent=avgFin==='—'?'—':'P'+avgFin;
       const agEl=document.getElementById('ms-avggrid');   if(agEl) agEl.textContent=avgGrid==='—'?'—':'P'+avgGrid;
@@ -1635,13 +1638,17 @@ async function openDriverModal(driverId){
         if(isFl) out+='<span class="modal-result-chip fl">⚡ Fastest lap'+(flTime?' · '+flTime:'')+'</span>';
         out+='</div>';
 
+
         // Sprint sub-row if this was a sprint weekend
         if(sData){
-          const sIsDNF=sData.status&&sData.status!=='Finished'&&!sData.status.startsWith('+')&&!sData.status.toLowerCase().includes('lap');
+          const sIsDNS=sData.status&&(sData.status.toLowerCase().includes('did not start')||sData.status.toLowerCase()==='dns');
+          const sIsDNF=!sIsDNS&&sData.status&&sData.status!=='Finished'&&!sData.status.startsWith('+')&&!sData.status.toLowerCase().includes('lap');
           out+='<div class="modal-result-sprint">';
-          out+='<span style="font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Sprint</span>';
+          out+='<span class="modal-result-sprint-label">Sprint</span>';
           out+='<span style="display:flex;align-items:center;gap:6px">';
-          out+='<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:var(--text2)">'+(sIsDNF?'DNF':'P'+sData.pos)+'</span>';
+          if(sIsDNS) out+='<span class="dns-badge">DNS</span>';
+          else if(sIsDNF) out+='<span class="dnf-badge">DNF</span>';
+          out+='<span class="modal-result-pos'+((sIsDNF||sIsDNS)?' dnf':'')+'">'+(sIsDNS?'DNS':sIsDNF?'DNF':'P'+sData.pos)+'</span>';
           if(spts>0) out+='<span class="modal-result-pts">+'+spts+' pts</span>';
           out+='</span></div>';
         }
