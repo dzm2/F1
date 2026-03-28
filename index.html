@@ -657,11 +657,8 @@
           <a class="src-pill" href="https://www.autosport.com/f1" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#2563eb"></span>autosport.com</a>
           <a class="src-pill" href="https://www.the-race.com/formula-1" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#d62828"></span>the-race.com</a>
           <a class="src-pill" href="https://www.motorsport.com/f1/news" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#e63946"></span>motorsport.com</a>
-          <a class="src-pill" href="https://www.gpfans.com/en" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#6b21a8"></span>gpfans.com</a>
           <a class="src-pill" href="https://racer.com/f1" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#b45309"></span>racer.com</a>
           <a class="src-pill" href="https://www.f1technical.net" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#0d9488"></span>f1technical.net</a>
-          <a class="src-pill" href="https://www.gptoday.net" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#16a34a"></span>gptoday.net</a>
-          <a class="src-pill" href="https://www.pitpass.com" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#7c3aed"></span>pitpass.com</a>
         </div>
       </div>
       <div class="sources-group">
@@ -679,8 +676,6 @@
         <div class="src-pills">
           <a class="src-pill" href="https://www.youtube.com/@Formula1" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#E10600"></span>Formula 1</a>
           <a class="src-pill" href="https://www.youtube.com/@SkySportsF1" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#0090FF"></span>Sky Sports F1</a>
-          <a class="src-pill" href="https://www.youtube.com/@wearetherace" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#d62828"></span>The Race</a>
-          <a class="src-pill" href="https://www.youtube.com/@autosport" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#2563eb"></span>Autosport</a>
         </div>
       </div>
     </div>
@@ -3116,13 +3111,12 @@ const RSS_FEEDS = [
   { url:'https://www.autosport.com/rss/f1/news/',  source:'autosport.com',   color:'#2563eb' },
   { url:'https://www.the-race.com/rss/',           source:'the-race.com',    color:'#d62828' },
   { url:'https://www.motorsport.com/rss/f1/news/', source:'motorsport.com',  color:'#e63946' },
-  { url:'https://www.gpfans.com/en/rss/',          source:'gpfans.com',      color:'#6b21a8' },
   { url:'https://racer.com/f1/feed/',              source:'racer.com',       color:'#b45309' },
   { url:'https://www.f1technical.net/rss/news.xml',source:'f1technical.net', color:'#0d9488' },
-  { url:'https://www.gptoday.net/rss.php',         source:'gptoday.net',     color:'#16a34a' },
-  { url:'https://www.pitpass.com/rss/pitpass_fes_site_news.php', source:'pitpass.com', color:'#7c3aed' },
 ];
 
+
+const RSS2JSON=`https://api.rss2json.com/v1/api.json?_=${Math.floor(Date.now()/3600000)}&rss_url=`;
 
 // ── Podcast feeds ──
 const PODCAST_FEEDS = [
@@ -3157,29 +3151,19 @@ async function loadPodcasts(){
   grid.innerHTML='<div class="loading"><div class="loading-spinner"></div><div class="loading-text">Fetching latest episodes...</div></div>';
   const results=await Promise.allSettled(PODCAST_FEEDS.map(async f=>{
     try{
-      const res=await fetch(f.url,{signal:AbortSignal.timeout(10000)});
+      const res=await fetch(RSS2JSON+encodeURIComponent(f.url),{signal:AbortSignal.timeout(10000)});
       if(!res.ok) return [];
-      const xml=await res.text();
-      const doc=new DOMParser().parseFromString(xml,'application/xml');
-      const items=[...doc.querySelectorAll('item')];
-      if(!items.length) return [];
-      return items.slice(0,5).map(item=>{
-        const duration=item.querySelector('itunes\\:duration')?.textContent||
-                       item.getElementsByTagNameNS('http://www.itunes.com/dtds/podcast-1.0.dtd','duration')?.[0]?.textContent||'';
-        const link=item.querySelector('enclosure')?.getAttribute('url')||
-                   item.querySelector('link')?.textContent||
-                   item.querySelector('guid')?.textContent||'#';
-        const pubDate=item.querySelector('pubDate')?.textContent||'';
-        return {
-          title:sanitise((item.querySelector('title')?.textContent||'').trim()),
-          show:sanitise(f.show), color:f.color,
-          date:formatDate(pubDate),
-          sortDate:toIso(pubDate),
-          duration,
-          url:link,
-          description:stripHtml(item.querySelector('description')?.textContent||''),
-        };
-      });
+      const data=await res.json();
+      if(data.status!=='ok'||!data.items?.length) return [];
+      return data.items.slice(0,5).map(item=>({
+        title:sanitise((item.title||'').trim()),
+        show:sanitise(f.show), color:f.color,
+        date:formatDate(item.pubDate||''),
+        sortDate:toIso(item.pubDate||''),
+        duration:item.itunes_duration||'',
+        url:item.link||item.guid||'#',
+        description:stripHtml(item.description||''),
+      }));
     }catch(e){return [];}
   }));
   let items=[];
@@ -3219,10 +3203,11 @@ async function loadVideos(){
   window._videosLoaded=true;
   const grid=document.getElementById('video-grid');
   grid.innerHTML='<div class="loading"><div class="loading-spinner"></div><div class="loading-text">Fetching latest videos...</div></div>';
-  // Fetch YouTube RSS directly — bypasses rss2json which returns HTTP 500 for some channels
+  // Fetch YouTube Atom feeds via allorigins CORS proxy, parse XML directly
+  const ALLORIGINS='https://api.allorigins.win/raw?url=';
   const fetchVideoFeed=async f=>{
     try{
-      const res=await fetch(f.url,{signal:AbortSignal.timeout(15000)});
+      const res=await fetch(ALLORIGINS+encodeURIComponent(f.url),{signal:AbortSignal.timeout(15000)});
       if(!res.ok) return [];
       const xml=await res.text();
       const doc=new DOMParser().parseFromString(xml,'application/xml');
@@ -3296,18 +3281,16 @@ function categorise(title,desc){
 
 async function fetchFeed(feed){
   try{
-    const res=await fetch(feed.url,{signal:AbortSignal.timeout(10000)});
+    const res=await fetch(RSS2JSON+encodeURIComponent(feed.url),{signal:AbortSignal.timeout(10000)});
     if(!res.ok) return [];
-    const xml=await res.text();
-    const doc=new DOMParser().parseFromString(xml,'application/xml');
-    const items=[...doc.querySelectorAll('item')];
-    if(!items.length) return [];
-    return items.slice(0,12).map(item=>{
-      const title=sanitise((item.querySelector('title')?.textContent||'').trim());
-      const desc=item.querySelector('description')?.textContent||item.querySelector('content\\:encoded')?.textContent||'';
-      const link=item.querySelector('link')?.textContent||item.querySelector('guid')?.textContent||'#';
-      const pubDate=item.querySelector('pubDate')?.textContent||item.querySelector('dc\\:date')?.textContent||'';
-      const {tag,color,cat}=categorise(title,desc);
+    const data=await res.json();
+    if(data.status!=='ok'||!data.items?.length) return [];
+    return data.items.slice(0,12).map(item=>{
+      const title=sanitise((item.title||'').trim());
+      const desc=item.description||item.content||'';
+      const link=item.link||item.guid||'#';
+      const pubDate=item.pubDate||'';
+      const {tag,color,cat}=categorise(item.title||'',desc);
       return {tag,tagColor:color,category:cat,headline:title,summary:stripHtml(desc),
               source:sanitise(feed.source),sourceColor:feed.color,date:formatDate(pubDate),sortDate:toIso(pubDate),url:link};
     });
