@@ -2366,9 +2366,9 @@ async function loadCalendar(bypassCache=false){
         .map(s=>{
           const utcStr=r[s.key].date+'T'+r[s.key].time; // e.g. "2026-03-15T10:00:00Z"
           const d=new Date(utcStr);
-          const localTime=d.toLocaleString('en-GB',{
+          const localTime=d.toLocaleString('en-US',{
             weekday:'short',day:'numeric',month:'short',
-            hour:'2-digit',minute:'2-digit',
+            hour:'numeric',minute:'2-digit',hour12:true,
             timeZone:userTz
           });
           return '<tr><td class="session-name">'+s.name+'</td>'
