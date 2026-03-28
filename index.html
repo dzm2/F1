@@ -3210,14 +3210,14 @@ async function loadVideos(){
   window._videosLoaded=true;
   const grid=document.getElementById('video-grid');
   grid.innerHTML='<div class="loading"><div class="loading-spinner"></div><div class="loading-text">Fetching latest videos...</div></div>';
-  const results=await Promise.allSettled(VIDEO_FEEDS.map(async f=>{
+  // Fetch sequentially with a small delay to avoid rss2json rate limiting concurrent requests
+  const fetchVideoFeed=async f=>{
     try{
       const res=await fetch(RSS2JSON+encodeURIComponent(f.url),{signal:AbortSignal.timeout(10000)});
       if(!res.ok) return [];
       const data=await res.json();
       if(data.status!=='ok'||!data.items?.length) return [];
       return data.items.slice(0,6).map(item=>{
-        // Extract YouTube video ID from link
         const vidId=(item.link||'').match(/[?&]v=([^&]+)/)?.[1]||
                      (item.link||'').match(/youtu\.be\/([^?]+)/)?.[1]||'';
         return {
@@ -3230,9 +3230,13 @@ async function loadVideos(){
         };
       });
     }catch(e){return [];}
-  }));
+  };
   let items=[];
-  results.forEach(r=>{if(r.status==='fulfilled') items.push(...r.value);});
+  for(let i=0;i<VIDEO_FEEDS.length;i++){
+    if(i>0) await new Promise(r=>setTimeout(r,400));
+    const batch=await fetchVideoFeed(VIDEO_FEEDS[i]);
+    items.push(...batch);
+  }
   // Deduplicate by title
   const seen=new Set();
   items=items.filter(i=>{const k=i.title.toLowerCase().slice(0,40);if(seen.has(k))return false;seen.add(k);return true;});
