@@ -677,6 +677,7 @@
         <div class="src-pills">
           <a class="src-pill" href="https://www.youtube.com/@Formula1" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#E10600"></span>Formula 1</a>
           <a class="src-pill" href="https://www.youtube.com/@SkySportsF1" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#0090FF"></span>Sky Sports F1</a>
+          <a class="src-pill" href="https://www.motorsport.com/f1/videos/" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#e63946"></span>Motorsport.com</a>
         </div>
       </div>
     </div>
@@ -3134,6 +3135,7 @@ const PODCAST_FEEDS = [
 const VIDEO_FEEDS = [
   { url:'https://www.youtube.com/feeds/videos.xml?channel_id=UCB_qr75-ydFVKSF9Dmo6izg', channel:'Formula 1',    color:'#E10600' },
   { url:'https://www.youtube.com/feeds/videos.xml?channel_id=UC3kxJQ9RfaS5CKeYbbFMi4Q', channel:'Sky Sports F1', color:'#0090FF' },
+  { url:'https://www.motorsport.com/rss/f1/videos',                                      channel:'Motorsport.com', color:'#e63946' },
 ];
 
 // ── Media tab switching ──
@@ -3210,7 +3212,7 @@ async function loadVideos(){
   const fetchVideoFeed=async f=>{
     try{
       const res=await fetch(RSS2JSON+encodeURIComponent(f.url),{signal:AbortSignal.timeout(15000)});
-      if(!res.ok) return [];
+      if(!res.ok) return []; // 422, 500 etc — silently skip, don't log
       const data=await res.json();
       if(data.status!=='ok'||!data.items?.length) return [];
       return data.items.slice(0,6).map(item=>{
