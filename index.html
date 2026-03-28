@@ -2626,19 +2626,28 @@ async function loadCalendar(bypassCache=false){
 
           requestAnimationFrame(()=>{
             if(posCanvas._chart) return;
-            const gainOpts=chartDefaults('Positions');
+            const cs=getComputedStyle(document.documentElement);
+            const borderCol=cs.getPropertyValue('--border').trim();
+            const tickCol=cs.getPropertyValue('--text2').trim();
+            const RED='#E10600';
+            const sgFont={family:"'Space Grotesk',sans-serif",size:9};
+            // Use solid team colour for gains; fall back to --text2 if teamColor returned #888 (unknown team)
+            // Use #E10600 for losses — never CSS var() strings as Chart.js cannot resolve them
+            const barColor=d=>d.gained>0?(d.color==='#888'?tickCol:d.color):RED;
+            const gainOpts=chartDefaults();
             gainOpts.plugins.legend={display:false};
             gainOpts.plugins.tooltip={callbacks:{label:ctx=>{const v=ctx.parsed.y;return ctx.label+': '+(v>0?'+':'')+v+' place'+(Math.abs(v)===1?'':'s');}}};
-            gainOpts.scales.y={...gainOpts.scales.y,ticks:{...gainOpts.scales.y.ticks,stepSize:1},grid:{color:getComputedStyle(document.documentElement).getPropertyValue('--border').trim()}};
+            gainOpts.scales.x={ticks:{color:tickCol,font:sgFont,maxRotation:45},grid:{color:borderCol}};
+            gainOpts.scales.y={ticks:{color:tickCol,font:sgFont,stepSize:1},grid:{color:borderCol},title:{display:false}};
             posCanvas._chart=new Chart(posCanvas,{
               type:'bar',
               data:{
                 labels:gainedDrivers.map(d=>d.name),
                 datasets:[{
                   data:gainedDrivers.map(d=>d.gained),
-                  backgroundColor:gainedDrivers.map(d=>d.gained>0?d.color+'cc':'var(--red)'),
-                  borderColor:gainedDrivers.map(d=>d.gained>0?d.color:'var(--red)'),
-                  borderWidth:1,
+                  backgroundColor:gainedDrivers.map(barColor),
+                  borderColor:gainedDrivers.map(barColor),
+                  borderWidth:0,
                   borderRadius:2,
                 }]
               },
