@@ -466,7 +466,7 @@
   <div id="welcome-banner" style="display:none;background:var(--bg);border:0.5px solid var(--border);border-radius:0;padding:20px 32px;position:relative">
     <button onclick="dismissWelcome()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;padding:0">✕</button>
     <div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;color:var(--text);margin-bottom:6px">Welcome to Sector Scope</div>
-    <div style="font-size:13px;color:var(--text2);line-height:1.6;padding-right:24px">Your 2026 Formula 1 dashboard — standings, race results, news and records all in one place. Data is sourced from the Jolpica F1 API and typically becomes available 30–60 minutes after each session ends. Click any driver or team to see detailed stats. New to F1? Check out the <strong style="color:var(--text);cursor:pointer" onclick="showTab('season',document.querySelector('[data-tab=season]'))">Season tab</strong> for an explainer on the 2026 regulations.</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;padding-right:24px">Your 2026 Formula 1 results dashboard — standings, races, news, and records all in one place. Data is sourced from the Jolpica F1 API, which updates on Mondays. Click any driver or team to see detailed stats.</div>
   </div>
 
   <!-- Season stats strip -->
@@ -2032,59 +2032,85 @@ async function loadConstructorStandings(bypassCache=false){
 }
 
 // ── Circuit data (hardcoded — keyed by Jolpica circuitId) ──
-// lengthMi = length in miles, corners, laps, lapRecordTime, lapRecordHolder, lapRecordYear, firstGP, type, overtakeModeZones, characteristics
+// lengthMi = length in miles, corners, laps, lapRecordTime, lapRecordHolder, lapRecordYear, firstGP, type, overtakeModeZones, overview
 const CIRCUIT_INFO = {
-  'albert_park':       { lengthKm:5.278, lengthMi:3.279, corners:14, laps:58, raceDistKm:306.1,  lapRecord:'1:20.235', lapRecordHolder:'Pérez',      lapRecordYear:2023, firstGP:1996, type:'Street/park',  overtakeModeZones:4, altitudeM:12,   chars:['High-speed','Good overtaking','Bumpy surface'],
+  'albert_park':       { lengthKm:5.278, lengthMi:3.279, corners:14, laps:58, raceDistKm:306.1,  lapRecord:'1:19.813', lapRecordHolder:'Leclerc',     lapRecordYear:2024, firstGP:1996, type:'Street/park',  overtakeModeZones:4, altitudeM:12,
+                         overview:'A fast, flowing temporary street circuit built on public roads around a city park lake, known for providing unpredictable season-opening drama as the slippery surface evolves over the weekend.',
                          mapUrl:'circuits/melbourne-2.svg' },
-  'shanghai':          { lengthKm:5.451, lengthMi:3.387, corners:16, laps:56, raceDistKm:305.1,  lapRecord:'1:32.238', lapRecordHolder:'M.Schumacher',lapRecordYear:2004, firstGP:2004, type:'Permanent',     overtakeModeZones:2, altitudeM:4,    chars:['Long back straight','High tyre wear','Mixed conditions'],
+  'shanghai':          { lengthKm:5.451, lengthMi:3.387, corners:16, laps:56, raceDistKm:305.1,  lapRecord:'1:32.238', lapRecordHolder:'M.Schumacher',lapRecordYear:2004, firstGP:2004, type:'Permanent',     overtakeModeZones:2, altitudeM:4,
+                         overview:'A purpose-built permanent circuit whose layout is inspired by the Chinese character for “above,” featuring a notorious ever-tightening opening corner and one of the longest straights on the calendar.',
                          mapUrl:'circuits/shanghai-1.svg' },
-  'suzuka':            { lengthKm:5.807, lengthMi:3.608, corners:18, laps:53, raceDistKm:307.5,  lapRecord:'1:30.965', lapRecordHolder:'Antonelli',   lapRecordYear:2025, firstGP:1987, type:'Permanent',     overtakeModeZones:1, altitudeM:43,   chars:['Figure-of-eight','High-speed','Driver favourite'],
+  'suzuka':            { lengthKm:5.807, lengthMi:3.608, corners:18, laps:53, raceDistKm:307.5,  lapRecord:'1:30.965', lapRecordHolder:'Antonelli',   lapRecordYear:2025, firstGP:1987, type:'Permanent',     overtakeModeZones:1, altitudeM:43,
+                         overview:'The only figure-of-eight circuit in Formula 1 — built as a Honda test track in 1962 — beloved by drivers for its flowing S-curves, fearsome 130R corner, and history of championship-deciding races.',
                          mapUrl:'circuits/suzuka-2.svg' },
-  'bahrain':           { lengthKm:5.412, lengthMi:3.363, corners:15, laps:57, raceDistKm:308.2,  lapRecord:'1:31.447', lapRecordHolder:'de la Rosa',  lapRecordYear:2005, firstGP:2004, type:'Permanent',     overtakeModeZones:2, altitudeM:7,    chars:['Night race','High tyre deg','Desert heat'],
+  'bahrain':           { lengthKm:5.412, lengthMi:3.363, corners:15, laps:57, raceDistKm:308.2,  lapRecord:'1:31.447', lapRecordHolder:'de la Rosa',  lapRecordYear:2005, firstGP:2004, type:'Permanent',     overtakeModeZones:2, altitudeM:7,
+                         overview:'A permanent desert circuit outside Manama that hosts F1 pre-season testing, offering multiple overtaking opportunities and consistent dry conditions in the Gulf heat.',
                          mapUrl:'circuits/bahrain-1.svg' },
-  'jeddah':            { lengthKm:6.174, lengthMi:3.836, corners:27, laps:50, raceDistKm:308.7,  lapRecord:'1:30.734', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:2021, type:'Street',        overtakeModeZones:3, altitudeM:4,    chars:['Fastest street circuit','High-speed walls','Intense battles'],
+  'jeddah':            { lengthKm:6.174, lengthMi:3.836, corners:27, laps:50, raceDistKm:308.7,  lapRecord:'1:30.734', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:2021, type:'Street',        overtakeModeZones:3, altitudeM:4,
+                         overview:'The fastest street circuit in F1 history, with 27 corners hemmed in by concrete barriers along the Jeddah Corniche, producing intense wheel-to-wheel battles and a high safety car frequency.',
                          mapUrl:'circuits/jeddah-1.svg' },
-  'miami':             { lengthKm:5.412, lengthMi:3.363, corners:19, laps:57, raceDistKm:308.5,  lapRecord:'1:29.708', lapRecordHolder:'Verstappen',  lapRecordYear:2023, firstGP:2022, type:'Street/park',  overtakeModeZones:3, altitudeM:2,    chars:['High-speed','Multiple overtaking zones','Hot & humid'],
+  'miami':             { lengthKm:5.412, lengthMi:3.363, corners:19, laps:57, raceDistKm:308.5,  lapRecord:'1:29.708', lapRecordHolder:'Verstappen',  lapRecordYear:2023, firstGP:2022, type:'Street/park',  overtakeModeZones:3, altitudeM:2,
+                         overview:'A temporary stadium circuit wrapped around the Hard Rock Stadium in Miami Gardens, blending high-speed straights with technical corners to create one of the most overtaking-friendly venues on the modern calendar.',
                          mapUrl:'circuits/miami-1.svg' },
-  'villeneuve':        { lengthKm:4.361, lengthMi:2.710, corners:14, laps:70, raceDistKm:305.3,  lapRecord:'1:13.078', lapRecordHolder:'Bottas',      lapRecordYear:2019, firstGP:1978, type:'Street/park',  overtakeModeZones:2, altitudeM:23,   chars:['Wall of Champions','Chicanes','Changeable weather'],
+  'villeneuve':        { lengthKm:4.361, lengthMi:2.710, corners:14, laps:70, raceDistKm:305.3,  lapRecord:'1:13.078', lapRecordHolder:'Bottas',      lapRecordYear:2019, firstGP:1978, type:'Street/park',  overtakeModeZones:2, altitudeM:23,
+                         overview:'A flat island circuit in the St. Lawrence River famous for its unforgiving concrete walls, a signature heavy-braking hairpin at the end of the back straight, and the “Wall of Champions” at the final chicane.',
                          mapUrl:'circuits/montreal-6.svg' },
-  'monaco':            { lengthKm:3.337, lengthMi:2.074, corners:19, laps:78, raceDistKm:260.3,  lapRecord:'1:12.909', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:1950, type:'Street',        overtakeModeZones:1, altitudeM:48,   chars:['Narrowest circuit','Historic','Qualifying decisive'],
+  'monaco':            { lengthKm:3.337, lengthMi:2.074, corners:19, laps:78, raceDistKm:260.3,  lapRecord:'1:12.909', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:1950, type:'Street',        overtakeModeZones:1, altitudeM:48,
+                         overview:'The most famous race on the calendar — a narrow, barrier-lined street circuit through the principality’s streets where qualifying position is decisive and overtaking is almost impossible.',
                          mapUrl:'circuits/monaco-6.svg' },
-  'catalunya':         { lengthKm:4.657, lengthMi:2.894, corners:16, laps:66, raceDistKm:307.4,  lapRecord:'1:16.330', lapRecordHolder:'Piastri',     lapRecordYear:2025, firstGP:1991, type:'Permanent',     overtakeModeZones:2, altitudeM:115,  chars:['High tyre wear','Technical','Testing benchmark'],
+  'catalunya':         { lengthKm:4.657, lengthMi:2.894, corners:16, laps:66, raceDistKm:307.4,  lapRecord:'1:16.330', lapRecordHolder:'Piastri',     lapRecordYear:2025, firstGP:1991, type:'Permanent',     overtakeModeZones:2, altitudeM:115,
+                         overview:'A permanent technical circuit near Barcelona that has long served as F1’s primary pre-season testing venue, with a mix of high-speed corners and medium-speed sections that expose every weakness in a car.',
                          mapUrl:'circuits/catalunya-6.svg' },
-  'red_bull_ring':     { lengthKm:4.318, lengthMi:2.683, corners:10, laps:71, raceDistKm:306.5,  lapRecord:'1:05.619', lapRecordHolder:'Sainz',       lapRecordYear:2020, firstGP:1970, type:'Permanent',     overtakeModeZones:3, altitudeM:700,  chars:['Short lap','Elevation changes','Power-sensitive'],
+  'red_bull_ring':     { lengthKm:4.318, lengthMi:2.683, corners:10, laps:71, raceDistKm:306.5,  lapRecord:'1:05.619', lapRecordHolder:'Sainz',       lapRecordYear:2020, firstGP:1970, type:'Permanent',     overtakeModeZones:3, altitudeM:700,
+                         overview:'A compact, high-altitude circuit in the Styrian mountains with just ten corners, dramatic elevation changes, and an exposed hillside setting that creates a ferociously loud and passionate atmosphere.',
                          mapUrl:'circuits/spielberg-3.svg' },
-  'silverstone':       { lengthKm:5.891, lengthMi:3.661, corners:18, laps:52, raceDistKm:306.2,  lapRecord:'1:27.097', lapRecordHolder:'Verstappen',  lapRecordYear:2020, firstGP:1950, type:'Permanent',     overtakeModeZones:2, altitudeM:153,  chars:['Home of F1','High-speed corners','Unpredictable weather'],
+  'silverstone':       { lengthKm:5.891, lengthMi:3.661, corners:18, laps:52, raceDistKm:306.2,  lapRecord:'1:27.097', lapRecordHolder:'Verstappen',  lapRecordYear:2020, firstGP:1950, type:'Permanent',     overtakeModeZones:2, altitudeM:153,
+                         overview:'The home of British motorsport and one of the fastest circuits in F1, defined by the high-speed Copse, Maggotts, Becketts and Chapel sequence that demands maximum downforce and enormous driver bravery.',
                          mapUrl:'circuits/silverstone-8.svg' },
-  'spa':               { lengthKm:7.004, lengthMi:4.352, corners:19, laps:44, raceDistKm:308.1,  lapRecord:'1:44.701', lapRecordHolder:'Pérez',       lapRecordYear:2024, firstGP:1950, type:'Permanent',     overtakeModeZones:2, altitudeM:370,  chars:['Longest circuit','Eau Rouge','Changeable weather'],
+  'spa':               { lengthKm:7.004, lengthMi:4.352, corners:19, laps:44, raceDistKm:308.1,  lapRecord:'1:44.701', lapRecordHolder:'Pérez',       lapRecordYear:2024, firstGP:1950, type:'Permanent',     overtakeModeZones:2, altitudeM:370,
+                         overview:'A legendary 7km circuit cutting through the Ardennes forest, combining the iconic high-speed Eau Rouge–Raidillon complex with unpredictable weather that can swing a race from dry to wet in minutes.',
                          mapUrl:'circuits/spa-francorchamps-4.svg' },
-  'hungaroring':       { lengthKm:4.381, lengthMi:2.722, corners:14, laps:70, raceDistKm:306.6,  lapRecord:'1:16.627', lapRecordHolder:'Hamilton',    lapRecordYear:2020, firstGP:1986, type:'Permanent',     overtakeModeZones:1, altitudeM:270,  chars:['Technical','Low overtaking','Hot & grippy'],
+  'hungaroring':       { lengthKm:4.381, lengthMi:2.722, corners:14, laps:70, raceDistKm:306.6,  lapRecord:'1:16.627', lapRecordHolder:'Hamilton',    lapRecordYear:2020, firstGP:1986, type:'Permanent',     overtakeModeZones:1, altitudeM:270,
+                         overview:'A tight, twisting permanent circuit often likened to Monaco without the walls, where overtaking is difficult, tyre management is critical, and the race typically becomes a test of strategy and patience.',
                          mapUrl:'circuits/hungaroring-3.svg' },
-  'zandvoort':         { lengthKm:4.259, lengthMi:2.646, corners:14, laps:72, raceDistKm:306.6,  lapRecord:'1:11.097', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:1952, type:'Permanent',     overtakeModeZones:2, altitudeM:5,    chars:['Banked corners','Orange army','Technical'],
+  'zandvoort':         { lengthKm:4.259, lengthMi:2.646, corners:14, laps:72, raceDistKm:306.6,  lapRecord:'1:11.097', lapRecordHolder:'Hamilton',    lapRecordYear:2021, firstGP:1952, type:'Permanent',     overtakeModeZones:2, altitudeM:5,
+                         overview:'A compact and challenging permanent circuit on the Dutch coast featuring the banked Hugenholtz corner and fervent orange-clad crowds, restored to the F1 calendar in 2021 after a 36-year absence.',
                          mapUrl:'circuits/zandvoort-5.svg' },
-  'monza':             { lengthKm:5.793, lengthMi:3.600, corners:11, laps:53, raceDistKm:306.7,  lapRecord:'1:20.901', lapRecordHolder:'Norris',      lapRecordYear:2025, firstGP:1950, type:'Permanent',     overtakeModeZones:2, altitudeM:162,  chars:['Temple of Speed','Low downforce','Slipstreaming'],
+  'monza':             { lengthKm:5.793, lengthMi:3.600, corners:11, laps:53, raceDistKm:306.7,  lapRecord:'1:20.901', lapRecordHolder:'Norris',      lapRecordYear:2025, firstGP:1950, type:'Permanent',     overtakeModeZones:2, altitudeM:162,
+                         overview:'The Temple of Speed — a flat, high-speed permanent circuit near Milan where low downforce, long straights, and heavy braking zones into chicanes produce some of the most dramatic slipstreaming battles in the sport.',
                          mapUrl:'circuits/monza-7.svg' },
-  'madrid':            { lengthKm:5.400, lengthMi:3.355, corners:22, laps:57, raceDistKm:307.8,  lapRecord:'—',        lapRecordHolder:'TBD',         lapRecordYear:2026, firstGP:2026, type:'Street',        overtakeModeZones:3, altitudeM:612,  chars:['Brand new','Hybrid layout','High-speed main straight'],
+  'madrid':            { lengthKm:5.400, lengthMi:3.355, corners:22, laps:57, raceDistKm:307.8,  lapRecord:'—',   lapRecordHolder:'TBD',         lapRecordYear:2026, firstGP:2026, type:'Street',        overtakeModeZones:3, altitudeM:612,
+                         overview:'A brand-new part-street circuit built around Madrid’s IFEMA convention centre, making its F1 debut in 2026 with a design that combines a long main straight with a technical urban section through the complex.',
                          mapUrl:'circuits/madring-1.svg' },
-  'madring':           { lengthKm:5.400, lengthMi:3.355, corners:22, laps:57, raceDistKm:307.8,  lapRecord:'—',        lapRecordHolder:'TBD',         lapRecordYear:2026, firstGP:2026, type:'Street',        overtakeModeZones:3, altitudeM:612,  chars:['Brand new','Hybrid layout','High-speed main straight'],
+  'madring':           { lengthKm:5.400, lengthMi:3.355, corners:22, laps:57, raceDistKm:307.8,  lapRecord:'—',   lapRecordHolder:'TBD',         lapRecordYear:2026, firstGP:2026, type:'Street',        overtakeModeZones:3, altitudeM:612,
+                         overview:'A brand-new part-street circuit built around Madrid’s IFEMA convention centre, making its F1 debut in 2026 with a design that combines a long main straight with a technical urban section through the complex.',
                          mapUrl:'circuits/madring-1.svg' },
-  'baku':              { lengthKm:6.003, lengthMi:3.730, corners:20, laps:51, raceDistKm:306.0,  lapRecord:'1:43.009', lapRecordHolder:'Leclerc',     lapRecordYear:2019, firstGP:2016, type:'Street',        overtakeModeZones:2, altitudeM:-28,  chars:['Long straight','Castle section','Street thrills'],
+  'baku':              { lengthKm:6.003, lengthMi:3.730, corners:20, laps:51, raceDistKm:306.0,  lapRecord:'1:43.009', lapRecordHolder:'Leclerc',     lapRecordYear:2019, firstGP:2016, type:'Street',        overtakeModeZones:2, altitudeM:-28,
+                         overview:'A dramatic street circuit along the shores of the Caspian Sea, combining a narrow castle section with one of the longest straights in F1 at over 2km, producing frequent safety cars and chaotic late-race drama.',
                          mapUrl:'circuits/baku-1.svg' },
-  'marina_bay':        { lengthKm:5.063, lengthMi:3.146, corners:23, laps:61, raceDistKm:308.7,  lapRecord:'1:33.808', lapRecordHolder:'Hamilton',    lapRecordYear:2025, firstGP:2008, type:'Street',        overtakeModeZones:3, altitudeM:5,    chars:['Night race','Most corners','Physically demanding'],
+  'marina_bay':        { lengthKm:5.063, lengthMi:3.146, corners:23, laps:61, raceDistKm:308.7,  lapRecord:'1:33.808', lapRecordHolder:'Hamilton',    lapRecordYear:2025, firstGP:2008, type:'Street',        overtakeModeZones:3, altitudeM:5,
+                         overview:'A punishing night race on a bumpy street circuit beneath the Singapore skyline — with 23 corners, the most of any track on the calendar, making it one of the most physically demanding events of the season.',
                          mapUrl:'circuits/marina-bay-4.svg' },
-  'americas':          { lengthKm:5.516, lengthMi:3.427, corners:20, laps:56, raceDistKm:308.4,  lapRecord:'1:36.169', lapRecordHolder:'Leclerc',     lapRecordYear:2019, firstGP:2012, type:'Permanent',     overtakeModeZones:2, altitudeM:152,  chars:['Big elevation changes','Inspired by classics','Fan favourite'],
+  'americas':          { lengthKm:5.516, lengthMi:3.427, corners:20, laps:56, raceDistKm:308.4,  lapRecord:'1:36.169', lapRecordHolder:'Leclerc',     lapRecordYear:2019, firstGP:2012, type:'Permanent',     overtakeModeZones:2, altitudeM:152,
+                         overview:'A purpose-built permanent circuit inspired by classic tracks — with a dramatic uphill opening corner, a flowing Maggotts-style sequence, and a wide variety of corner types that reward a well-rounded car.',
                          mapUrl:'circuits/austin-1.svg' },
-  'rodriguez':         { lengthKm:4.304, lengthMi:2.674, corners:17, laps:71, raceDistKm:305.4,  lapRecord:'1:17.774', lapRecordHolder:'Bottas',      lapRecordYear:2021, firstGP:1963, type:'Permanent',     overtakeModeZones:2, altitudeM:2285, chars:['High altitude','Thin air','Stadium section'],
+  'rodriguez':         { lengthKm:4.304, lengthMi:2.674, corners:17, laps:71, raceDistKm:305.4,  lapRecord:'1:17.774', lapRecordHolder:'Bottas',      lapRecordYear:2021, firstGP:1963, type:'Permanent',     overtakeModeZones:2, altitudeM:2285,
+                         overview:'A high-altitude permanent circuit at 2,285 metres above sea level in one of the world’s great cities, where thin air reduces aerodynamic downforce and makes engine cooling a constant challenge.',
                          mapUrl:'circuits/mexico-city-3.svg' },
-  'interlagos':        { lengthKm:4.309, lengthMi:2.677, corners:15, laps:71, raceDistKm:305.9,  lapRecord:'1:10.540', lapRecordHolder:'Bottas',      lapRecordYear:2018, firstGP:1973, type:'Permanent',     overtakeModeZones:2, altitudeM:800,  chars:['Anti-clockwise','Unpredictable weather','Iconic'],
+  'interlagos':        { lengthKm:4.309, lengthMi:2.677, corners:15, laps:71, raceDistKm:305.9,  lapRecord:'1:10.540', lapRecordHolder:'Bottas',      lapRecordYear:2018, firstGP:1973, type:'Permanent',     overtakeModeZones:2, altitudeM:800,
+                         overview:'A counterclockwise permanent circuit on a hilltop south of São Paulo, known for its passionate crowds, unpredictable weather, and a long downhill straight into the Senna S that has produced some of F1’s most memorable moments.',
                          mapUrl:'circuits/interlagos-2.svg' },
-  'las_vegas':         { lengthKm:6.201, lengthMi:3.854, corners:17, laps:50, raceDistKm:309.9,  lapRecord:'1:33.365', lapRecordHolder:'Verstappen',  lapRecordYear:2025, firstGP:2023, type:'Street',        overtakeModeZones:3, altitudeM:620,  chars:['Night race','Long straights','Entertainment spectacle'],
+  'las_vegas':         { lengthKm:6.201, lengthMi:3.854, corners:17, laps:50, raceDistKm:309.9,  lapRecord:'1:33.365', lapRecordHolder:'Verstappen',  lapRecordYear:2025, firstGP:2023, type:'Street',        overtakeModeZones:3, altitudeM:620,
+                         overview:'A glamorous night street circuit along the famous Las Vegas Strip, with a near-2km straight past casinos and hotels that produces some of the highest top speeds of the season.',
                          mapUrl:'circuits/las-vegas-1.svg' },
-  'vegas':             { lengthKm:6.201, lengthMi:3.854, corners:17, laps:50, raceDistKm:309.9,  lapRecord:'1:33.365', lapRecordHolder:'Verstappen',  lapRecordYear:2025, firstGP:2023, type:'Street',        overtakeModeZones:3, altitudeM:620,  chars:['Night race','Long straights','Entertainment spectacle'],
+  'vegas':             { lengthKm:6.201, lengthMi:3.854, corners:17, laps:50, raceDistKm:309.9,  lapRecord:'1:33.365', lapRecordHolder:'Verstappen',  lapRecordYear:2025, firstGP:2023, type:'Street',        overtakeModeZones:3, altitudeM:620,
+                         overview:'A glamorous night street circuit along the famous Las Vegas Strip, with a near-2km straight past casinos and hotels that produces some of the highest top speeds of the season.',
                          mapUrl:'circuits/las-vegas-1.svg' },
-  'losail':            { lengthKm:5.380, lengthMi:3.343, corners:16, laps:57, raceDistKm:307.0,  lapRecord:'1:22.384', lapRecordHolder:'Norris',      lapRecordYear:2024, firstGP:2021, type:'Permanent',     overtakeModeZones:2, altitudeM:32,   chars:['MotoGP circuit','High-speed','Desert heat'],
+  'losail':            { lengthKm:5.380, lengthMi:3.343, corners:16, laps:57, raceDistKm:307.0,  lapRecord:'1:22.384', lapRecordHolder:'Norris',      lapRecordYear:2024, firstGP:2021, type:'Permanent',     overtakeModeZones:2, altitudeM:32,
+                         overview:'A smooth, permanent motorcycle circuit in the desert outside Doha, run under floodlights, with flowing medium-to-high-speed corners that place heavy demand on tires throughout the race.',
                          mapUrl:'circuits/lusail-1.svg' },
-  'yas_marina':        { lengthKm:5.281, lengthMi:3.281, corners:16, laps:58, raceDistKm:306.2,  lapRecord:'1:25.637', lapRecordHolder:'Magnussen',   lapRecordYear:2024, firstGP:2009, type:'Permanent',     overtakeModeZones:2, altitudeM:3,    chars:['Season finale','Night race','Revised 2021 layout'],
+  'yas_marina':        { lengthKm:5.281, lengthMi:3.281, corners:16, laps:58, raceDistKm:306.2,  lapRecord:'1:25.637', lapRecordHolder:'Magnussen',   lapRecordYear:2024, firstGP:2009, type:'Permanent',     overtakeModeZones:2, altitudeM:3,
+                         overview:'A modern permanent circuit on a purpose-built island, revised in 2021 to improve racing, that closes the season with a twilight race beginning in daylight and ending under floodlights.',
                          mapUrl:'circuits/yas-marina-2.svg' },
 };
 
@@ -2337,7 +2363,7 @@ async function loadCalendar(bypassCache=false){
       grid.appendChild(lr);
       if(ci.overtakeModeZones!=null){ const d=document.createElement('div'); d.className='track-info-item'; d.innerHTML='<div class="track-info-label">Overtake Mode zones</div><div class="track-info-value">'+ci.overtakeModeZones+'</div>'; grid.appendChild(d); }
       if(ci.altitudeM!=null){ const d=document.createElement('div'); d.className='track-info-item'; d.innerHTML='<div class="track-info-label">Altitude</div><div class="track-info-value">'+(ci.altitudeM>=0?ci.altitudeM+'m':ci.altitudeM+'m')+'</div>'; grid.appendChild(d); }
-      if(ci.chars&&ci.chars.length){ const d=document.createElement('div'); d.className='track-info-item'; d.style.gridColumn='span 3'; d.innerHTML='<div class="track-info-label">Characteristics</div><div style="margin-top:4px">'+ci.chars.map(c=>'<span class="track-char-pill">'+c+'</span>').join('')+'</div>'; grid.appendChild(d); }
+      if(ci.overview){ const d=document.createElement('div'); d.className='track-info-item'; d.style.gridColumn='span 3'; d.innerHTML='<div class="track-info-label">Overview</div><div style="font-family:\'Barlow\',sans-serif;font-weight:700;font-size:13px;color:var(--text2);line-height:1.6;margin-top:4px">'+ci.overview+'</div>'; grid.appendChild(d); }
       trackBody.appendChild(grid);
       trackGrp.appendChild(trackHdr);
       trackGrp.appendChild(trackBody);
