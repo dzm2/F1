@@ -2608,37 +2608,46 @@ async function loadCalendar(bypassCache=false){
         }
 
         // ── Positions gained/lost bar chart (built from finishers — no API call needed) ──
-        const gainedDrivers=finishers.filter(f=>{
-          const grid=parseInt(f.grid)||0;
-          return grid>0 && parseInt(f.position)>0;
-        }).map(f=>({
+        const allFinishers=finishers.filter(f=>parseInt(f.position)>0).map(f=>({
           name:f.Driver.familyName.toUpperCase(),
-          gained:(parseInt(f.grid)||0)-(parseInt(f.position)||0),
+          // grid=0 means pit lane start — treat as no change since true grid pos unknown
+          gained:parseInt(f.grid)>0?(parseInt(f.grid))-(parseInt(f.position)||0):0,
           color:teamColor(f.Constructor?.name||''),
-        })).filter(d=>d.gained!==0);
+        }));
+        const gainedDrivers=allFinishers.filter(d=>d.gained!==0).sort((a,b)=>b.gained-a.gained);
+        const noChangeDrivers=allFinishers.filter(d=>d.gained===0);
 
         if(gainedDrivers.length){
           const posTitle=document.createElement('div'); posTitle.className='detail-section-title'; posTitle.textContent='Positions gained / lost'; body.appendChild(posTitle);
           const posWrap=document.createElement('div'); posWrap.style.cssText='position:relative;height:200px;margin-bottom:8px';
           const posCanvas=document.createElement('canvas'); posCanvas.id='pos-chart-'+r.round;
           posWrap.appendChild(posCanvas); body.appendChild(posWrap);
-          const posNote=document.createElement('div'); posNote.style.cssText='font-size:11px;color:var(--text3);margin-bottom:8px;text-align:center'; posNote.textContent='Grid position vs finish position · finishers only'; body.appendChild(posNote);
+          const posNote=document.createElement('div'); posNote.style.cssText='font-size:11px;color:var(--text3);margin-bottom:6px;text-align:center'; posNote.textContent='Grid position vs finish position · finishers only'; body.appendChild(posNote);
+
+          if(noChangeDrivers.length){
+            const ncWrap=document.createElement('div'); ncWrap.style.cssText='border-top:0.5px solid var(--border);padding-top:8px;margin-bottom:8px';
+            const ncLabel=document.createElement('div'); ncLabel.style.cssText='font-family:\'Space Grotesk\',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px'; ncLabel.textContent='No change';
+            const ncPills=document.createElement('div'); ncPills.style.cssText='display:flex;flex-wrap:wrap;gap:8px';
+            noChangeDrivers.forEach(d=>{
+              const pill=document.createElement('span'); pill.style.cssText='display:inline-flex;align-items:center;gap:4px';
+              const pip=document.createElement('span'); pip.style.cssText='width:3px;height:13px;border-radius:1px;background:'+(d.color==='#888'?'var(--text3)':d.color)+';flex-shrink:0;display:inline-block';
+              const nm=document.createElement('span'); nm.style.cssText='font-family:\'Barlow\',sans-serif;font-weight:900;font-size:12px;color:var(--text2);text-transform:uppercase'; nm.textContent=d.name;
+              pill.appendChild(pip); pill.appendChild(nm); ncPills.appendChild(pill);
+            });
+            ncWrap.appendChild(ncLabel); ncWrap.appendChild(ncPills); body.appendChild(ncWrap);
+          }
 
           requestAnimationFrame(()=>{
             if(posCanvas._chart) return;
             const cs=getComputedStyle(document.documentElement);
             const borderCol=cs.getPropertyValue('--border').trim();
             const tickCol=cs.getPropertyValue('--text2').trim();
-            const RED='#E10600';
-            const sgFont={family:"'Space Grotesk',sans-serif",size:9};
-            // Use solid team colour for gains; fall back to --text2 if teamColor returned #888 (unknown team)
-            // Use #E10600 for losses — never CSS var() strings as Chart.js cannot resolve them
-            const barColor=d=>d.gained>0?(d.color==='#888'?tickCol:d.color):RED;
+            const barColor=d=>d.color==='#888'?tickCol:d.color;
             const gainOpts=chartDefaults();
             gainOpts.plugins.legend={display:false};
             gainOpts.plugins.tooltip={callbacks:{label:ctx=>{const v=ctx.parsed.y;return ctx.label+': '+(v>0?'+':'')+v+' place'+(Math.abs(v)===1?'':'s');}}};
-            gainOpts.scales.x={ticks:{color:tickCol,font:sgFont,maxRotation:45},grid:{color:borderCol}};
-            gainOpts.scales.y={ticks:{color:tickCol,font:sgFont,stepSize:1},grid:{color:borderCol},title:{display:false}};
+            gainOpts.scales.x={ticks:{color:tickCol,font:{family:"'Barlow',sans-serif",weight:'900',size:10},maxRotation:45},grid:{color:borderCol}};
+            gainOpts.scales.y={ticks:{color:tickCol,font:{family:"'Space Grotesk',sans-serif",size:9},stepSize:1},grid:{color:borderCol},title:{display:false}};
             posCanvas._chart=new Chart(posCanvas,{
               type:'bar',
               data:{
