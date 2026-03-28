@@ -136,7 +136,7 @@
     .modal-result-chip.gain { color:#22c55e; }
     .modal-result-chip.loss { color:var(--red); }
     .modal-result-sprint { display:flex; justify-content:space-between; align-items:center; margin-top:5px; padding-top:5px; border-top:0.5px dashed var(--border); }
-    .modal-result-sprint-label { font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text3); }
+    .modal-result-sprint-label { font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; color:var(--text3); }
 
     /* Constructor modal specifics */
     .con-modal-hero { border-radius:8px; padding:16px; margin-bottom:1rem; display:flex; align-items:center; gap:14px; }
@@ -507,7 +507,8 @@
         <th style="text-align:right">#</th><th colspan="2">Driver</th>
         <th style="text-align:right">Points</th>
         <th style="text-align:center">Wins</th>
-        <th style="text-align:center">Sprint</th>
+        <th style="text-align:center">Race pts</th>
+        <th style="text-align:center">Sprint pts</th>
         <th style="text-align:center">Fin%</th>
         <th style="text-align:right">Gap</th>
       </tr></thead>
@@ -1040,6 +1041,7 @@ async function loadDriverStandings(bypassCache=false){
     const rookieBadge=isRookie?'<span class="rookie-badge">R</span>':'';
     const winsClass='wins-cell';
     const sprintPts=window._driverSprintPts?.[d.driverId]||0;
+    const racePtsCol=d.pts-sprintPts;
     const finRate=window._driverFinRate?.[d.driverId];
     const finRateStr=finRate!==null&&finRate!==undefined?finRate+'%':'—';
     // Trend: compare current pts to pts after previous round
@@ -1054,6 +1056,7 @@ async function loadDriverStandings(bypassCache=false){
       </div></td>
       <td class="pts-cell" data-val="${d.pts}"><div class="pts-num">${d.pts}</div></td>
       <td class="${winsClass}" data-val="${d.wins}">${d.wins}</td>
+      <td class="sprint-pts-cell">${racePtsCol>0?racePtsCol:'—'}</td>
       <td class="sprint-pts-cell">${sprintPts>0?'+'+sprintPts:'—'}</td>
       <td class="finrate-cell">${finRateStr}</td>
       <td class="gap-cell">${gap}${statusBadge}</td>
@@ -1341,11 +1344,11 @@ async function openDriverModal(driverId){
     <div class="modal-section-title">2026 Season</div>
     <div class="modal-stats">
       <div class="modal-stat"><div class="modal-stat-label">Points</div><div class="modal-stat-value">${d.pts}</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value">${d.wins}</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="ms-podiums">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Position</div><div class="modal-stat-value">P${d.pos}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Race pts</div><div class="modal-stat-value" id="ms-racepts">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Sprint pts</div><div class="modal-stat-value" id="ms-sprintpts">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Position</div><div class="modal-stat-value">P${d.pos}</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value">${d.wins}</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="ms-podiums">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Avg finish</div><div class="modal-stat-value" id="ms-avgfin">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Avg grid</div><div class="modal-stat-value" id="ms-avggrid">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Finish rate</div><div class="modal-stat-value" id="ms-finrate">—</div></div>
