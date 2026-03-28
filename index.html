@@ -1255,16 +1255,16 @@ const TEAM_INFO = {
   'racing_bulls':  { base:'Faenza, Italy',           principal:'Alan Permane',        power:'Red Bull Ford', founded:1985, f1Since:1985, titles:0,  wins:0,   podiums:1,
     bio:['Racing Bulls — formerly known as Toro Rosso and AlphaTauri — is Red Bull\'s second Formula 1 team, based in Faenza, Italy. Founded in 1985 as Minardi, the team became Scuderia Toro Rosso under Red Bull ownership in 2006, serving as a proving ground for young drivers from the Red Bull academy. The team produced one of F1\'s great shocks at the 2008 Italian Grand Prix, when a teenage Sebastian Vettel drove through wet conditions at Monza to win from pole — the team\'s only victory to date.','Recent graduates of the programme include Sebastian Vettel, Max Verstappen, and Carlos Sainz. Rebranded as AlphaTauri in 2020 and then RB in 2024 before settling on Racing Bulls in 2025, the team now fields {D1} and {D2} as they continue their role developing the next generation of F1 talent.']
   },
-  'kick_sauber':   { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993, titles:0,  wins:0,   podiums:0,
+  'kick_sauber':   { base:'Hinwil, Switzerland',     principal:'TBD',   power:'Ferrari',    founded:1993, f1Since:1993, titles:0,  wins:0,   podiums:0,
     bio:['Sauber has been a fixture of the Formula 1 grid since 1993, operating out of Hinwil, Switzerland — making them one of the few truly independent teams still competing at the top level. Founded by Peter Sauber, the team has never won a race but has a proud record of developing talent, with Kimi Räikkönen, Felipe Massa, and Robert Kubica all making their F1 debuts with the Swiss outfit. They operated as BMW Sauber between 2006 and 2009, briefly becoming a front-running team before BMW\'s withdrawal.','In 2026 the team transitions into the Audi works entry, with the German manufacturer taking full ownership as it makes its Formula 1 debut. Under new team principal Jonathan Wheatley — poached from Red Bull Racing — and with {D1} and {D2} at the wheel, this is the beginning of an entirely new chapter for the Hinwil operation.']
   },
-  'sauber':        { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Ferrari',    founded:1993, f1Since:1993, titles:0,  wins:0,   podiums:0,
+  'sauber':        { base:'Hinwil, Switzerland',     principal:'TBD',   power:'Ferrari',    founded:1993, f1Since:1993, titles:0,  wins:0,   podiums:0,
     bio:['Sauber has been a fixture of the Formula 1 grid since 1993, operating out of Hinwil, Switzerland — making them one of the few truly independent teams still competing at the top level. Founded by Peter Sauber, the team has never won a race but has a proud record of developing talent, with Kimi Räikkönen, Felipe Massa, and Robert Kubica all making their F1 debuts with the Swiss outfit. They operated as BMW Sauber between 2006 and 2009, briefly becoming a front-running team before BMW\'s withdrawal.','In 2026 the team transitions into the Audi works entry, with the German manufacturer taking full ownership as it makes its Formula 1 debut. Under new team principal Jonathan Wheatley — poached from Red Bull Racing — and with {D1} and {D2} at the wheel, this is the beginning of an entirely new chapter for the Hinwil operation.']
   },
   'cadillac':      { base:'Concord, USA',            principal:'Graeme Lowdon',       power:'GM/Ferrari', founded:2024, f1Since:2026, titles:0,  wins:0,   podiums:0,
     bio:['Cadillac is one of two new entries joining the Formula 1 grid in 2026, becoming the second American team on the grid alongside Haas. The team is backed by General Motors and Andretti Global — the motorsport outfit founded by racing legend Michael Andretti — and represents a significant moment for American involvement in the sport after a lengthy and at times contentious approval process. Based in Concord, North Carolina, the team uses Ferrari power units while GM develops its own F1-specification power unit for future seasons.','Led by team principal Graeme Lowdon, Cadillac enter their debut season with realistic expectations of learning and developing rather than immediately challenging for points. {D1} and {D2} take on the formidable task of launching a brand new team in one of the most competitive periods in F1 history.']
   },
-  'audi':          { base:'Hinwil, Switzerland',     principal:'Jonathan Wheatley',   power:'Audi',       founded:2026, f1Since:2026, titles:0,  wins:0,   podiums:0,
+  'audi':          { base:'Hinwil, Switzerland',     principal:'TBD',   power:'Audi',       founded:2026, f1Since:2026, titles:0,  wins:0,   podiums:0,
     bio:['Audi\'s arrival in Formula 1 in 2026 marks one of the most significant manufacturer entries in the sport\'s history. The German automotive giant acquired a majority stake in the Sauber Group — which had operated the Hinwil-based team since 1993 — and has invested heavily in building a works power unit programme from scratch. It is the first time Audi has competed in Formula 1 as a constructor, though the brand has a distinguished motorsport heritage including multiple Le Mans victories and dominance in the World Rally Championship.','The 2026 season is expected to be a learning year as Audi develops its new power unit and establishes its structures in Formula 1. Under team principal Jonathan Wheatley — recruited from Red Bull Racing — and with {D1} and {D2} as its first ever F1 drivers, Audi\'s long-term ambition is to become a championship-winning force within the decade.']
   },
 };
@@ -2127,7 +2127,7 @@ async function loadCalendar(bypassCache=false){
     if(completed.length>0){
       // Fetch per-round data sequentially to avoid 429 rate limiting
       for(let i=0;i<completed.length;i++){
-        if(i>0) await new Promise(r=>setTimeout(r,300));
+        if(i>0) await new Promise(r=>setTimeout(r,500));
         const r=completed[i];
         const isSprint=SPRINT_ROUNDS.has(parseInt(r.round));
         const fetches=[
@@ -2149,7 +2149,7 @@ async function loadCalendar(bypassCache=false){
       // Build standings history for trend chart — sequential to avoid 429s
       standingsHistory=[];
       for(let i=0;i<completed.length;i++){
-        if(i>0) await new Promise(r=>setTimeout(r,200));
+        if(i>0) await new Promise(r=>setTimeout(r,500));
         try{
           const res=await fetchJSON(`${BASE}/${SEASON}/${parseInt(completed[i].round)}/driverstandings.json?limit=10`);
           const round=parseInt(completed[i].round);
@@ -2174,7 +2174,7 @@ async function loadCalendar(bypassCache=false){
       const completedFb=allRaces.filter(r=>new Date(r.date)<=today);
       standingsHistory=[];
       for(let i=0;i<completedFb.length;i++){
-        if(i>0) await new Promise(r=>setTimeout(r,200));
+        if(i>0) await new Promise(r=>setTimeout(r,500));
         try{
           const res=await fetchJSON(`${BASE}/${SEASON}/${parseInt(completedFb[i].round)}/driverstandings.json?limit=10`);
           const round=parseInt(completedFb[i].round);
@@ -3466,81 +3466,36 @@ async function loadAll(bypassCache=false){
   };
 })();
 
-// ── Smart auto-refresh ──
-// Schedules a single fetch shortly after each session is expected to end.
-// Makes at most 4-5 fetches per race weekend per user — only when new data
-// is likely to exist. No polling outside race weekends.
+// ── Auto-refresh ──
+// Polls every 2 hours, but only within a 28-hour window anchored to each
+// race's scheduled start time (UTC). This covers same-day results if Jolpica
+// publishes quickly, and Monday updates if they don't. No polling outside
+// the window — i.e. no fetches during practice, qualifying, or quiet weeks.
+// Handles edge cases (Las Vegas Saturday nights, back-to-back weekends,
+// summer break) naturally since the window is tied to the actual race time.
 let _autoRefreshTimer=null;
+const POLL_INTERVAL_MS=2*60*60*1000;  // 2 hours
+const POLL_WINDOW_MS=28*60*60*1000;   // 28 hours after scheduled race start
 
-// Approximate session durations in minutes (including a buffer for overruns)
-const SESSION_DURATION={
-  'Practice 1':75,'Practice 2':75,'Practice 3':75,
-  'Qualifying':90,'Race':120,
-  'Sprint Qualifying':60,'Sprint Race':45,
-};
-// Extra buffer after session end before fetching (minutes) — gives Jolpica time to publish
-const FETCH_DELAY_MINS=15;
-
-function getNextSessionFetch(){
-  // Returns {ms, label} for the next scheduled fetch, or null if none upcoming.
-  if(!window._allRaces) return null;
+function isInRaceWindow(){
+  // Returns true if Date.now() falls within the 28-hour polling window
+  // of any race in the current season.
+  if(!window._allRaces) return false;
   const now=Date.now();
-
   for(const r of window._allRaces){
-    const raceDay=new Date(r.date);
-    // Only consider races within the next 7 days or currently ongoing weekend
-    const daysUntil=(raceDay-now)/(1000*60*60*24);
-    if(daysUntil>7||daysUntil<-1) continue;
-
-    const sessionFields=[
-      {key:'FirstPractice',  name:'Practice 1'},
-      {key:'SecondPractice', name:'Practice 2 / Sprint Qualifying'},
-      {key:'ThirdPractice',  name:'Practice 3'},
-      {key:'Sprint',         name:'Sprint Race'},
-      {key:'Qualifying',     name:'Qualifying'},
-      {key:'Race',           name:'Race'},
-    ];
-
-    for(const s of sessionFields){
-      if(!r[s.key]||!r[s.key].date||!r[s.key].time) continue;
-      const sessionStart=new Date(r[s.key].date+'T'+r[s.key].time);
-
-      const durMins=SESSION_DURATION[s.name]||90;
-      const fetchAt=new Date(sessionStart.getTime()+(durMins+FETCH_DELAY_MINS)*60*1000);
-
-      if(fetchAt.getTime()>now){
-        return {ms:fetchAt.getTime()-now, label:s.name+' ('+r.raceName.replace(' Grand Prix','')+')'};
-      }
-    }
+    if(!r.date||!r.time) continue;
+    const raceStart=new Date(r.date+'T'+r.time).getTime();
+    if(now>=raceStart && now<=raceStart+POLL_WINDOW_MS) return true;
   }
-  return null;
-}
-
-function updateRefreshIndicator(next){
-  const statusEl=document.getElementById('fetch-status');
-  if(!statusEl) return;
-  const base=statusEl.textContent.replace(/\s·\s⟳.*/,'');
-  if(next){
-    const mins=Math.round(next.ms/60000);
-    const label=mins<60?`⟳ ${mins}m`:`⟳ ${Math.round(mins/60)}h`;
-    statusEl.textContent=base+' · '+label;
-    statusEl.title=`Auto-refresh scheduled after ${next.label} ends`;
-  } else {
-    statusEl.textContent=base;
-    statusEl.title='No upcoming sessions — refresh manually for updates';
-  }
+  return false;
 }
 
 function scheduleAutoRefresh(){
   if(_autoRefreshTimer){ clearTimeout(_autoRefreshTimer); _autoRefreshTimer=null; }
-  const next=getNextSessionFetch();
-  updateRefreshIndicator(next);
-  if(next){
-    // Cap at 24h to avoid stale timers on long-open tabs; will reschedule after loadAll
-    const delay=Math.min(next.ms,24*60*60*1000);
+  if(isInRaceWindow()){
     _autoRefreshTimer=setTimeout(async()=>{
       await loadAll(); // loadAll calls scheduleAutoRefresh on completion
-    },delay);
+    },POLL_INTERVAL_MS);
   }
 }
 
