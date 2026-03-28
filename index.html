@@ -3210,38 +3210,39 @@ async function loadVideos(){
   window._videosLoaded=true;
   const grid=document.getElementById('video-grid');
   grid.innerHTML='<div class="loading"><div class="loading-spinner"></div><div class="loading-text">Fetching latest videos...</div></div>';
-  // Fetch sequentially with a small delay to avoid rss2json rate limiting concurrent requests
-  const feedResults=[];
+  // Fetch YouTube RSS directly — bypasses rss2json which returns HTTP 500 for some channels
   const fetchVideoFeed=async f=>{
     try{
-      const res=await fetch(RSS2JSON+encodeURIComponent(f.url),{signal:AbortSignal.timeout(15000)});
-      if(!res.ok){ feedResults.push({channel:f.channel,error:'HTTP '+res.status}); return []; }
-      const data=await res.json();
-      if(data.status!=='ok'){ feedResults.push({channel:f.channel,error:'rss2json: '+data.status}); return []; }
-      if(!data.items?.length){ feedResults.push({channel:f.channel,error:'no items'}); return []; }
-      feedResults.push({channel:f.channel,count:data.items.length});
-      return data.items.slice(0,6).map(item=>{
-        const vidId=(item.link||'').match(/[?&]v=([^&]+)/)?.[1]||
-                     (item.link||'').match(/youtu\.be\/([^?]+)/)?.[1]||
-                     (item.guid||'').match(/[?&]v=([^&]+)/)?.[1]||'';
+      const res=await fetch(f.url,{signal:AbortSignal.timeout(15000)});
+      if(!res.ok) return [];
+      const xml=await res.text();
+      const doc=new DOMParser().parseFromString(xml,'application/xml');
+      const entries=[...doc.querySelectorAll('entry')];
+      if(!entries.length) return [];
+      return entries.slice(0,6).map(entry=>{
+        const vidId=entry.querySelector('videoId')?.textContent||
+                    (entry.querySelector('id')?.textContent||'').split('video:')[1]||'';
+        const title=entry.querySelector('title')?.textContent||'';
+        const published=entry.querySelector('published')?.textContent||'';
+        const link=entry.querySelector('link')?.getAttribute('href')||
+                   (vidId?`https://www.youtube.com/watch?v=${vidId}`:'#');
         return {
-          title:sanitise((item.title||'').trim()),
+          title:sanitise(title.trim()),
           channel:sanitise(f.channel), color:f.color,
-          date:formatDate(item.pubDate||''),
-          sortDate:toIso(item.pubDate||''),
-          url:item.link||item.guid||'#',
+          date:formatDate(published),
+          sortDate:toIso(published),
+          url:link,
           thumb:vidId?`https://img.youtube.com/vi/${vidId}/mqdefault.jpg`:'',
         };
       });
-    }catch(e){ feedResults.push({channel:f.channel,error:e.message}); return []; }
+    }catch(e){ return []; }
   };
   let items=[];
   for(let i=0;i<VIDEO_FEEDS.length;i++){
-    if(i>0) await new Promise(r=>setTimeout(r,600));
+    if(i>0) await new Promise(r=>setTimeout(r,300));
     const batch=await fetchVideoFeed(VIDEO_FEEDS[i]);
     items.push(...batch);
   }
-  console.log('[Sector Scope] Video feed results:',feedResults);
   // Deduplicate by title
   const seen=new Set();
   items=items.filter(i=>{const k=i.title.toLowerCase().slice(0,40);if(seen.has(k))return false;seen.add(k);return true;});
