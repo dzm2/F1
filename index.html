@@ -2147,7 +2147,12 @@ async function loadCalendar(bypassCache=false){
     const schedData=await fetchJSON(`${BASE}/${SEASON}.json?limit=30`,2,bypassCache);
     allRaces=schedData.MRData?.RaceTable?.Races||[];
     const today=new Date();
-    const completed=allRaces.filter(r=>new Date(r.date)<=today);
+    // Use full race datetime when available so date-only midnight UTC comparison
+    // doesn't incorrectly mark a race as completed before it has started
+    const completed=allRaces.filter(r=>{
+      const dt=r.date&&r.time?new Date(r.date+'T'+r.time):new Date(r.date+'T23:59:59Z');
+      return dt<=today;
+    });
     const completedSprints=completed.filter(r=>SPRINT_ROUNDS.has(parseInt(r.round)));
     if(completed.length>0){
       // Fetch per-round data sequentially to avoid 429 rate limiting
@@ -2196,7 +2201,10 @@ async function loadCalendar(bypassCache=false){
     if(fb){allRaces=fb.MRData?.RaceTable?.Races||[];stale=true;
       // Still attempt to build standingsHistory from cached per-round data
       const today=new Date();
-      const completedFb=allRaces.filter(r=>new Date(r.date)<=today);
+      const completedFb=allRaces.filter(r=>{
+        const dt=r.date&&r.time?new Date(r.date+'T'+r.time):new Date(r.date+'T23:59:59Z');
+        return dt<=today;
+      });
       standingsHistory=[];
       for(let i=0;i<completedFb.length;i++){
         if(i>0) await new Promise(r=>setTimeout(r,500));
