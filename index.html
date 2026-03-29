@@ -3175,6 +3175,13 @@ async function loadRecords(){
         '76 times since 1950 — more than any other circuit',
         'Monza and Monaco have been on the F1 calendar almost every year since 1950, making them the spiritual homes of the sport.',
         'MONZA')
+      +rc('Most wins at a single circuit',[
+        {pos:1,name:'Lewis Hamilton — Silverstone',val:'9'},{pos:2,name:'Michael Schumacher — Magny-Cours',val:'8'},
+        {pos:2,name:'Lewis Hamilton — Hungaroring',val:'8'},{pos:4,name:'Ayrton Senna — Monaco',val:'6'},
+        {pos:4,name:'Michael Schumacher — Montreal',val:'6'},{pos:6,name:'Sebastian Vettel — Singapore',val:'5'},
+        {pos:6,name:'Lewis Hamilton — Sochi',val:'5'},{pos:6,name:'Alain Prost — Silverstone',val:'5'}],
+        '9 wins at Silverstone — more than anyone at any circuit',
+        '','HAMILTON','9')
       +'</div>';
   }catch(e){
     loadEl.innerHTML='<div class="error-msg">Could not load records data.</div>';
