@@ -2313,8 +2313,15 @@ async function loadCalendar(bypassCache=false){
     const circuitId=r.Circuit?.circuitId||'';
     const ci=CIRCUIT_INFO[circuitId]||{};
 
-    // DNF/DNS tracking
-    const dnfs=isCompleted?finishers.filter(f=>f.status&&f.status!=='Finished'&&!f.status.startsWith('+')&&!f.status.toLowerCase().includes('lap')):[];
+    // DNF/DNS tracking — a driver is a DNF if their status is a non-finish reason,
+    // OR if their status is missing/blank and they have no recorded race time (Jolpica
+    // sometimes omits status for early-published results)
+    const isDNFEntry=f=>{
+      const s=f.status||'';
+      if(!s||s==='') return !!f.Driver&&!f.Time?.time&&!String(f.status||'').startsWith('+');
+      return s!=='Finished'&&!s.startsWith('+')&&!s.toLowerCase().includes('lap');
+    };
+    const dnfs=isCompleted?finishers.filter(isDNFEntry):[];
 
     // Podium finishers
     const [p1,p2,p3]=finishers;
