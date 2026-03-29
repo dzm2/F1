@@ -421,11 +421,12 @@
     .df-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:12px;color:var(--text);text-transform:uppercase;letter-spacing:0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .df-boxes{display:flex;gap:3px;flex-wrap:nowrap;}
     .df-box{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-size:10px;font-weight:900;color:#fff;flex-shrink:0;border-radius:0;}
-    .df-box.df-podium{background:#22c55e;}
-    .df-box.df-strong{background:#ca8a04;}
-    .df-box.df-points{background:#c2410c;}
-    .df-box.df-outside{background:#3a1a1a;color:var(--text3);}
-    .df-box.df-dnf{background:#2a1010;color:var(--red);font-size:8px;}
+    .df-box.df-podium{background:#16a34a;}
+    .df-box.df-strong{background:#eab308;color:#1a1200;}
+    .df-box.df-points{background:#f97316;}
+    .df-box.df-outside{background:var(--bg3);color:var(--text3);border:0.5px solid var(--border);}
+    .df-box.df-dnf{background:#E10600;color:#fff;}
+    .df-box.df-nodata{background:transparent;color:var(--text3);border:0.5px solid rgba(255,255,255,0.07);font-size:9px;}
     .df-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
     .df-leg{display:flex;align-items:center;gap:5px;font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.5px;}
     .df-leg-sw{width:10px;height:10px;border-radius:0;flex-shrink:0;}
@@ -3050,47 +3051,50 @@ function renderDriverForm(){
     el.innerHTML='<div style="font-size:13px;color:var(--text2)">No completed races yet.</div>';
     return;
   }
-  // Colour classification for a finishing position
   function formClass(pos){
-    if(pos==='DNF') return 'df-dnf';
+    if(pos==='DNF'||pos==='DNS') return 'df-dnf';
     if(pos<=3) return 'df-podium';
     if(pos<=6) return 'df-strong';
     if(pos<=10) return 'df-points';
     return 'df-outside';
   }
-  // Build per-driver finish lookup: driverId -> [pos per round in order]
   const rounds=standingsHistory.slice().sort((a,b)=>a.round-b.round);
   // Legend
   const legend=document.createElement('div'); legend.className='df-legend';
   legend.innerHTML=
-    '<div class="df-leg"><div class="df-leg-sw" style="background:#22c55e"></div>Podium (1–3)</div>'
-   +'<div class="df-leg"><div class="df-leg-sw" style="background:#ca8a04"></div>Points top 6</div>'
-   +'<div class="df-leg"><div class="df-leg-sw" style="background:#c2410c"></div>Points 7–10</div>'
-   +'<div class="df-leg"><div class="df-leg-sw" style="background:#3a1a1a;border:0.5px solid var(--border)"></div>Outside top 10</div>'
-   +'<div class="df-leg"><div class="df-leg-sw" style="background:#2a1010;border:0.5px solid var(--red)"></div>DNF</div>';
+    '<div class="df-leg"><div class="df-leg-sw" style="background:#16a34a"></div>Podium (1–3)</div>'
+   +'<div class="df-leg"><div class="df-leg-sw" style="background:#eab308"></div>Points (4–6)</div>'
+   +'<div class="df-leg"><div class="df-leg-sw" style="background:#f97316"></div>Points (7–10)</div>'
+   +'<div class="df-leg"><div class="df-leg-sw" style="background:var(--bg3);border:0.5px solid var(--border)"></div>Outside top 10</div>'
+   +'<div class="df-leg"><div class="df-leg-sw" style="background:#E10600"></div>DNF / DNS</div>';
   el.appendChild(legend);
-  // One row per driver, ordered by current championship position
   liveDrivers.forEach(d=>{
     const row=document.createElement('div'); row.className='df-row';
-    // Driver name cell
     const nameCell=document.createElement('div'); nameCell.className='df-driver';
     nameCell.innerHTML='<div class="df-pip" style="background:'+d.color+'"></div>'
       +'<div class="df-name">'+d.last.toUpperCase()+'</div>';
-    // Boxes cell
     const boxesCell=document.createElement('div'); boxesCell.className='df-boxes';
     rounds.forEach(h=>{
       const pos=h.driverFinishes?.[d.driverId];
       const box=document.createElement('div');
       if(pos===undefined){
-        // Driver not in results for this round (DNS or mid-season entry) — show dash
-        box.className='df-box df-outside';
-        box.textContent='—';
-        box.style.fontSize='10px';
-        box.title='No data · '+h.race;
+        // Not in results — could be DNS or mid-season entry; show as DNF/DNS if
+        // we have results for this round (i.e. other drivers finished), otherwise no-data
+        const roundHasResults=Object.keys(h.driverFinishes||{}).length>0;
+        if(roundHasResults){
+          // Driver was absent from a completed race — treat as DNS
+          box.className='df-box df-dnf';
+          box.textContent='X';
+          box.title='DNS · '+h.race;
+        } else {
+          box.className='df-box df-nodata';
+          box.textContent='·';
+          box.title='No data · '+h.race;
+        }
       } else {
         box.className='df-box '+formClass(pos);
-        box.textContent=pos==='DNF'?'X':pos;
-        box.title=(pos==='DNF'?'DNF':'P'+pos)+' · '+h.race;
+        box.textContent=(pos==='DNF'||pos==='DNS')?'X':pos;
+        box.title=(pos==='DNF'?'DNF':pos==='DNS'?'DNS':'P'+pos)+' · '+h.race;
       }
       boxesCell.appendChild(box);
     });
