@@ -1343,9 +1343,11 @@ async function openDriverModal(driverId){
   for(let i=0;i<completedRoundsForPit.length;i++){
     const round=completedRoundsForPit[i];
     if(pitStopData[round]) continue; // already loaded
-    if(i>0) await new Promise(r=>setTimeout(r,500));
+    const pitUrl=BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=200';
+    const isCached=!!cacheGet(pitUrl);
+    if(i>0&&!isCached) await new Promise(r=>setTimeout(r,500));
     try{
-      const pd=await fetchJSON(BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=200',2,false);
+      const pd=await fetchJSON(pitUrl,2,false);
       const stops=pd.MRData?.RaceTable?.Races?.[0]?.PitStops||[];
       stops.forEach(s=>{ if(!pitStopData[round]) pitStopData[round]=[]; pitStopData[round].push({driverId:s.driverId,duration:s.duration}); });
     }catch(e){}
@@ -2203,10 +2205,12 @@ async function loadCalendar(bypassCache=false){
     const completedSprints=completed.filter(r=>SPRINT_ROUNDS.has(parseInt(r.round)));
     if(completed.length>0){
       // Fetch per-round data sequentially to avoid 429 rate limiting
+      // Skip delay if data is already in cache — only throttle actual network requests
       for(let i=0;i<completed.length;i++){
-        if(i>0) await new Promise(r=>setTimeout(r,500));
         const r=completed[i];
         const isSprint=SPRINT_ROUNDS.has(parseInt(r.round));
+        const resultsCached=!bypassCache&&!!cacheGet(`${BASE}/${SEASON}/${r.round}/results.json?limit=25`);
+        if(i>0&&!resultsCached) await new Promise(r=>setTimeout(r,500));
         const fetches=[
           fetchJSON(`${BASE}/${SEASON}/${r.round}/results.json?limit=25`,2,bypassCache).catch(()=>null),
           fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null),
@@ -2981,9 +2985,11 @@ async function buildStandingsHistory(){
   if(!completed.length){ standingsHistory=[]; return; }
   standingsHistory=[];
   for(let i=0;i<completed.length;i++){
-    if(i>0) await new Promise(r=>setTimeout(r,500));
+    const url=`${BASE}/${SEASON}/${parseInt(completed[i].round)}/driverstandings.json?limit=10`;
+    const isCached=!!cacheGet(url);
+    if(i>0&&!isCached) await new Promise(r=>setTimeout(r,500));
     try{
-      const res=await fetchJSON(`${BASE}/${SEASON}/${parseInt(completed[i].round)}/driverstandings.json?limit=10`);
+      const res=await fetchJSON(url);
       const round=parseInt(completed[i].round);
       const sl=res.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings||[];
       const raceResults=resultsMap[completed[i].round]||[];
