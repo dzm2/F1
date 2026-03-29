@@ -473,7 +473,7 @@
   <div id="welcome-banner" style="display:none;background:var(--bg);border:0.5px solid var(--border);border-radius:0;padding:20px 32px;position:relative">
     <button onclick="dismissWelcome()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;padding:0">✕</button>
     <div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:17px;color:var(--text);margin-bottom:6px">Welcome to Sector Scope</div>
-    <div style="font-size:13px;color:var(--text2);line-height:1.6;padding-right:24px">Your 2026 Formula 1 results dashboard — standings, races, news, and records all in one place. Data is sourced from the Jolpica F1 API, which updates on Mondays. Click any driver or team to see detailed stats.</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;padding-right:24px">Your 2026 Formula 1 results dashboard — standings, races, and news all in one place. Data is sourced from the Jolpica F1 API, which updates on Mondays. Click the dashboard's Refresh button to reload all data from scratch.</div>
   </div>
 
   <!-- Season stats strip -->
@@ -3027,7 +3027,7 @@ async function buildConstructorHistory(){
         const id=c.Constructor.constructorId;
         const cumPts=parseFloat(c.points||0);
         const prevRound=conHistory[conHistory.length-1];
-        const prevPts=prevRound?prevRound.conPts[id]||0:0;
+        const prevPts=prevRound?prevRound.conPts[id]?.cumulative||0:0;
         conPts[id]={name:cleanConstructorName(c.Constructor.name),color:teamColor(c.Constructor.name),scored:Math.round(cumPts-prevPts),cumulative:cumPts};
       });
       conHistory.push({round:parseInt(completed[i].round),race:completed[i].raceName.replace(' Grand Prix',''),conPts});
