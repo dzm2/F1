@@ -15,7 +15,7 @@
       --red:#E10600; --gold:#c89b3c; --green:#22c55e;
       --bg:#1c1c1a; --bg2:#252523; --bg3:#2e2e2b;
       --canvas:#A50400;
-      --text:#e8e6de; --text2:#9c9a92; --text3:#6b6963;
+      --text:#e8e6de; --text2:#c0beb6; --text3:#8a8880;
       --border:rgba(255,255,255,0.1); --border2:rgba(255,255,255,0.22);
       --info:#85b7eb; --shadow:rgba(0,0,0,0.3);
     }
@@ -172,7 +172,7 @@
     .podium-item{display:flex;align-items:center;gap:4px;}
     .podium-pos{font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text2);}
     .podium-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:13px;color:var(--text);text-transform:uppercase;}
-    .sprint-pill{background:var(--gold);color:#fff;font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:20px;white-space:nowrap;margin-left:4px;}
+    .sprint-pill{font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);white-space:nowrap;margin-left:6px;}
     .race-detail{display:none;padding-top:16px;border-top:0.5px solid var(--border);margin-top:12px;}
     .race-detail.open{display:block;min-height:20px;}
     .detail-section-title{font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;margin-top:18px;}
@@ -1358,19 +1358,6 @@ async function openDriverModal(driverId){
   const initials=(d.first[0]||'')+(d.last[0]||'');
   const age=d.dob?Math.floor((Date.now()-new Date(d.dob))/(365.25*86400000)):'—';
 
-  // Plain-English summary
-  const leader=liveDrivers[0];
-  const racesLeft=TOTAL_RACES-(window._completedRounds?.length||0);
-  let summary='';
-  if(d.pos===1){
-    const gap=leader&&liveDrivers[1]?d.pts-liveDrivers[1].pts:0;
-    summary=`${d.last} leads the 2026 championship by ${gap} point${gap!==1?'s':''} with ${racesLeft} race${racesLeft!==1?'s':''} remaining.`;
-  } else {
-    const gap=leader?leader.pts-d.pts:0;
-    summary=`${d.last} is P${d.pos} in the championship, ${gap} point${gap!==1?'s':''} behind leader ${leader?.last||''}${d.wins>0?' with '+d.wins+' win'+(d.wins>1?'s':'')+' this season':''}.`;
-  }
-  if(isRookie) summary+=' This is their first season in Formula 1.';
-
   document.getElementById('modal-body').innerHTML=`
     <div class="modal-driver-hero">
       <div style="display:flex;flex-shrink:0">${headshotImg(d.number,d.color,initials,56)}</div>
@@ -1379,7 +1366,6 @@ async function openDriverModal(driverId){
         <div class="modal-driver-sub">${d.team} · #${d.number||'—'} · ${d.flag} ${d.nationality}</div>
       </div>
     </div>
-    <div style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:var(--text2);line-height:1.6;padding:12px 14px;background:var(--bg2);border-radius:6px;border-left:3px solid ${d.color};margin-bottom:1rem">${summary}</div>
 
     <div class="modal-bio">
       <div class="modal-stat"><div class="modal-stat-label">Age</div><div class="modal-stat-value">${age}</div></div>
