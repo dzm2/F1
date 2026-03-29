@@ -1327,14 +1327,12 @@ const TEAM_INFO = {
 // ── Driver modal ──
 let _modalFetching=false;
 let _modalFetchTimeout=null;
+let _modalGeneration=0; // incremented on each open; fetch loops abort if generation changes
 async function openDriverModal(driverId){
   const d=liveDrivers.find(x=>x.driverId===driverId); if(!d) return;
-  // If a modal fetch is already in flight, wait for it to finish before starting another
-  if(_modalFetching){
-    await new Promise(r=>{ const check=()=>_modalFetching?setTimeout(check,200):r(); check(); });
-  }
+  // Increment generation — any in-flight fetch from a previous open will see a stale generation and abort
+  const myGen=++_modalGeneration;
   _modalFetching=true;
-  // Safety release — lock never held more than 30s regardless of what happens
   if(_modalFetchTimeout) clearTimeout(_modalFetchTimeout);
   _modalFetchTimeout=setTimeout(()=>{ _modalFetching=false; },30000);
   const bio=DRIVER_BIO[driverId]||{};
@@ -1344,6 +1342,7 @@ async function openDriverModal(driverId){
   // Pre-fetch pit stop data for all completed rounds sequentially to avoid 429s
   const completedRoundsForPit=Object.keys(resultsMap).filter(r=>(resultsMap[r]||[]).length>0);
   for(let i=0;i<completedRoundsForPit.length;i++){
+    if(myGen!==_modalGeneration) return; // a newer modal was opened — abort
     const round=completedRoundsForPit[i];
     if(pitStopData[round]) continue; // already loaded
     const pitUrl=BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=200';
@@ -1355,6 +1354,7 @@ async function openDriverModal(driverId){
       stops.forEach(s=>{ if(!pitStopData[round]) pitStopData[round]=[]; pitStopData[round].push({driverId:s.driverId,duration:s.duration}); });
     }catch(e){}
   }
+  if(myGen!==_modalGeneration) return;
   const initials=(d.first[0]||'')+(d.last[0]||'');
   const age=d.dob?Math.floor((Date.now()-new Date(d.dob))/(365.25*86400000)):'—';
 
@@ -1457,6 +1457,7 @@ async function openDriverModal(driverId){
       // Fetch remaining pages sequentially with 500ms delay between each
       const allRaces=[...firstRaces];
       for(let offset=limit;offset<total;offset+=limit){
+        if(myGen!==_modalGeneration) return []; // abort if a newer modal was opened
         await new Promise(r=>setTimeout(r,500));
         try{
           const page=await fetchJSON(`${BASE}/drivers/${driverId}/results.json?limit=${limit}&offset=${offset}`);
@@ -1469,12 +1470,16 @@ async function openDriverModal(driverId){
 
   // Fetch sequentially with delays to avoid 429s — career fetch is already internally sequential
   const careerRaces = await Promise.allSettled([fetchAllCareerRaces(driverId)]).then(r=>r[0]);
+  if(myGen!==_modalGeneration) return;
   await new Promise(r=>setTimeout(r,500));
   const raceData = await Promise.allSettled([fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/results.json?limit=30`)]).then(r=>r[0]);
+  if(myGen!==_modalGeneration) return;
   await new Promise(r=>setTimeout(r,500));
   const sprintData = await Promise.allSettled([fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/sprint.json?limit=30`)]).then(r=>r[0]);
+  if(myGen!==_modalGeneration) return;
   await new Promise(r=>setTimeout(r,500));
   const qualiData = await Promise.allSettled([fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/qualifying.json?limit=30`)]).then(r=>r[0]);
+  if(myGen!==_modalGeneration) return;
 
   // Career stats
   const clEl=document.getElementById('modal-career-loading');
