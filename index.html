@@ -631,6 +631,9 @@
       <div class="section-group-label">Driver form</div>
       <div id="driver-form-section" style="background:var(--bg);border-radius:8px;border:0.5px solid var(--border);padding:14px 16px;margin-bottom:4px"></div>
       <hr class="modal-divider" style="margin:1rem 0">
+      <div class="section-group-label">Team performance trend</div>
+      <div id="team-trend-section" style="background:var(--bg);border-radius:8px;border:0.5px solid var(--border);padding:14px 16px;margin-bottom:4px"></div>
+      <hr class="modal-divider" style="margin:1rem 0">
       <div class="section-group-label">Championship deep dive</div>
       <div id="champ-deep-dive" style="background:var(--bg);border-radius:8px;border:0.5px solid var(--border);padding:14px 16px">
         <div style="margin-bottom:1rem">
@@ -887,7 +890,7 @@ function chartDefaults(yTitle=''){
     }
   };
 }
-let liveDrivers=[], liveConstructors=[], standingsHistory=[];
+let liveDrivers=[], liveConstructors=[], standingsHistory=[], conHistory=[];
 let fastestLapCounts={};  // driverId -> FL count for 2026
 let resultsMap={}, sprintMap={}, qualiMap={}, sprintQualiMap={};
 let pitStopData={};       // round -> {driverId -> [{lap,duration}]}
@@ -3007,11 +3010,38 @@ async function buildStandingsHistory(){
   standingsHistory.sort((a,b)=>a.round-b.round);
 }
 
+async function buildConstructorHistory(){
+  const completed=window._completedRounds||[];
+  if(!completed.length){ conHistory=[]; return; }
+  conHistory=[];
+  for(let i=0;i<completed.length;i++){
+    const url=`${BASE}/${SEASON}/${parseInt(completed[i].round)}/constructorstandings.json?limit=12`;
+    const isCached=!!cacheGet(url);
+    if(i>0&&!isCached) await new Promise(r=>setTimeout(r,500));
+    try{
+      const res=await fetchJSON(url);
+      const sl=res.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings||[];
+      // Store points scored this round by diffing from previous round
+      const conPts={};
+      sl.forEach(c=>{
+        const id=c.Constructor.constructorId;
+        const cumPts=parseFloat(c.points||0);
+        const prevRound=conHistory[conHistory.length-1];
+        const prevPts=prevRound?prevRound.conPts[id]||0:0;
+        conPts[id]={name:cleanConstructorName(c.Constructor.name),color:teamColor(c.Constructor.name),scored:Math.round(cumPts-prevPts),cumulative:cumPts};
+      });
+      conHistory.push({round:parseInt(completed[i].round),race:completed[i].raceName.replace(' Grand Prix',''),conPts});
+    }catch(e){}
+  }
+  conHistory.sort((a,b)=>a.round-b.round);
+}
+
 async function loadSeasonTab(background=false){
   window._seasonLoaded=true;
-  await buildStandingsHistory();
+  await Promise.all([buildStandingsHistory(),buildConstructorHistory()]);
   renderTimeline();
   renderDriverForm();
+  renderTeamTrend();
   renderChampionshipDeepDive();
   renderH2H();
   renderRegulations();
@@ -3106,6 +3136,76 @@ function renderDriverForm(){
     row.appendChild(boxesCell);
     el.appendChild(row);
   });
+}
+
+function renderTeamTrend(){
+  const el=document.getElementById('team-trend-section');
+  el.innerHTML='';
+  if(!conHistory.length){
+    el.innerHTML='<div style="font-size:13px;color:var(--text2)">No completed races yet.</div>';
+    return;
+  }
+  const tick='#9c9a92';
+  const grid='rgba(255,255,255,0.08)';
+  const labels=conHistory.map(h=>h.race);
+
+  // Build per-constructor scored points per round
+  // Determine top 5 by current cumulative points
+  const lastRound=conHistory[conHistory.length-1];
+  const allConIds=Object.keys(lastRound.conPts).sort((a,b)=>lastRound.conPts[b].cumulative-lastRound.conPts[a].cumulative);
+  const top5Ids=allConIds.slice(0,5);
+
+  function buildDatasets(ids){
+    return ids.map(id=>{
+      const info=lastRound.conPts[id]||{name:id,color:'#888'};
+      return {
+        label:info.name,
+        data:conHistory.map(h=>(h.conPts[id]?.scored??null)),
+        borderColor:info.color,
+        backgroundColor:'transparent',
+        borderWidth:2,
+        pointRadius:conHistory.length>10?2:4,
+        pointBackgroundColor:info.color,
+        tension:0.2,
+        spanGaps:true,
+      };
+    });
+  }
+
+  // Chart canvas
+  const wrap=document.createElement('div'); wrap.style.cssText='position:relative;height:260px';
+  const canvas=document.createElement('canvas'); canvas.id='team-trend-chart';
+  wrap.appendChild(canvas); el.appendChild(wrap);
+
+  // Show all button
+  const btn=document.createElement('button');
+  btn.style.cssText='background:none;border:0.5px solid rgba(255,255,255,0.22);border-radius:0;padding:4px 10px;font-family:\'Barlow\',sans-serif;font-size:11px;font-weight:700;color:#9c9a92;cursor:pointer;letter-spacing:1px;text-transform:uppercase;margin-top:10px';
+  btn.textContent='Show all '+allConIds.length+' teams';
+  el.appendChild(btn);
+
+  const opts={
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:true,position:'bottom',labels:{color:tick,font:{family:"'Barlow',sans-serif",size:11},boxWidth:10,boxHeight:10,padding:10,usePointStyle:false}},
+      tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y} pts`}}
+    },
+    scales:{
+      x:{ticks:{color:tick,font:{family:"'Barlow',sans-serif",size:10},autoSkip:false,maxRotation:labels.length>10?45:0},grid:{color:grid}},
+      y:{min:0,ticks:{color:tick,font:{family:"'Barlow',sans-serif",size:11},stepSize:10},grid:{color:grid},title:{display:true,text:'Points scored',color:tick,font:{family:"'Barlow',sans-serif",size:9}}}
+    }
+  };
+
+  if(canvas._chart) canvas._chart.destroy();
+  canvas._chart=new Chart(canvas,{type:'line',data:{labels,datasets:buildDatasets(top5Ids)},options:opts});
+
+  let showingAll=false;
+  btn.onclick=()=>{
+    showingAll=!showingAll;
+    const ids=showingAll?allConIds:top5Ids;
+    canvas._chart.data.datasets=buildDatasets(ids);
+    canvas._chart.update();
+    btn.textContent=showingAll?'Show top 5 only':'Show all '+allConIds.length+' teams';
+  };
 }
 
 function renderChampionshipDeepDive(){
