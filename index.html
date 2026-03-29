@@ -3597,7 +3597,7 @@ async function loadPodcasts(){
   results.forEach(r=>{if(r.status==='fulfilled') items.push(...r.value);});
   items.sort((a,b)=>b.sortDate.localeCompare(a.sortDate));
   if(!items.length){
-    grid.innerHTML='<div class="error-msg">No podcast episodes loaded. Try refreshing.</div>';
+    grid.innerHTML='<div class="error-msg">Podcasts couldn\'t be loaded right now. This is usually temporary — try again in a few hours.</div>';
     return;
   }
   grid.innerHTML='<div class="podcast-grid">'+items.slice(0,20).map(ep=>`
