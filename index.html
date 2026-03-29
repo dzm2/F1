@@ -75,6 +75,8 @@
     .f1-table tr.p1 td { background:var(--bg); padding-top:14px; padding-bottom:14px; }
     .f1-pos { font-family:'Barlow',sans-serif; font-size:15px; font-weight:900; color:var(--text3); width:32px; text-align:right; }
     .f1-table tr.p1 .f1-pos { color:#B8922A; font-size:22px; }
+    .driver-headshot-cell { flex-shrink:0; }
+    .driver-headshot-cell img { display:block; }
     .driver-col{display:flex;align-items:center;gap:10px;}
     .driver-flag{font-size:15px;}
     .driver-info-wrap { display:flex; flex-direction:column; gap:2px; min-width:0; }
@@ -665,6 +667,7 @@
         <span class="sources-group-label">Live data</span>
         <div class="src-pills">
           <a class="src-pill" href="https://api.jolpi.ca/ergast/f1/" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#22c55e"></span>jolpica F1 API<span class="src-tag">LIVE</span></a>
+          <a class="src-pill" href="https://openf1.org" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#e10600"></span>openf1.org<span class="src-tag">TELEMETRY</span></a>
           <a class="src-pill" href="https://open-meteo.com" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#0ea5e9"></span>open-meteo.com<span class="src-tag">WEATHER</span></a>
           <a class="src-pill" href="https://www.anthropic.com" target="_blank" rel="noopener noreferrer"><span class="src-dot" style="background:#cc785c"></span>Anthropic API<span class="src-tag">AI</span></a>
         </div>
@@ -868,6 +871,8 @@ let liveDrivers=[], liveConstructors=[], standingsHistory=[];
 let fastestLapCounts={};  // driverId -> FL count for 2026
 let resultsMap={}, sprintMap={}, qualiMap={}, sprintQualiMap={};
 let pitStopData={};       // round -> {driverId -> [{lap,duration}]}
+let _headshots={};        // driver_number -> headshot_url (from OpenF1)
+let _of1SessionKeys={};   // jolpica round -> openf1 session_key
 
 // ── Rookies (2026 first full F1 season) ──
 const ROOKIES=new Set(['lindblad','arvid_lindblad']);
@@ -1048,12 +1053,17 @@ async function loadDriverStandings(bypassCache=false){
     const finRateStr=finRate!==null&&finRate!==undefined?finRate+'%':'—';
     // Trend: compare current pts to pts after previous round
 
-    dtb.innerHTML+=`<tr class="${d.pos===1?'p1':''}" data-search="${d.first} ${d.last} ${d.team}" onclick="openDriverModal('${d.driverId}')">
+    dtb.innerHTML+=`<tr class="${d.pos===1?'p1':''}" data-search="${d.first} ${d.last} ${d.team}" data-driver-number="${d.number||''}" onclick="openDriverModal('${d.driverId}')">
       <td class="f1-pos">${d.pos}</td>
       <td style="padding-right:0;width:4px"><div class="team-pip" style="background:${d.color}"></div></td>
       <td><div class="driver-info-wrap">
-        <div class="driver-info-name">${d.last.toUpperCase()}${rookieBadge}</div>
-        <div class="driver-info-first">${d.team}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="driver-headshot-cell" id="hs-${d.number||d.driverId}"></div>
+          <div>
+            <div class="driver-info-name">${d.last.toUpperCase()}${rookieBadge}</div>
+            <div class="driver-info-first">${d.team}</div>
+          </div>
+        </div>
         <div class="driver-pts-bar"><div class="driver-pts-bar-fill" style="width:${pct}%;background:${d.color}"></div></div>
       </div></td>
       <td class="pts-cell" data-val="${d.pts}"><div class="pts-num">${d.pts}</div></td>
@@ -1326,7 +1336,7 @@ async function openDriverModal(driverId){
 
   document.getElementById('modal-body').innerHTML=`
     <div class="modal-driver-hero">
-      <div class="modal-avatar-placeholder" style="background:${d.color}22;border-color:${d.color}44;color:${d.color}">${initials}</div>
+      <div style="display:flex;flex-shrink:0">${headshotImg(d.number,d.color,initials,56)}</div>
       <div style="min-width:0">
         <div class="modal-driver-name">${d.first.toUpperCase()} ${d.last.toUpperCase()}${isRookie?'<span class="rookie-badge" style="font-size:8px;margin-left:8px">ROOKIE</span>':''}</div>
         <div class="modal-driver-sub">${d.team} · #${d.number||'—'} · ${d.flag} ${d.nationality}</div>
@@ -2640,6 +2650,22 @@ async function loadCalendar(bypassCache=false){
         pitWrap.dataset.round=r.round;
         pitWrap.dataset.loaded='0';
 
+        // Tyre strategy — lazy loaded from OpenF1
+        const stintsTitle=document.createElement('div'); stintsTitle.className='detail-section-title'; stintsTitle.textContent='Tyre strategy'; body.appendChild(stintsTitle);
+        const stintsWrap=document.createElement('div'); stintsWrap.id='stints-'+r.round;
+        stintsWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
+        body.appendChild(stintsWrap);
+        stintsWrap.dataset.round=r.round;
+        stintsWrap.dataset.loaded='0';
+
+        // Race control — lazy loaded from OpenF1
+        const rcTitle=document.createElement('div'); rcTitle.className='detail-section-title'; rcTitle.textContent='Race control'; body.appendChild(rcTitle);
+        const rcWrap=document.createElement('div'); rcWrap.id='rc-'+r.round;
+        rcWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
+        body.appendChild(rcWrap);
+        rcWrap.dataset.round=r.round;
+        rcWrap.dataset.loaded='0';
+
         const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap · top 5 finishers'; body.appendChild(flTitle);
         const top5=finishers.slice(0,5).filter(f=>f.FastestLap?.Time?.time);
         if(top5.length){
@@ -2813,6 +2839,103 @@ document.getElementById('race-list').addEventListener('click', e=>{
         html+='</tbody></table>';
         pitWrap.innerHTML=html;
       }).catch((e)=>{pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">Pit data unavailable — '+e.message+'</div>';});
+    }
+
+    // Lazy-load tyre strategy from OpenF1
+    const stintsWrap=document.getElementById('stints-'+round);
+    if(stintsWrap&&stintsWrap.dataset.loaded==='0'){
+      stintsWrap.dataset.loaded='1';
+      const sk=_of1SessionKeys[round];
+      if(!sk){
+        stintsWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">Tyre data not available for this round.</div>';
+      } else {
+        fetchOF1(`${OF1_BASE}/stints?session_key=${sk}`).then(data=>{
+          if(!data||!data.length){stintsWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">No tyre data available.</div>';return;}
+          // Group by driver number, sort stints by lap_start
+          const byNum={};
+          data.forEach(s=>{if(!byNum[s.driver_number])byNum[s.driver_number]=[];byNum[s.driver_number].push(s);});
+          // Order by finishing position
+          const finishersForRound=resultsMap[round]||[];
+          const orderedNums=finishersForRound.map(f=>{
+            const d=liveDrivers.find(x=>x.driverId===f.Driver?.driverId);
+            return d?.number;
+          }).filter(n=>n&&byNum[n]);
+          Object.keys(byNum).forEach(n=>{if(!orderedNums.includes(parseInt(n)))orderedNums.push(parseInt(n));});
+          const compoundColor={SOFT:'#E10600',MEDIUM:'#fbbf24',HARD:'#9ca3af',INTERMEDIATE:'#22d3ee',WET:'#3b82f6'};
+          const compoundText={SOFT:'S',MEDIUM:'M',HARD:'H',INTERMEDIATE:'I',WET:'W'};
+          let html='<div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">';
+          orderedNums.forEach(num=>{
+            const stints=(byNum[num]||[]).sort((a,b)=>a.lap_start-b.lap_start);
+            const dObj=liveDrivers.find(x=>x.number===num)||{last:'#'+num,color:'#888'};
+            const color=dObj.color||'#888';
+            const totalLaps=stints.length?stints[stints.length-1].lap_end||stints[stints.length-1].lap_start:1;
+            const barTotal=Math.max(totalLaps,1);
+            html+='<div style="display:grid;grid-template-columns:80px 1fr;gap:8px;align-items:center">';
+            html+='<div style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';flex-shrink:0"></span>'
+              +'<span style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:12px;color:var(--text);text-transform:uppercase">'+dObj.last.toUpperCase()+'</span></div>';
+            html+='<div style="display:flex;height:18px;border-radius:0;overflow:hidden;gap:1px">';
+            stints.forEach(s=>{
+              const lapEnd=s.lap_end||s.lap_start;
+              const lapStart=s.lap_start||1;
+              const width=Math.max(((lapEnd-lapStart+1)/barTotal)*100,2);
+              const cmp=(s.compound||'').toUpperCase();
+              const bg=compoundColor[cmp]||'var(--bg3)';
+              const label=compoundText[cmp]||'?';
+              const age=s.tyre_age_at_start>0?` (${s.tyre_age_at_start}L old)`:'';
+              html+=`<div title="${cmp} · L${lapStart}–${lapEnd}${age}" style="width:${width}%;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:900;font-size:9px;color:#fff;overflow:hidden;white-space:nowrap">${width>6?label:''}</div>`;
+            });
+            html+='</div></div>';
+          });
+          html+='</div>';
+          stintsWrap.innerHTML=html;
+        }).catch(()=>{stintsWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">Tyre data unavailable.</div>';});
+      }
+    }
+
+    // Lazy-load race control from OpenF1
+    const rcWrap=document.getElementById('rc-'+round);
+    if(rcWrap&&rcWrap.dataset.loaded==='0'){
+      rcWrap.dataset.loaded='1';
+      const sk=_of1SessionKeys[round];
+      if(!sk){
+        rcWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">Race control data not available for this round.</div>';
+      } else {
+        fetchOF1(`${OF1_BASE}/race_control?session_key=${sk}`).then(data=>{
+          if(!data||!data.length){rcWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">No race control events recorded.</div>';return;}
+          // Filter to meaningful events only
+          const relevant=data.filter(e=>{
+            const msg=(e.message||'').toUpperCase();
+            const cat=(e.category||'').toUpperCase();
+            const flag=(e.flag||'').toUpperCase();
+            return flag==='SAFETY CAR'||flag==='VIRTUAL SAFETY CAR'||flag==='RED'||flag==='RED FLAG'
+              ||cat==='SAFETYCAR'||msg.includes('SAFETY CAR')||msg.includes('RED FLAG')
+              ||msg.includes('VIRTUAL SAFETY CAR')||msg.includes('VSC')
+              ||(cat==='FLAG'&&(flag==='BLACK AND WHITE'||flag==='BLACK'))
+              ||msg.includes('TIME PENALTY')||msg.includes('DRIVE THROUGH')||msg.includes('STOP AND GO')
+              ||msg.includes('DISQUALIFIED')||msg.includes('PENALTY');
+          });
+          if(!relevant.length){rcWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">No notable race control events.</div>';return;}
+          const eventColor=e=>{
+            const msg=(e.message||'').toUpperCase();
+            const flag=(e.flag||'').toUpperCase();
+            if(flag==='RED'||flag==='RED FLAG'||msg.includes('RED FLAG')) return '#E10600';
+            if(flag==='SAFETY CAR'||msg.includes('SAFETY CAR')) return '#f59e0b';
+            if(flag==='VIRTUAL SAFETY CAR'||msg.includes('VIRTUAL SAFETY CAR')||msg.includes('VSC')) return '#fbbf24';
+            return 'var(--text3)';
+          };
+          let html='<div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">';
+          relevant.forEach(e=>{
+            const col=eventColor(e);
+            const lap=e.lap_number?'L'+e.lap_number+' · ':'';
+            html+=`<div style="display:flex;gap:8px;align-items:baseline;padding:5px 8px;background:var(--bg2);border-radius:4px;border-left:3px solid ${col}">
+              <span style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;color:var(--text3);flex-shrink:0;white-space:nowrap">${lap}</span>
+              <span style="font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;color:var(--text2);line-height:1.4">${sanitise(e.message||'')}</span>
+            </div>`;
+          });
+          html+='</div>';
+          rcWrap.innerHTML=html;
+        }).catch(()=>{rcWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">Race control data unavailable.</div>';});
+      }
     }
   }
 });
@@ -3476,6 +3599,64 @@ function openSettings(){
 function closeSettings(){ document.getElementById('settings-modal').classList.add('hidden'); }
 
 
+function renderDriverTableHeadshots(){
+  liveDrivers.forEach(d=>{
+    const cell=document.getElementById('hs-'+(d.number||d.driverId));
+    if(!cell) return;
+    const initials=(d.first[0]||'')+(d.last[0]||'');
+    cell.innerHTML=headshotImg(d.number,d.color,initials,32);
+  });
+}
+
+// ── OpenF1 helpers ──
+const OF1_BASE='https://api.openf1.org/v1';
+const OF1_TTL=7*24*60*60*1000; // 7 days — headshots and session keys rarely change
+
+async function fetchOF1(url){
+  // Uses localStorage with a 7-day TTL, separate from Jolpica cache
+  const cacheKey='of1:'+url;
+  try{
+    const cached=JSON.parse(localStorage.getItem(cacheKey));
+    if(cached&&Date.now()-cached.ts<OF1_TTL) return cached.data;
+  }catch(e){}
+  try{
+    const r=await fetch(url,{signal:AbortSignal.timeout(10000)});
+    if(!r.ok) return null;
+    const data=await r.json();
+    try{ localStorage.setItem(cacheKey,JSON.stringify({ts:Date.now(),data})); }catch(e){}
+    return data;
+  }catch(e){ return null; }
+}
+
+async function loadHeadshots(){
+  // One call per session — driver headshots don't change during the season
+  const data=await fetchOF1(`${OF1_BASE}/drivers?session_key=latest`);
+  if(!Array.isArray(data)) return;
+  _headshots={};
+  data.forEach(d=>{ if(d.driver_number&&d.headshot_url) _headshots[d.driver_number]=d.headshot_url; });
+}
+
+async function loadOF1SessionKeys(){
+  // Fetch all 2026 race sessions from OpenF1 and map to Jolpica round numbers by date
+  const data=await fetchOF1(`${OF1_BASE}/sessions?year=${SEASON}&session_name=Race`);
+  if(!Array.isArray(data)||!window._allRaces) return;
+  _of1SessionKeys={};
+  window._allRaces.forEach(r=>{
+    // Match by date — both APIs use the same race date
+    const match=data.find(s=>s.date_start&&s.date_start.slice(0,10)===r.date);
+    if(match) _of1SessionKeys[r.round]=match.session_key;
+  });
+}
+
+function headshotImg(driverNumber,color,initials,size=44){
+  const url=_headshots[driverNumber];
+  if(url){
+    return `<img src="${url}" alt="" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${color}44;flex-shrink:0;background:${color}22" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div style="display:none;width:${size}px;height:${size}px;border-radius:50%;background:${color}22;border:2px solid ${color}44;flex-shrink:0;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:900;font-size:${Math.round(size*0.4)}px;color:${color}">${initials}</div>`;
+  }
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color}22;border:2px solid ${color}44;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:900;font-size:${Math.round(size*0.4)}px;color:${color}">${initials}</div>`;
+}
+
 async function loadAll(bypassCache=false){
   resetProgress();
   _loadTotal=4;
@@ -3484,6 +3665,10 @@ async function loadAll(bypassCache=false){
   ['drivers-loading','con-loading','cal-loading'].forEach(id=>document.getElementById(id).style.display='');
   ['drivers-table','con-table','race-list'].forEach(id=>document.getElementById(id).style.display='none');
   await Promise.allSettled([loadDriverStandings(bypassCache),loadConstructorStandings(bypassCache),loadCalendar(bypassCache),loadNews()]);
+  // Load OpenF1 data after main data — headshots in parallel, session keys after allRaces is set
+  await Promise.allSettled([loadHeadshots(),loadOF1SessionKeys()]);
+  // Re-render driver table with headshots now available
+  if(liveDrivers.length) renderDriverTableHeadshots();
   const stale=document.querySelector('.stale-banner.show');
   document.getElementById('fetch-status').textContent=(stale?'Cached':'Live')+' · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   if(stale)document.getElementById('live-dot').classList.add('stale-dot');
@@ -3501,8 +3686,8 @@ async function loadAll(bypassCache=false){
     btn.disabled=true;
     btn.textContent='✓ Refreshed';
     btn.style.color='#16a34a';
-    // Clear localStorage cache so fresh data is fetched
-    try{ Object.keys(localStorage).filter(k=>k.startsWith('https://')).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+    // Clear localStorage cache so fresh data is fetched (both Jolpica and OpenF1)
+    try{ Object.keys(localStorage).filter(k=>k.startsWith('https://')||k.startsWith('of1:')).forEach(k=>localStorage.removeItem(k)); }catch(e){}
     window._seasonLoaded=false;
     loadAll(true).finally(()=>{
       setTimeout(()=>{
