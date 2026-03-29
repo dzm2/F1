@@ -1420,12 +1420,14 @@ async function openDriverModal(driverId){
     }catch(e){ return []; }
   }
 
-  const [careerRaces, raceData, sprintData, qualiData] = await Promise.allSettled([
-    fetchAllCareerRaces(driverId),
-    fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/results.json?limit=30`),
-    fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/sprint.json?limit=30`),
-    fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/qualifying.json?limit=30`),
-  ]);
+  // Fetch sequentially with delays to avoid 429s — career fetch is already internally sequential
+  const careerRaces = await Promise.allSettled([fetchAllCareerRaces(driverId)]).then(r=>r[0]);
+  await new Promise(r=>setTimeout(r,500));
+  const raceData = await Promise.allSettled([fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/results.json?limit=30`)]).then(r=>r[0]);
+  await new Promise(r=>setTimeout(r,500));
+  const sprintData = await Promise.allSettled([fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/sprint.json?limit=30`)]).then(r=>r[0]);
+  await new Promise(r=>setTimeout(r,500));
+  const qualiData = await Promise.allSettled([fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/qualifying.json?limit=30`)]).then(r=>r[0]);
 
   // Career stats
   const clEl=document.getElementById('modal-career-loading');
