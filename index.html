@@ -2655,15 +2655,15 @@ async function loadCalendar(bypassCache=false){
           body.appendChild(dg);
         }
 
-        // Pit stops — inside Race group
-        const pitTitle=document.createElement('div'); pitTitle.className='detail-section-title'; pitTitle.textContent='Pit stops — all drivers'; body.appendChild(pitTitle);
-        const pitWrap=document.createElement('div'); pitWrap.id='pit-'+r.round;
-        pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
-        body.appendChild(pitWrap);
-        pitWrap.dataset.round=r.round;
-        pitWrap.dataset.loaded='0';
+        // Race control — lazy loaded from OpenF1 (moved up: contextualises the results)
+        const rcTitle=document.createElement('div'); rcTitle.className='detail-section-title'; rcTitle.textContent='Race control'; body.appendChild(rcTitle);
+        const rcWrap=document.createElement('div'); rcWrap.id='rc-'+r.round;
+        rcWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
+        body.appendChild(rcWrap);
+        rcWrap.dataset.round=r.round;
+        rcWrap.dataset.loaded='0';
 
-        // Tyre strategy — lazy loaded from OpenF1
+        // Tyre strategy — lazy loaded from OpenF1 (overview before pit stop detail)
         const stintsTitle=document.createElement('div'); stintsTitle.className='detail-section-title'; stintsTitle.textContent='Tyre strategy'; body.appendChild(stintsTitle);
         const stintsWrap=document.createElement('div'); stintsWrap.id='stints-'+r.round;
         stintsWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
@@ -2671,13 +2671,13 @@ async function loadCalendar(bypassCache=false){
         stintsWrap.dataset.round=r.round;
         stintsWrap.dataset.loaded='0';
 
-        // Race control — lazy loaded from OpenF1
-        const rcTitle=document.createElement('div'); rcTitle.className='detail-section-title'; rcTitle.textContent='Race control'; body.appendChild(rcTitle);
-        const rcWrap=document.createElement('div'); rcWrap.id='rc-'+r.round;
-        rcWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
-        body.appendChild(rcWrap);
-        rcWrap.dataset.round=r.round;
-        rcWrap.dataset.loaded='0';
+        // Pit stops — detail within the strategy
+        const pitTitle=document.createElement('div'); pitTitle.className='detail-section-title'; pitTitle.textContent='Pit stops — all drivers'; body.appendChild(pitTitle);
+        const pitWrap=document.createElement('div'); pitWrap.id='pit-'+r.round;
+        pitWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
+        body.appendChild(pitWrap);
+        pitWrap.dataset.round=r.round;
+        pitWrap.dataset.loaded='0';
 
         const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap · top 5 finishers'; body.appendChild(flTitle);
         const top5=finishers.slice(0,5).filter(f=>f.FastestLap?.Time?.time);
