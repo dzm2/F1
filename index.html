@@ -364,7 +364,7 @@
     .tl-date{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text3);margin-top:1px;}
     .tl-driver{display:flex;align-items:center;gap:6px;}
     .tl-pip{width:3px;height:16px;border-radius:0;flex-shrink:0;}
-    .tl-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text);}
+    .tl-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text);text-transform:uppercase;}
     .tl-pts{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text3);}
 
     /* H2H */
@@ -2987,12 +2987,13 @@ async function buildStandingsHistory(){
   const completed=window._completedRounds||[];
   if(!completed.length){ standingsHistory=[]; return; }
   standingsHistory=[];
+  const STANDINGS_TTL=60*60*1000; // 1 hour — per-round standings don't change within a race week
   for(let i=0;i<completed.length;i++){
     const url=`${BASE}/${SEASON}/${parseInt(completed[i].round)}/driverstandings.json?limit=10`;
-    const isCached=!!cacheGet(url);
+    const isCached=!!cacheGet(url,STANDINGS_TTL);
     if(i>0&&!isCached) await new Promise(r=>setTimeout(r,500));
     try{
-      const res=await fetchJSON(url);
+      const res=await fetchJSON(url,2,false,STANDINGS_TTL);
       const round=parseInt(completed[i].round);
       const sl=res.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings||[];
       const raceResults=resultsMap[completed[i].round]||[];
@@ -3014,12 +3015,13 @@ async function buildConstructorHistory(){
   const completed=window._completedRounds||[];
   if(!completed.length){ conHistory=[]; return; }
   conHistory=[];
+  const STANDINGS_TTL=60*60*1000; // 1 hour — per-round standings don't change within a race week
   for(let i=0;i<completed.length;i++){
     const url=`${BASE}/${SEASON}/${parseInt(completed[i].round)}/constructorstandings.json?limit=12`;
-    const isCached=!!cacheGet(url);
+    const isCached=!!cacheGet(url,STANDINGS_TTL);
     if(i>0&&!isCached) await new Promise(r=>setTimeout(r,500));
     try{
-      const res=await fetchJSON(url);
+      const res=await fetchJSON(url,2,false,STANDINGS_TTL);
       const sl=res.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings||[];
       // Store points scored this round by diffing from previous round
       const conPts={};
@@ -3038,6 +3040,12 @@ async function buildConstructorHistory(){
 
 async function loadSeasonTab(background=false){
   window._seasonLoaded=true;
+  // Wait for _completedRounds to be populated by loadCalendar if not yet available
+  let waited=0;
+  while(!window._completedRounds&&waited<8000){
+    await new Promise(r=>setTimeout(r,200));
+    waited+=200;
+  }
   await Promise.all([buildStandingsHistory(),buildConstructorHistory()]);
   renderTimeline();
   renderDriverForm();
