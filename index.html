@@ -2216,7 +2216,12 @@ async function loadCalendar(bypassCache=false){
   const today=new Date();
   const completed=allRaces.filter(r=>(resultsMap[r.round]||[]).length>0);
   const upcoming=allRaces.filter(r=>(resultsMap[r.round]||[]).length===0);
-  const nextRace=allRaces.filter(r=>new Date(r.date)>today)[0]||upcoming[0];
+  // Use full race datetime if available so timezone differences don't cause the race to be
+  // missed when r.date (midnight UTC) has passed but the race hasn't started yet
+  const nextRace=allRaces.filter(r=>{
+    const dt=r.date&&r.time?new Date(r.date+'T'+r.time):new Date(r.date+'T23:59:59Z');
+    return dt>today;
+  })[0]||upcoming[0];
 
   // Expose schedule globally so auto-refresh can make smart decisions
   window._allRaces=allRaces;
