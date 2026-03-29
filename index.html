@@ -2867,19 +2867,20 @@ document.getElementById('race-list').addEventListener('click', e=>{
           // Group by driver number, sort stints by lap_start
           const byNum={};
           data.forEach(s=>{if(!byNum[s.driver_number])byNum[s.driver_number]=[];byNum[s.driver_number].push(s);});
-          // Order by finishing position
+          // Order by finishing position — only include drivers matched to liveDrivers
           const finishersForRound=resultsMap[round]||[];
           const orderedNums=finishersForRound.map(f=>{
             const d=liveDrivers.find(x=>x.driverId===f.Driver?.driverId);
-            return d?.number;
-          }).filter(n=>n&&byNum[n]);
-          Object.keys(byNum).forEach(n=>{if(!orderedNums.includes(parseInt(n)))orderedNums.push(parseInt(n));});
+            // d.number may be a string from Jolpica — coerce to int for OpenF1 lookup
+            const num=d?.number!=null?parseInt(d.number):null;
+            return num&&byNum[num]?num:null;
+          }).filter(n=>n!==null);
           const compoundColor={SOFT:'#E10600',MEDIUM:'#fbbf24',HARD:'#9ca3af',INTERMEDIATE:'#22d3ee',WET:'#3b82f6'};
           const compoundText={SOFT:'S',MEDIUM:'M',HARD:'H',INTERMEDIATE:'I',WET:'W'};
           let html='<div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">';
           orderedNums.forEach(num=>{
             const stints=(byNum[num]||[]).sort((a,b)=>a.lap_start-b.lap_start);
-            const dObj=liveDrivers.find(x=>x.number===num)||{last:'#'+num,color:'#888'};
+            const dObj=liveDrivers.find(x=>parseInt(x.number)===num)||{last:'#'+num,color:'#888'};
             const color=dObj.color||'#888';
             const totalLaps=stints.length?stints[stints.length-1].lap_end||stints[stints.length-1].lap_start:1;
             const barTotal=Math.max(totalLaps,1);
