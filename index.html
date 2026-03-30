@@ -1358,6 +1358,34 @@ async function openDriverModal(driverId){
   const initials=(d.first[0]||'')+(d.last[0]||'');
   const age=d.dob?Math.floor((Date.now()-new Date(d.dob))/(365.25*86400000)):'—';
 
+  // ── Driver analysis (hardcoded, updated after each race) ──
+  // Last updated: after Round 3 · Japan 2026
+  const DRIVER_ANALYSIS = {
+    'antonelli':      "Two wins from three races and now championship leader, but his wheel-spin off the line at the start of both victories is an exploitable habit that stronger midfield resistance will eventually punish.",
+    'russell':        "Fastest car, fastest driver on raw pace in Australia, and yet fortune keeps denying him — the safety car in Japan cost him a near-certain win, and intra-team pressure from Antonelli is growing by the race.",
+    'leclerc':        "Ferrari's most consistent performer through three rounds, with a podium in every race he finished, but still waiting for the clean weekend and strategic call that could turn promising pace into a win.",
+    'hamilton':       "A strong debut in Ferrari red — podium in Australia and two top-six finishes — yet a radio spat with his engineer in Japan over car confidence hints at a driver still finding his feet in new machinery.",
+    'norris':         "The reigning champion is points-light after three rounds; DNSs in China and Japan through no fault of his own have cost him perhaps 40 points, leaving him in a recovery position he shouldn't be in.",
+    'piastri':        "Led the majority of Japan and was the fastest driver on track before the safety car gifted Antonelli the win — if reliability holds from here, he is a genuine title threat, not just a podium contender.",
+    'bearman':        "Haas's early-season surprise packet until a 50G crash at Suzuka's Spoon corner ended his Japan race prematurely; he had been the lead Haas driver all season and his recovery from injury will be closely watched.",
+    'gasly':          "Quietly excellent — points in every race, P7 in Japan after holding Verstappen behind him for much of the second half, and consistently outperforming a car that has no right to be ahead of Red Bull.",
+    'verstappen':     "Three races in and the four-time champion is fighting in the midfield — the Red Bull is genuinely slow under the new regulations, and his frustration is becoming increasingly audible over team radio.",
+    'lawson':         "A solid if unspectacular start — points in Australia and Japan with consistent midfield results, though the pace differential to his rookie teammate Lindblad in qualifying is closer than Racing Bulls would like.",
+    'lindblad':       "An impressive debut season so far for the 18-year-old — points in Australia on his first race start and consistently within half a second of Lawson in qualifying, suggesting the talent is real.",
+    'hadjar':         "A difficult start to his Red Bull career; a retirement in Australia on debut, scoreless in China, and P12 in Japan — the pace is there in practice but qualifying and race execution have let him down.",
+    'hulkenberg':     "Three races, three pointless finishes, but P11 in Japan from a car that was running 1.3 seconds off the pace in practice is better than it looks — if Audi finds development direction, he is ready to convert.",
+    'bortoleto':      "The 2024 F2 champion is learning on the job at Audi — scoring their first-ever F1 point in Australia with P9, and showing consistent racecraft even as the car lags at the back of the midfield.",
+    'sainz':          "Williams looks fundamentally slow in race trim, and Sainz is doing what he can — P15 in Japan from a car that qualified outside the top 14, but the gap to the points-paying positions remains stark.",
+    'colapinto':      "Alpine's second driver is finding his feet — P16 in Japan is unremarkable, but his qualifying pace in China showed potential, and the incident with Bearman at Spoon was genuinely not his fault.",
+    'ocon':           "First points of the season in Japan with P10 after an anonymous first two rounds — Haas need him to be the consistent scorer Bearman was before his crash, and this result will have relieved some internal pressure.",
+    'perez':          "A challenging start to Cadillac's F1 debut; classified finishes in China and Japan but running over a minute behind the leaders, and the gap to the rest of the field is exposing the team's steep learning curve.",
+    'alonso':         "The two-time champion's 18th-place finish in Japan was Aston Martin's first classified result of the season, but running a lap down at Suzuka is a sobering reality check for a team that expected more from the Honda era.",
+    'stroll':         "Two retirements from three starts for Stroll — power unit trouble in Australia and a suspected water pressure failure in Japan — making it impossible to judge the car's true potential from his data alone.",
+    'bottas':         "Cadillac's second car has been as quiet as expected for a new team finding its feet — classified finishes are the goal for now, with genuine pace development a longer-term project.",
+    'albon':          "Williams are slower than anyone hoped in race pace, and Albon's six pit stops in Japan illustrated how difficult the car's tyre management has become — a long road back to the competitive midfield he briefly occupied.",
+  };
+  const driverAnalysis = DRIVER_ANALYSIS[driverId] || '';
+
   document.getElementById('modal-body').innerHTML=`
     <div class="modal-driver-hero">
       <div style="display:flex;flex-shrink:0">${headshotImg(d.number,d.color,initials,56)}</div>
@@ -1366,6 +1394,7 @@ async function openDriverModal(driverId){
         <div class="modal-driver-sub">${d.team} · #${d.number||'—'} · ${d.flag} ${d.nationality}</div>
       </div>
     </div>
+    ${driverAnalysis?`<div style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:var(--text2);line-height:1.6;padding:12px 14px;background:var(--bg2);border-radius:6px;border-left:3px solid ${d.color};margin-bottom:1rem">${driverAnalysis}</div>`:''}
 
     <div class="modal-bio">
       <div class="modal-stat"><div class="modal-stat-label">Age</div><div class="modal-stat-value">${age}</div></div>
@@ -1782,6 +1811,23 @@ async function openConstructorModal(constructorId){
   const info=TEAM_INFO[constructorId]||TEAM_INFO[constructorId.replace('-','_')]||{};
   const teamDrivers=liveDrivers.filter(d=>d.constructorId===constructorId||d.team===name);
 
+  // ── Constructor analysis (hardcoded, updated after each race) ──
+  // Last updated: after Round 3 · Japan 2026
+  const CONSTRUCTOR_ANALYSIS = {
+    'mercedes':      "Dominant from the first race, with four wins from three rounds split between their two drivers — the W16 is clearly the fastest car on the grid, but intra-team rivalry is already sharpening.",
+    'ferrari':       "Podiums in every race and a genuine pace threat at every circuit, but questionable VSC strategy in Australia cost them a likely 1-2 finish and Leclerc continues to outpace Hamilton when it matters most.",
+    'mclaren':       "The defending champions have been sabotaged by reliability — both cars failed to start in China, and Piastri DNS'd in Australia too — yet Japan showed their raw pace is genuinely title-contending.",
+    'red_bull':      "A genuinely alarming start to the new era; the RB22 is slow under the new regulations and Verstappen's frustration is audible, while Hadjar retired on debut — only Alpine's form is keeping them off the bottom of the midfield.",
+    'alpine':        "The quiet overperformers through three rounds — Gasly has scored points in every race, including a strong P7 in Japan, and Alpine sit level on points with Red Bull despite having a fraction of their resources.",
+    'aston_martin':  "The Honda partnership began as a disaster — two retirements from three starts, zero points, and lapping times over four seconds off the pace at Suzuka — though Japan at least delivered their first classified finish.",
+    'williams':      "Painfully slow in race trim; Sainz's P15 in Japan represented their best result from a car that qualified outside the top 14 at every circuit so far, and Albon's six pit stops at Suzuka tells its own story.",
+    'haas':          "Bearman was quietly one of the stories of the early season — seventh in Australia, consistent points finishes — before his horrifying 50G crash at Suzuka ended his Japan race and cast a shadow over what had been an encouraging start.",
+    'racing_bulls':  "Solid midfield operators with Lawson scoring points in two of three races, while rookie Lindblad impressed with a debut points finish in Australia — but the pace gap to McLaren above and Red Bull below narrows their room to manoeuvre.",
+    'audi':          "A more encouraging debut than Cadillac — Bortoleto scored their first-ever F1 point with P9 in Australia and both cars have classified finishes — but the gap to the midfield remains significant and Hulkenberg is still waiting for his first points.",
+    'cadillac':      "The toughest debut of the two new teams; lapping over a minute behind leaders in Japan and both drivers deep in the classification in every race, though classified finishes rather than retirements have at least been achievable.",
+  };
+  const conAnalysis = CONSTRUCTOR_ANALYSIS[constructorId] || CONSTRUCTOR_ANALYSIS[constructorId.replace('-','_')] || '';
+
   document.getElementById('con-modal').classList.remove('hidden');
   document.getElementById('con-modal-content').scrollTop=0;
   document.getElementById('con-modal-body').innerHTML=`
@@ -1792,8 +1838,7 @@ async function openConstructorModal(constructorId){
         <div class="con-modal-sub">P${pos} · ${pts} pts · ${info.base||'—'}</div>
       </div>
     </div>
-
-    <div id="con-story"></div>
+    ${conAnalysis?`<div style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:var(--text2);line-height:1.6;padding:12px 14px;background:var(--bg2);border-radius:6px;border-left:3px solid ${color};margin-bottom:1rem">${conAnalysis}</div>`:''}
 
     <div class="modal-stats">
       <div class="modal-stat"><div class="modal-stat-label">Points</div><div class="modal-stat-value">${pts}</div></div>
@@ -1857,33 +1902,6 @@ async function openConstructorModal(constructorId){
     <div id="con-bio"></div>
   `;
 
-  // ── Team story — renders immediately (no API dependency) ──
-  {
-    const titles=info.titles||0;
-    const allWins=info.wins||0;
-    const yearsActive=info.f1Since?2026-info.f1Since:null;
-    const leaderCon=liveConstructors[0];
-    const gapToLeader=leaderCon&&pos>1?parseFloat(leaderCon.points)-pts:0;
-    let story='';
-    if(titles>0&&allWins>50){
-      story=`${name} is one of Formula 1's most successful teams, with ${titles} world championship${titles>1?'s':''} and ${allWins} race wins across their history.`;
-    } else if(titles>0){
-      story=`${name} have won ${titles} world championship${titles>1?'s':''} and ${allWins} race${allWins!==1?'s':''} in their F1 career.`;
-    } else if(allWins>0){
-      story=`${name} have won ${allWins} race${allWins!==1?'s':''} but are yet to win a constructors' championship.`;
-    } else if(yearsActive&&yearsActive<=2){
-      story=`${name} are a new team, having joined the Formula 1 grid in ${info.f1Since}. Building competitiveness takes time for any new constructor.`;
-    } else {
-      story=`${name} are working to move up the championship standings.`;
-    }
-    if(pos===1){
-      story+=` In 2026 they lead the constructors' championship with ${pts} points.`;
-    } else if(gapToLeader>0){
-      story+=` In 2026 they sit P${pos} in the constructors' championship, ${gapToLeader} point${gapToLeader!==1?'s':''} behind the leaders.`;
-    }
-    const storyEl=document.getElementById('con-story');
-    if(storyEl) storyEl.innerHTML=`<div style="font-size:13px;color:var(--text2);line-height:1.6;padding:10px 12px;background:var(--bg2);border-radius:6px;border-left:3px solid ${color};margin-bottom:10px">${story}</div>`;
-  }
 
   // ── Bio renders immediately — no API dependency ──
   const bioEl=document.getElementById('con-bio');
