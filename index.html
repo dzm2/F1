@@ -625,7 +625,7 @@
   <div id="season" class="f1-panel">
     <div class="loading" id="season-loading"><div class="loading-spinner"></div><div class="loading-text">Loading season data...</div></div>
     <div id="season-content" style="display:none">
-      <div class="section-group-label">Season timeline</div>
+      <div class="section-group-label">Standings after each race</div>
       <div id="season-timeline" style="background:var(--bg);border-radius:8px;border:0.5px solid var(--border);padding:14px 16px;margin-bottom:4px"></div>
       <hr class="modal-divider" style="margin:1rem 0">
       <div class="section-group-label">Championship deep dive</div>
@@ -1398,8 +1398,6 @@ async function openDriverModal(driverId){
       <div class="modal-stat"><div class="modal-stat-label">Quali delta</div><div class="modal-stat-value small" id="ms-qdelta">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">H2H race wins</div><div class="modal-stat-value" id="ms-h2hrace">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Did Not Finish</div><div class="modal-stat-value" id="ms-dnf">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Fastest laps</div><div class="modal-stat-value" id="ms-fl">—</div></div>
-      <div class="modal-stat" style="grid-column:span 2"><div class="modal-stat-label">Avg pit stop</div><div class="modal-stat-value small" id="ms-avgpit">—</div></div>
       <div class="modal-stat" style="grid-column:span 2"><div class="modal-stat-label">Max pts available</div><div class="modal-stat-value small" id="ms-maxpts">—</div></div>
     </div>
     <hr class="modal-divider">
@@ -1647,16 +1645,6 @@ async function openDriverModal(driverId){
       const g1El=document.getElementById('ms-gap1');      if(g1El) g1El.textContent=gapToP1;
       const g2El=document.getElementById('ms-gap2');      if(g2El) g2El.textContent=gapToP2;
       const g3El=document.getElementById('ms-gap3');      if(g3El) g3El.textContent=gapToP3;
-      // Fastest laps — read from fastestLapCounts populated during standings load
-      const flEl=document.getElementById('ms-fl');
-      if(flEl) flEl.textContent=fastestLapCounts[driverId]||0;
-      // Avg pit stop — compute from pitStopData across all completed rounds
-      const apEl=document.getElementById('ms-avgpit');
-      if(apEl){
-        const allStops=Object.values(pitStopData).flatMap(stops=>stops.filter(s=>s.driverId===driverId));
-        const validDurations=allStops.map(s=>parseFloat(s.duration)).filter(v=>!isNaN(v)&&v>0&&v<120);
-        apEl.textContent=validDurations.length>0?(validDurations.reduce((a,b)=>a+b,0)/validDurations.length).toFixed(3)+'s':'—';
-      }
       mrEl.innerHTML='<div class="modal-results">'+results.map(r=>{
         const res=r.Results[0];
         const status=res?.status||'';
@@ -3040,7 +3028,7 @@ function renderTimeline(){
   el.innerHTML='';
   if(!standingsHistory.length){el.innerHTML='<div style="font-size:13px;color:var(--text2)">No completed races yet.</div>';return;}
   const table=document.createElement('table'); table.className='tl-table';
-  table.innerHTML='<thead><tr><th>Rnd</th><th>Race</th><th>1st</th><th>2nd</th><th>3rd</th></tr></thead>';
+  table.innerHTML='<thead><tr><th>Rnd</th><th>Race</th><th>Leader</th><th>2nd</th><th>3rd</th></tr></thead>';
   const tbody=document.createElement('tbody');
   standingsHistory.forEach(h=>{
     const [s1,s2,s3]=h.standings;
