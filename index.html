@@ -632,6 +632,7 @@
       <div id="champ-deep-dive" style="background:var(--bg);border-radius:8px;border:0.5px solid var(--border);padding:14px 16px">
         <div style="margin-bottom:1rem">
           <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Points gap — top 5 drivers</div>
+          <div id="champ-gap-legend" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px"></div>
           <div style="position:relative;height:200px"><canvas id="champ-gap-chart"></canvas></div>
         </div>
         <div style="margin-bottom:1rem">
@@ -3200,19 +3201,47 @@ function renderChampionshipDeepDive(){
   const top5ids=standingsHistory[standingsHistory.length-1]?.standings.slice(0,5).map(d=>d.id)||[];
   const labels=standingsHistory.map(h=>h.race);
 
-  // Points gap chart — top 5 drivers' cumulative pts per round
-  const colors=['#E10600','#FF8000','#00D2BE','#3671C6','#006F62'];
-  const datasets=top5ids.map((id,i)=>{
+  // Points gap chart — top 5 drivers, team colors, solid=higher placed teammate, dashed=lower placed
+  const top5withColor=top5ids.map(id=>{
+    const last=standingsHistory[standingsHistory.length-1]?.standings.find(d=>d.id===id);
+    return {id,last:last?.last||id,color:last?.color||'#888'};
+  });
+  // Track which colors have already been used to assign dash to the second driver of same team
+  const usedColors={};
+  const datasets=top5withColor.map(({id,last,color})=>{
     const data=standingsHistory.map(h=>{
       const s=h.standings.find(d=>d.id===id); return s?s.pts:null;
     });
-    const last=standingsHistory[standingsHistory.length-1]?.standings.find(d=>d.id===id);
-    return {label:last?.last||id,data,borderColor:colors[i]||'#888',backgroundColor:'transparent',borderWidth:2,pointRadius:2,spanGaps:true,tension:0.2};
+    const isDashed=!!usedColors[color];
+    usedColors[color]=true;
+    return {
+      label:last.toUpperCase(),
+      data,
+      borderColor:color,
+      backgroundColor:'transparent',
+      borderWidth:2,
+      borderDash:isDashed?[5,3]:[],
+      pointRadius:standingsHistory.length>10?2:3,
+      pointBackgroundColor:color,
+      spanGaps:true,
+      tension:0.2
+    };
   });
   const gapCtx=document.getElementById('champ-gap-chart');
+  const legendEl=document.getElementById('champ-gap-legend');
+  if(legendEl){
+    legendEl.innerHTML=datasets.map(ds=>{
+      const dash=ds.borderDash&&ds.borderDash.length?`stroke-dasharray="${ds.borderDash.join(',')}"`:'' ;
+      return `<span style="display:flex;align-items:center;gap:5px;font-family:'Barlow',sans-serif;font-size:10px;font-weight:900;color:var(--text2);text-transform:uppercase">`
+        +`<svg width="24" height="10"><line x1="0" y1="5" x2="24" y2="5" stroke="${ds.borderColor}" stroke-width="2" ${dash}/></svg>`
+        +ds.label+`</span>`;
+    }).join('');
+  }
   if(gapCtx){
     if(gapCtx._chart) gapCtx._chart.destroy();
-    gapCtx._chart=new Chart(gapCtx,{type:'line',data:{labels,datasets},options:baseOpts('Championship points')});
+    const gapOpts=baseOpts('Championship points');
+    gapOpts.plugins.legend={display:false};
+    gapCtx._chart=new Chart(gapCtx,{type:'line',data:{labels,datasets},options:gapOpts});
   }
 
   // Championship leader each round
