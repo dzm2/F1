@@ -1360,29 +1360,35 @@ async function openDriverModal(driverId){
 
   // ── Driver analysis (hardcoded, updated after each race) ──
   // Last updated: after Round 3 · Japan 2026
+  // ── Driver analysis (hardcoded, updated after each race) ──
+  // Last updated: after Round 3 · Japan 2026
+  // Results used: AUS: Russell, Antonelli, Leclerc, Hamilton, Norris, Verstappen, Bearman, Lindblad, Bortoleto, Gasly, Ocon, Albon, Lawson, Colapinto, Sainz, Perez, Stroll(P17), Alonso(P18), Bottas(DNF), Hadjar(DNF). DNS: Piastri, Hulkenberg.
+  // CHN Sprint: Russell, Leclerc, Hamilton, Norris, Antonelli(pen), Piastri, Lawson, Bearman, Verstappen, Ocon. DNF: Hulkenberg, Bottas, Lindblad.
+  // CHN Race: Antonelli, Russell, Hamilton, Leclerc, Bearman, Gasly, Lawson, Hadjar, Sainz, Colapinto, Hulkenberg, Lindblad, Bottas, Ocon, Perez. DNF: Verstappen, Alonso, Stroll. DNS: Piastri, Norris, Bortoleto, Albon.
+  // JPN: Antonelli, Piastri, Leclerc, Russell, Norris, Hamilton, Gasly, Verstappen, Lawson, Ocon, Hulkenberg, Hadjar, Bortoleto, Lindblad, Sainz, Colapinto, Perez, Alonso, Bottas, Albon. DNF: Stroll, Bearman.
   const DRIVER_ANALYSIS = {
-    'antonelli':      "Two wins from three races and now championship leader, but his wheel-spin off the line at the start of both victories is an exploitable habit that stronger midfield resistance will eventually punish.",
-    'russell':        "Fastest car, fastest driver on raw pace in Australia, and yet fortune keeps denying him — the safety car in Japan cost him a near-certain win, and intra-team pressure from Antonelli is growing by the race.",
-    'leclerc':        "Ferrari's most consistent performer through three rounds, with a podium in every race he finished, but still waiting for the clean weekend and strategic call that could turn promising pace into a win.",
-    'hamilton':       "A strong debut in Ferrari red — podium in Australia and two top-six finishes — yet a radio spat with his engineer in Japan over car confidence hints at a driver still finding his feet in new machinery.",
-    'norris':         "The reigning champion is points-light after three rounds; DNSs in China and Japan through no fault of his own have cost him perhaps 40 points, leaving him in a recovery position he shouldn't be in.",
-    'piastri':        "Led the majority of Japan and was the fastest driver on track before the safety car gifted Antonelli the win — if reliability holds from here, he is a genuine title threat, not just a podium contender.",
-    'bearman':        "Haas's early-season surprise packet until a 50G crash at Suzuka's Spoon corner ended his Japan race prematurely; he had been the lead Haas driver all season and his recovery from injury will be closely watched.",
-    'gasly':          "Quietly excellent — points in every race, P7 in Japan after holding Verstappen behind him for much of the second half, and consistently outperforming a car that has no right to be ahead of Red Bull.",
-    'verstappen':     "Three races in and the four-time champion is fighting in the midfield — the Red Bull is genuinely slow under the new regulations, and his frustration is becoming increasingly audible over team radio.",
-    'lawson':         "A solid if unspectacular start — points in Australia and Japan with consistent midfield results, though the pace differential to his rookie teammate Lindblad in qualifying is closer than Racing Bulls would like.",
-    'lindblad':       "An impressive debut season so far for the 18-year-old — points in Australia on his first race start and consistently within half a second of Lawson in qualifying, suggesting the talent is real.",
-    'hadjar':         "A difficult start to his Red Bull career; a retirement in Australia on debut, scoreless in China, and P12 in Japan — the pace is there in practice but qualifying and race execution have let him down.",
-    'hulkenberg':     "Three races, three pointless finishes, but P11 in Japan from a car that was running 1.3 seconds off the pace in practice is better than it looks — if Audi finds development direction, he is ready to convert.",
-    'bortoleto':      "The 2024 F2 champion is learning on the job at Audi — scoring their first-ever F1 point in Australia with P9, and showing consistent racecraft even as the car lags at the back of the midfield.",
-    'sainz':          "Williams looks fundamentally slow in race trim, and Sainz is doing what he can — P15 in Japan from a car that qualified outside the top 14, but the gap to the points-paying positions remains stark.",
-    'colapinto':      "Alpine's second driver is finding his feet — P16 in Japan is unremarkable, but his qualifying pace in China showed potential, and the incident with Bearman at Spoon was genuinely not his fault.",
-    'ocon':           "First points of the season in Japan with P10 after an anonymous first two rounds — Haas need him to be the consistent scorer Bearman was before his crash, and this result will have relieved some internal pressure.",
-    'perez':          "A challenging start to Cadillac's F1 debut; classified finishes in China and Japan but running over a minute behind the leaders, and the gap to the rest of the field is exposing the team's steep learning curve.",
-    'alonso':         "The two-time champion's 18th-place finish in Japan was Aston Martin's first classified result of the season, but running a lap down at Suzuka is a sobering reality check for a team that expected more from the Honda era.",
-    'stroll':         "Two retirements from three starts for Stroll — power unit trouble in Australia and a suspected water pressure failure in Japan — making it impossible to judge the car's true potential from his data alone.",
-    'bottas':         "Cadillac's second car has been as quiet as expected for a new team finding its feet — classified finishes are the goal for now, with genuine pace development a longer-term project.",
-    'albon':          "Williams are slower than anyone hoped in race pace, and Albon's six pit stops in Japan illustrated how difficult the car's tyre management has become — a long road back to the competitive midfield he briefly occupied.",
+    'antonelli':      "Two race wins (China and Japan) from three rounds with pole in both, plus a hat-trick in China — yet bad starts in both winning races left him relying on pace and fortune to recover, a habit that will need correcting as championship pressure builds.",
+    'russell':        "Won Australia and the China sprint and looked set for Japan victory before the safety car intervened and dropped him to P4 — he has been the faster qualifier all season but Antonelli has found a way to beat him when it counts.",
+    'leclerc':        "Podiums in Australia (P3) and Japan (P3) bracket a frustrating China race where he lost P3 to Hamilton in the closing laps and finished P4 — the pace to challenge for wins is there but a clean strategic weekend has yet to materialise.",
+    'hamilton':       "His only race podium so far is China P3, claimed after a wheel-to-wheel battle with Leclerc in the closing laps — P4 in Australia and P6 in Japan reflect a driver still calibrating to new machinery, with team radio in Japan hinting at underlying frustration.",
+    'norris':         "P5 in Australia and P5 in Japan are solid, but a power unit DNS in the China race cost him what could have been a podium weekend — the reigning champion is already in a hole through no fault of his own.",
+    'piastri':        "One classified race finish from three rounds (DNS Australia, DNS China race) but that finish was P2 in Japan after leading most of the race — the safety car handed Antonelli the win, and Piastri was the fastest driver on track at Suzuka.",
+    'bearman':        "P7 in Australia and P5 in China were the standout midfield results of the early season before a 50G crash at Suzuka's Spoon corner ended his Japan race — the most impressive performer outside the top three teams until that moment.",
+    'gasly':          "Points in every grand prix — P10 in Australia, P6 in China, P7 in Japan — making him the most consistent points scorer outside the top teams, and consistently outpacing a car that has no business being near Red Bull.",
+    'verstappen':     "P6 in Australia was a genuine recovery drive from P20 on the grid, but a DNF in China (was running P6 when the electrical failure hit) and P8 in Japan tell the real story — the RB21 is not a championship car under the new regulations.",
+    'lawson':         "No points in Australia (P13), but P7 in the China sprint, P7 in the China race, and P9 in Japan show a driver finding his feet — solid rather than spectacular, which is all Racing Bulls can ask while the car is midfield at best.",
+    'lindblad':       "P8 on debut in Australia was genuinely impressive for an 18-year-old in his first F1 race, but DNF in the China sprint and P12 and P14 in subsequent races show the initial promise still needs backing up.",
+    'hadjar':         "Classified P20 in Australia after retiring on lap 10 with an engine failure, P15 in the China sprint and P8 in the China race, then P12 in Japan — the China race result is the one real bright spot in an otherwise difficult start.",
+    'hulkenberg':     "DNS in Australia (car failed on the grid), DNF in the China sprint (stopped at Turn 1 triggering the safety car), P11 in the China race and P11 in Japan — the race finishes show the car is there, the reliability is not.",
+    'bortoleto':      "P9 in Australia scored Audi's first-ever Formula 1 championship point, a genuine milestone — but DNS in the China race and P13 in Japan mean that debut result remains the high point of a season that is very much in its early learning phase.",
+    'sainz':          "P15 in Australia, P9 in the China race (Williams' first points of the season), and P15 in Japan — the China result showed the car can score in the right circumstances, but two laps-down finishes in Australia and Japan reflect where Williams really stands.",
+    'colapinto':      "P14 in Australia, P10 in the China race (first points for Alpine's second seat), and P16 in Japan — the Bearman incident at Spoon in Japan was not his fault, but otherwise a quiet start to his career with occasional flashes of pace in qualifying.",
+    'ocon':           "P11 in Australia just outside the points, P14 in the China race after a collision penalty, then P10 in Japan for his first race points of the season — a slow build for Haas's experienced campaigner who was expected to be the team's consistent scorer.",
+    'perez':          "P16 in Australia, P19 in the China sprint (penalty), P15 in the China race, and P17 in Japan — no points from any round and consistently lapping far behind the leading pack, a tough start to Cadillac's debut season.",
+    'alonso':         "Classified P18 in Australia (37 laps down), P17 in the China sprint, DNF in the China race, and P18 in Japan (one lap down) — Aston Martin's Honda partnership has yet to deliver the reliability or pace needed to even threaten the points.",
+    'stroll':         "Classified P17 in Australia (15 laps down), P18 in the China sprint, DNF in China (his stalled car triggered the only safety car), and DNF in Japan (water pressure) — two race retirements from three starts make it impossible to judge the car's ceiling.",
+    'bottas':         "DNF in Australia, DNF in the China sprint, P13 in the China race, and P19 in Japan — one classified midfield finish from three race weekends sums up Cadillac's reliability struggles in their debut season.",
+    'albon':          "P12 in Australia, P16 in the China sprint, DNS in the China race (hydraulics), and P20 in Japan where he required six pit stops — the Williams is genuinely difficult on tyres and Albon is fighting the car as much as the competition.",
   };
   const driverAnalysis = DRIVER_ANALYSIS[driverId] || '';
 
@@ -1814,17 +1820,17 @@ async function openConstructorModal(constructorId){
   // ── Constructor analysis (hardcoded, updated after each race) ──
   // Last updated: after Round 3 · Japan 2026
   const CONSTRUCTOR_ANALYSIS = {
-    'mercedes':      "Dominant from the first race, with four wins from three rounds split between their two drivers — the W16 is clearly the fastest car on the grid, but intra-team rivalry is already sharpening.",
-    'ferrari':       "Podiums in every race and a genuine pace threat at every circuit, but questionable VSC strategy in Australia cost them a likely 1-2 finish and Leclerc continues to outpace Hamilton when it matters most.",
-    'mclaren':       "The defending champions have been sabotaged by reliability — both cars failed to start in China, and Piastri DNS'd in Australia too — yet Japan showed their raw pace is genuinely title-contending.",
-    'red_bull':      "A genuinely alarming start to the new era; the RB22 is slow under the new regulations and Verstappen's frustration is audible, while Hadjar retired on debut — only Alpine's form is keeping them off the bottom of the midfield.",
-    'alpine':        "The quiet overperformers through three rounds — Gasly has scored points in every race, including a strong P7 in Japan, and Alpine sit level on points with Red Bull despite having a fraction of their resources.",
-    'aston_martin':  "The Honda partnership began as a disaster — two retirements from three starts, zero points, and lapping times over four seconds off the pace at Suzuka — though Japan at least delivered their first classified finish.",
-    'williams':      "Painfully slow in race trim; Sainz's P15 in Japan represented their best result from a car that qualified outside the top 14 at every circuit so far, and Albon's six pit stops at Suzuka tells its own story.",
-    'haas':          "Bearman was quietly one of the stories of the early season — seventh in Australia, consistent points finishes — before his horrifying 50G crash at Suzuka ended his Japan race and cast a shadow over what had been an encouraging start.",
-    'racing_bulls':  "Solid midfield operators with Lawson scoring points in two of three races, while rookie Lindblad impressed with a debut points finish in Australia — but the pace gap to McLaren above and Red Bull below narrows their room to manoeuvre.",
-    'audi':          "A more encouraging debut than Cadillac — Bortoleto scored their first-ever F1 point with P9 in Australia and both cars have classified finishes — but the gap to the midfield remains significant and Hulkenberg is still waiting for his first points.",
-    'cadillac':      "The toughest debut of the two new teams; lapping over a minute behind leaders in Japan and both drivers deep in the classification in every race, though classified finishes rather than retirements have at least been achievable.",
+    'mercedes':      "Four wins from the first four possible victories — Australia and Japan for Antonelli, Australia and China sprint for Russell — with dominant qualifying across every weekend; the only question is whether intra-team competition becomes a distraction.",
+    'ferrari':       "A podium in every race weekend so far (P3+P4 in Australia and China, P3+P6 in Japan) but never a win despite leading in Australia — Ferrari consistently brings the fight to Mercedes only to be let down by strategy or the safety car.",
+    'mclaren':       "Norris has P5 finishes in Australia and Japan, Piastri's only classified race finish is a P2 in Japan where he was the fastest driver on track — but two race DNSs for Piastri and one for Norris in China have cost the defending champions dearly.",
+    'red_bull':      "Verstappen's P6 in Australia from P20 on the grid was the highlight, but a DNF in China (was running P6) and P8 in Japan show a car that is not championship-level under the new regulations — Hadjar's best result is P8 in the China race.",
+    'alpine':        "Gasly has scored points in every grand prix (P10 Australia, P6 China, P7 Japan) and Colapinto claimed her first points with P10 in the China race — quiet overachievers whose consistency rivals Red Bull despite a fraction of the resources.",
+    'aston_martin':  "Zero points and multiple retirements across three rounds — both cars were classified laps down in Australia, both DNF'd in China, and Stroll DNF'd again in Japan while Alonso finished P18 a lap down — the Honda partnership has not delivered the expected reliability.",
+    'williams':      "Sainz scored Williams' only points so far with P9 in the China race, but P15 in Australia and Japan tell the real story — Albon required six pit stops at Suzuka suggesting serious tyre management issues, and the gap to the points positions remains large.",
+    'haas':          "Bearman's P7 in Australia and P5 in China were the strongest midfield results of the early season before his 50G crash at Suzuka ended his Japan race; Ocon has been quiet (P11, P14, P10) and the team urgently needs Bearman's return.",
+    'racing_bulls':  "Lindblad scored points on debut (P8 Australia) and Lawson has been consistently in the points (P7 China sprint, P7 China race, P9 Japan) — a reliable midfield presence, though Lindblad has not matched that debut result since.",
+    'audi':          "Bortoleto scored Audi's first-ever Formula 1 championship point with P9 in Australia, but DNS in the China race and P13 in Japan mean that result stands alone — Hulkenberg's reliability record (DNS, DNF sprint, P11, P11) reflects the car's fragility.",
+    'cadillac':      "No points from any round — Perez has finished every classified race (P16, P15, P17) while Bottas has DNF'd twice — and both cars are consistently lapping well behind the field, though reliability is slowly improving across the three rounds.",
   };
   const conAnalysis = CONSTRUCTOR_ANALYSIS[constructorId] || CONSTRUCTOR_ANALYSIS[constructorId.replace('-','_')] || '';
 
@@ -3006,7 +3012,8 @@ async function buildStandingsHistory(){
       const round=parseInt(completed[i].round);
       const sl=res.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings||[];
       const raceResults=resultsMap[completed[i].round]||[];
-      const podium=raceResults.slice(0,3).map(r=>({last:r.Driver.familyName,color:teamColor(r.Constructor?.name||'')}));
+      const sortedResults=[...raceResults].sort((a,b)=>parseInt(a.position||99)-parseInt(b.position||99));
+      const podium=sortedResults.slice(0,3).map(r=>({last:r.Driver.familyName,color:teamColor(r.Constructor?.name||'')}));
       const driverFinishes={};
       raceResults.forEach(r=>{
         const s=r.status||'';
