@@ -1832,6 +1832,8 @@ async function openConstructorModal(constructorId){
     'audi':          "Bortoleto scored Audi's first-ever Formula 1 championship point with P9 in Australia, but DNS in the China race and P13 in Japan mean that result stands alone — Hulkenberg's reliability record (DNS, DNF sprint, P11, P11) reflects the car's fragility.",
     'cadillac':      "No points from any round — Perez has finished every classified race (P16, P15, P17) while Bottas has DNF'd twice — and both cars are consistently lapping well behind the field, though reliability is slowly improving across the three rounds.",
   };
+  // Jolpica uses both 'rb' and 'racing_bulls' for Racing Bulls depending on season
+  CONSTRUCTOR_ANALYSIS['rb'] = CONSTRUCTOR_ANALYSIS['racing_bulls'];
   const conAnalysis = CONSTRUCTOR_ANALYSIS[constructorId] || CONSTRUCTOR_ANALYSIS[constructorId.replace('-','_')] || '';
 
   document.getElementById('con-modal').classList.remove('hidden');
