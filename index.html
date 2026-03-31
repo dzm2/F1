@@ -1864,12 +1864,18 @@ async function openConstructorModal(constructorId){
     });
 
     // ── Add sprint points from sprintMap (already loaded globally) ──
+    // Also apply to ptsA/ptsB so the driver split chart matches the round total
     Object.entries(sprintMap).forEach(([round,results])=>{
       const rnd=parseInt(round);
+      const idx=races.findIndex(r=>parseInt(r.round)===rnd);
       const sprintTotal=results
         .filter(res=>teamDrivers.some(d=>d.driverId===res.Driver?.driverId))
         .reduce((sum,res)=>sum+parseFloat(res.points||0),0);
       if(sprintTotal>0) roundPts[rnd]=(roundPts[rnd]||0)+sprintTotal;
+      if(idx>=0){
+        if(dA&&ptsA[idx]!=null){const sA=results.find(r=>r.Driver?.driverId===dA.driverId);if(sA)ptsA[idx]+=parseFloat(sA.points||0);}
+        if(dB&&ptsB[idx]!=null){const sB=results.find(r=>r.Driver?.driverId===dB.driverId);if(sB)ptsB[idx]+=parseFloat(sB.points||0);}
+      }
     });
 
     // ── Populate stat elements (fix 3: batch getElementById) ──
@@ -2310,7 +2316,7 @@ async function loadCalendar(bypassCache=false){
     if(isCompleted){
       const fl=finishers.find(f=>f.FastestLap?.rank==='1');
       const extra=document.createElement('div'); extra.className='race-extra';
-      if(fl) extra.innerHTML+='<span style="color:#7D3C98">⏱ Fastest: '+fl.Driver.familyName.toUpperCase()+' '+(fl.FastestLap?.Time?.time||'')+'</span>';
+      if(fl) extra.innerHTML+='<span>⏱ Fastest: '+fl.Driver.familyName.toUpperCase()+' '+(fl.FastestLap?.Time?.time||'')+'</span>';
       if(dnfs.length) extra.innerHTML+='<span title="'+dnfs.map(f=>f.Driver.familyName.toUpperCase()+': '+f.status).join(', ')+'">⛔ '+dnfs.length+' DNF'+(dnfs.length>1?'s':'')+'</span>';
       if(extra.innerHTML) rightCol.appendChild(extra);
     }
