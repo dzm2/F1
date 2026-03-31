@@ -52,8 +52,9 @@
 
     /* Tabs */
     .f1-tabs { display:flex; width:100%; margin-bottom:0; border-bottom:1px solid var(--border); background:var(--bg); }
-    .f1-tab { font-family:'Barlow',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--text2); flex:1 1 0; min-width:0; padding:12px 4px 10px; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; text-align:center; white-space:nowrap; transition:color .15s; }
+    .f1-tab { font-family:'Barlow',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text2); flex:1 1 0; min-width:0; padding:12px 4px 10px; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; text-align:center; white-space:nowrap; transition:color .15s; }
     .f1-tab:hover{color:var(--text2);} .f1-tab.active{color:var(--text);border-bottom-color:var(--red);}
+    .f1-tab.wide{flex:1.5 1 0;}
     .f1-panel{display:none; padding:1.5rem 2rem;} .f1-panel.active{display:block;}
 
     /* Loading / error */
@@ -497,12 +498,12 @@
 
   <div class="f1-tabs" id="tab-bar" role="tablist">
     <button class="f1-tab active" onclick="showTab('drivers',this)" data-tab="drivers">Drivers</button>
-    <button class="f1-tab"   onclick="showTab('constructors',this)" data-tab="constructors">Constructors</button>
+    <button class="f1-tab wide"   onclick="showTab('constructors',this)" data-tab="constructors">Constructors</button>
     <button class="f1-tab"        onclick="showTab('calendar',this)" data-tab="calendar">Races</button>
     <button class="f1-tab"        onclick="showTab('season',this)" data-tab="season">Season</button>
     <button class="f1-tab"        onclick="showTab('news',this)" data-tab="news">News</button>
     <button class="f1-tab"        onclick="showTab('records',this)" data-tab="records">Records</button>
-    <button class="f1-tab"        onclick="showTab('explainer',this)" data-tab="explainer">Explainer</button>
+    <button class="f1-tab"        onclick="showTab('explainer',this)" data-tab="explainer">F1 Explainer</button>
   </div>
 
   <!-- Drivers -->
@@ -1735,7 +1736,7 @@ async function openConstructorModal(constructorId){
       <div class="con-modal-pip" style="background:${color}"></div>
       <div style="min-width:0">
         <div class="con-modal-name">${name.toUpperCase()}</div>
-        <div class="con-modal-sub">P${pos} · ${pts} pts · ${info.base||'—'}</div>
+        <div class="con-modal-sub">${flag(c.Constructor.nationality)} ${c.Constructor.nationality} · P${pos} · ${pts} pts · ${info.base||'—'}</div>
       </div>
     </div>
 
