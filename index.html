@@ -3836,7 +3836,9 @@ async function loadAll(bypassCache=false){
   document.getElementById('live-dot').classList.remove('stale-dot');
   ['drivers-loading','con-loading','cal-loading'].forEach(id=>document.getElementById(id).style.display='');
   ['drivers-table','con-table','race-list'].forEach(id=>document.getElementById(id).style.display='none');
-  await Promise.allSettled([loadDriverStandings(bypassCache),loadConstructorStandings(bypassCache),loadCalendar(bypassCache),loadNews()]);
+  // Standings are always fetched fresh so round counts are never stale on page load.
+  // Calendar results are kept cached — completed race data never changes.
+  await Promise.allSettled([loadDriverStandings(true),loadConstructorStandings(true),loadCalendar(bypassCache),loadNews()]);
   // Load OpenF1 data after main data — headshots in parallel, session keys after allRaces is set
   await Promise.allSettled([loadHeadshots(),loadOF1SessionKeys()]);
   // Re-render driver table with headshots now available
