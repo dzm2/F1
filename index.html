@@ -3283,14 +3283,15 @@ function renderH2H(){
     const totalPts=a.pts+b.pts;
     const pctA=totalPts===0?0:Math.round(a.pts/totalPts*100);
     const pctB=totalPts===0?0:(100-pctA);
+    const zeroPts=totalPts===0;
     const card=document.createElement('div'); card.className='h2h-card';
     card.innerHTML='<div class="h2h-team" style="border-bottom:2px solid '+color+';padding-bottom:5px">'+name.toUpperCase()+'</div>'
       +'<div class="h2h-cat">Championship points</div>'
       +'<div class="h2h-row"><span class="h2h-name">'+a.last+'</span>'
-      +'<div class="h2h-bar-bg"><div class="h2h-bar-a" style="width:'+pctA+'%;background:'+color+'"></div><div class="h2h-bar-b" style="width:'+pctB+'%"></div></div>'
+      +'<div class="h2h-bar-bg"><div class="h2h-bar-a" style="width:'+(zeroPts?0:pctA)+'%;background:'+(zeroPts?'transparent':color)+'"></div><div class="h2h-bar-b" style="width:'+(zeroPts?0:pctB)+'%"></div></div>'
       +'<span class="h2h-val">'+a.pts+'</span></div>'
       +'<div class="h2h-row"><span class="h2h-name">'+b.last+'</span>'
-      +'<div class="h2h-bar-bg"><div class="h2h-bar-a" style="width:'+pctB+'%;background:'+color+'88"></div><div class="h2h-bar-b" style="width:'+pctA+'%"></div></div>'
+      +'<div class="h2h-bar-bg"><div class="h2h-bar-a" style="width:'+(zeroPts?0:pctB)+'%;background:'+(zeroPts?'transparent':color+'88')+'"></div><div class="h2h-bar-b" style="width:'+(zeroPts?0:pctA)+'%"></div></div>'
       +'<span class="h2h-val" style="color:var(--text2)">'+b.pts+'</span></div>'
       +'<div class="h2h-cat">Wins</div>'
       +'<div class="h2h-row"><span class="h2h-name">'+a.last+'</span><span class="h2h-val">'+a.wins+'</span></div>'
