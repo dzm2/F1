@@ -3648,9 +3648,9 @@ function categorise(title,desc){
   if(/\bwins\b|victory|podium|race report|chequered|grand prix result/.test(t)) return {tag:'Race report',color:'#DC0000',cat:'race'};
   if(/qualify|qualifying|pole position|grid|shootout/.test(t))                  return {tag:'Analysis',  color:'#85b7eb',cat:'analysis'};
   if(/technical|aero|tyre|engine|power unit|analysis|explained/.test(t))        return {tag:'Analysis',  color:'#85b7eb',cat:'analysis'};
-  if(/fia|regulation|rule|penalty|steward|ban|appeal/.test(t))                  return {tag:'Regulation',color:'#006F62',cat:'regulation'};
+  if(/fia|regulation|rule|penalty|steward|ban|appeal/.test(t))                  return {tag:'Regulation',color:'#d97706',cat:'regulation'};
   if(/team|hire|sign|contract|appoint|depart|leave|join/.test(t))               return {tag:'Team news', color:'#00D2BE',cat:'team'};
-  return {tag:'News',color:'#6b7280',cat:'news'};
+  return {tag:'News',color:'#a3b899',cat:'news'};
 }
 
 async function fetchFeed(feed){
