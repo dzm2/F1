@@ -3290,7 +3290,7 @@ function renderH2H(){
     card.innerHTML='<div class="h2h-team" style="border-bottom:2px solid '+color+';padding-bottom:5px">'+name.toUpperCase()+'</div>'
       +'<div class="h2h-cat">Championship points</div>'
       +'<div class="h2h-row"><span class="h2h-name">'+a.last+'</span>'
-      +'<div class="h2h-bar-bg"><div class="h2h-bar-a" style="width:'+barA+'%;background:'+(barA===0?'transparent':color)+'"></div><div class="h2h-bar-b" style="width:'+barB+'%"></div></div>'
+      +'<div class="h2h-bar-bg"><div class="h2h-bar-a" style="width:'+barA+'%;background:'+(barA===0?'transparent':color)+'"></div><div class="h2h-bar-b" style="width:'+(barB===0?100:barB)+'%"></div></div>'
       +'<span class="h2h-val">'+a.pts+'</span></div>'
       +'<div class="h2h-row"><span class="h2h-name">'+b.last+'</span>'
       +'<div class="h2h-bar-bg"><div class="h2h-bar-a" style="width:'+barB+'%;background:'+(barB===0?'transparent':color+'88')+'"></div><div class="h2h-bar-b" style="width:'+(barA===0?100:barA)+'%"></div></div>'
