@@ -555,7 +555,7 @@
   <div id="explainer" class="f1-panel">
     <div class="section-group-label">The basics</div>
     <div class="reg-card"><div class="reg-card-title">What is Formula 1?</div><div class="reg-card-body">Formula 1 is the top tier of single-seater motorsport — open-wheel cars, no roof, with a power unit generating north of 1,000 horsepower. The cars pull forces through corners that compress a driver's body to multiple times their own weight. It's been running since 1950, when the first World Championship round took place at Silverstone, England. Seven decades later, the sport spans 24 races across six continents, with a television audience in the hundreds of millions and a franchise value that's attracted American investors, Hollywood money, and — as of 2026 — a new American constructor, Cadillac.</div></div>
-    <div class="reg-card"><div class="reg-card-title">Grands Prix, teams, and championships</div><div class="reg-card-body">Each round is called a Grand Prix — French for "big prize," a holdover from European motorsport tradition dating back to the early 1900s. The 2026 calendar runs to 24 Grands Prix, from purpose-built circuits like Silverstone and Suzuka to street circuits laid out on public roads in Monaco, Singapore, and Las Vegas. Eleven teams field two cars each, giving you 22 drivers competing for two separate championships: one for drivers, one for constructors (the teams). That distinction matters more than you might think.</div></div>
+    <div class="reg-card"><div class="reg-card-title">Grands Prix, teams, and championships</div><div class="reg-card-body">Each round is called a Grand Prix — French for "big prize," a holdover from European motorsport tradition dating back to the early 1900s. The 2026 calendar runs to 22 Grands Prix — originally 24, with the Bahrain and Saudi Arabian rounds cancelled due to the conflict in the Middle East — from purpose-built circuits like Silverstone and Suzuka to street circuits laid out on public roads in Monaco, Singapore, and Las Vegas. Eleven teams field two cars each, giving you 22 drivers competing for two separate championships: one for drivers, one for constructors (the teams). That distinction matters more than you might think.</div></div>
 
     <div class="section-group-label" style="margin-top:1.5rem">Race weekends</div>
     <div class="reg-card"><div class="reg-card-title">How a race weekend works</div><div class="reg-card-body">A Formula 1 weekend has a consistent structure. Friday brings two practice sessions — FP1 and FP2 — where teams gather data on how the car behaves at this circuit, tyre wear, and setup. The afternoon session often simulates race conditions. Saturday starts with a final practice hour (FP3), then qualifying — the knockout session that sets the grid. Sunday is race day, with points awarded based on finishing position. Some venues, Las Vegas being the main example, run Thursday to Saturday instead.</div></div>
@@ -993,7 +993,7 @@ async function loadDriverStandings(bypassCache=false){
     const [standingsRes,flRes,seasonRes,sprintRes]=await Promise.allSettled([
       fetchJSON(`${BASE}/${SEASON}/driverstandings.json?limit=30`,2,bypassCache),
       fetchJSON(`${BASE}/${SEASON}/fastest/1/results.json?limit=200`,2,bypassCache),
-      fetchJSON(`${BASE}/${SEASON}/results.json?limit=400`,2,bypassCache),
+      fetchJSON(`${BASE}/${SEASON}/results.json?limit=600`,2,bypassCache),
       fetchJSON(`${BASE}/${SEASON}/sprint.json?limit=200`,2,bypassCache),
     ]);
     if(standingsRes.status==='fulfilled'){
