@@ -2151,7 +2151,8 @@ async function loadCalendar(bypassCache=false){
         if(gpRes)    resultsMap[r.round]    =gpRes.MRData?.RaceTable?.Races?.[0]?.Results||[];
         if(qualiRes) qualiMap[r.round]      =qualiRes.MRData?.RaceTable?.Races?.[0]?.QualifyingResults||[];
         if(sprintRes){
-          const sr=sprintRes.MRData?.RaceTable?.Races?.[0]?.SprintResults||[];
+          const race0=sprintRes.MRData?.RaceTable?.Races?.[0];
+          const sr=(race0?.SprintResults||race0?.Results||[]);
           sprintMap[r.round]=sr;
           if(sr.length) SPRINT_ROUNDS.add(parseInt(r.round));
         }
