@@ -6,7 +6,7 @@ A live Formula 1 data dashboard for the 2026 season. Built as a single HTML file
 
 ---
 
-![Sector Scope dashboard screenshot](Sector_Scope.png)
+![Sector Scope dashboard screenshot](Sector%20Scope.png)
 
 ---
 
