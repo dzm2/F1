@@ -758,7 +758,7 @@
 // ── Constants ──
 const SEASON = 2026;
 const BASE   = 'https://api.jolpi.ca/ergast/f1';
-const CACHE_TTL = 5 * 60 * 1000;
+const CACHE_TTL = 60 * 60 * 1000;
 // 2026 sprint weekends: China (2), Miami (4), Canada (5), Britain (11), Netherlands (15), Singapore (18)
 // Also detected dynamically — if the API returns sprint data for a round, it's treated as a sprint weekend
 const SPRINT_ROUNDS = new Set([2,4,5,11,15,18]);
@@ -3872,7 +3872,7 @@ async function loadAll(bypassCache=false){
   ['drivers-table','con-table','race-list'].forEach(id=>document.getElementById(id).style.display='none');
   // Standings are always fetched fresh so round counts are never stale on page load.
   // Calendar results are kept cached — completed race data never changes.
-  await Promise.allSettled([loadDriverStandings(true),loadConstructorStandings(true),loadCalendar(bypassCache),loadNews()]);
+  await Promise.allSettled([loadDriverStandings(true),loadConstructorStandings(true),loadCalendar(true),loadNews()]);
   // Load OpenF1 data after main data — headshots in parallel, session keys after allRaces is set
   await Promise.allSettled([loadHeadshots(),loadOF1SessionKeys()]);
   // Re-render driver table with headshots now available
