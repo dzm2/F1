@@ -1287,11 +1287,20 @@ async function openDriverModal(driverId){
   document.getElementById('driver-modal').classList.remove('hidden');
   document.getElementById('modal-content').scrollTop=0;
   // Pre-fetch pit stop data for all completed rounds sequentially to avoid 429s
+  // First, restore any rounds already cached in localStorage into the in-memory pitStopData
+  const PIT_TTL=7*24*60*60*1000; // 7 days — pit stop data is immutable once published
   const completedRoundsForPit=Object.keys(resultsMap).filter(r=>(resultsMap[r]||[]).length>0);
+  completedRoundsForPit.forEach(round=>{
+    if(pitStopData[round]) return; // already in memory
+    try{
+      const cached=JSON.parse(localStorage.getItem('pit:'+SEASON+':'+round));
+      if(cached&&Date.now()-cached.ts<PIT_TTL) pitStopData[round]=cached.data;
+    }catch(e){}
+  });
   for(let i=0;i<completedRoundsForPit.length;i++){
     if(myGen!==_modalGeneration) return; // a newer modal was opened — abort
     const round=completedRoundsForPit[i];
-    if(pitStopData[round]) continue; // already loaded
+    if(pitStopData[round]) continue; // already loaded (from memory or localStorage)
     const pitUrl=BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=200';
     const isCached=!!cacheGet(pitUrl);
     if(i>0&&!isCached) await new Promise(r=>setTimeout(r,500));
@@ -1299,6 +1308,10 @@ async function openDriverModal(driverId){
       const pd=await fetchJSON(pitUrl,2,false);
       const stops=pd.MRData?.RaceTable?.Races?.[0]?.PitStops||[];
       stops.forEach(s=>{ if(!pitStopData[round]) pitStopData[round]=[]; pitStopData[round].push({driverId:s.driverId,duration:s.duration}); });
+      // Write to localStorage so future page loads skip the network fetch for this round
+      if(pitStopData[round]){
+        try{ localStorage.setItem('pit:'+SEASON+':'+round,JSON.stringify({ts:Date.now(),data:pitStopData[round]})); }catch(e){}
+      }
     }catch(e){}
   }
   if(myGen!==_modalGeneration) return;
@@ -3881,8 +3894,9 @@ async function loadAll(bypassCache=false){
     btn.disabled=true;
     btn.textContent='✓ Refreshed';
     btn.style.color='#16a34a';
-    // Clear localStorage cache so fresh data is fetched (both Jolpica and OpenF1)
-    try{ Object.keys(localStorage).filter(k=>k.startsWith('https://')||k.startsWith('of1:')).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+    // Clear localStorage cache so fresh data is fetched (Jolpica, OpenF1, and pit stops)
+    try{ Object.keys(localStorage).filter(k=>k.startsWith('https://')||k.startsWith('of1:')||k.startsWith('pit:')).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+    pitStopData={};
     window._seasonLoaded=false;
     loadAll(true).finally(()=>{
       setTimeout(()=>{
