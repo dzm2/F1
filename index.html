@@ -1417,16 +1417,21 @@ async function openDriverModal(driverId){
   }
 
   // Fetch sequentially with delays to avoid 429s — career fetch is already internally sequential
+  // Delays are cache-aware: only wait 500ms if the data is not already in localStorage.
+  // On a second modal open everything is cached so all delays are skipped, making it near-instant.
+  const seasonResultsUrl=`${BASE}/${SEASON}/drivers/${driverId}/results.json?limit=30`;
+  const sprintUrl=`${BASE}/${SEASON}/drivers/${driverId}/sprint.json?limit=30`;
+  const qualiUrl=`${BASE}/${SEASON}/drivers/${driverId}/qualifying.json?limit=30`;
   const careerRaces = await Promise.allSettled([fetchAllCareerRaces(driverId)]).then(r=>r[0]);
   if(myGen!==_modalGeneration) return;
-  await new Promise(r=>setTimeout(r,500));
-  const raceData = await Promise.allSettled([fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/results.json?limit=30`)]).then(r=>r[0]);
+  if(!cacheGet(seasonResultsUrl)) await new Promise(r=>setTimeout(r,500));
+  const raceData = await Promise.allSettled([fetchJSON(seasonResultsUrl)]).then(r=>r[0]);
   if(myGen!==_modalGeneration) return;
-  await new Promise(r=>setTimeout(r,500));
-  const sprintData = await Promise.allSettled([fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/sprint.json?limit=30`)]).then(r=>r[0]);
+  if(!cacheGet(sprintUrl)) await new Promise(r=>setTimeout(r,500));
+  const sprintData = await Promise.allSettled([fetchJSON(sprintUrl)]).then(r=>r[0]);
   if(myGen!==_modalGeneration) return;
-  await new Promise(r=>setTimeout(r,500));
-  const qualiData = await Promise.allSettled([fetchJSON(`${BASE}/${SEASON}/drivers/${driverId}/qualifying.json?limit=30`)]).then(r=>r[0]);
+  if(!cacheGet(qualiUrl)) await new Promise(r=>setTimeout(r,500));
+  const qualiData = await Promise.allSettled([fetchJSON(qualiUrl)]).then(r=>r[0]);
   if(myGen!==_modalGeneration) return;
 
   // Career stats
