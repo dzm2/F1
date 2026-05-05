@@ -1286,35 +1286,6 @@ async function openDriverModal(driverId){
   const isRookie=ROOKIES.has(driverId);
   document.getElementById('driver-modal').classList.remove('hidden');
   document.getElementById('modal-content').scrollTop=0;
-  // Pre-fetch pit stop data for all completed rounds sequentially to avoid 429s
-  // First, restore any rounds already cached in localStorage into the in-memory pitStopData
-  const PIT_TTL=7*24*60*60*1000; // 7 days — pit stop data is immutable once published
-  const completedRoundsForPit=Object.keys(resultsMap).filter(r=>(resultsMap[r]||[]).length>0);
-  completedRoundsForPit.forEach(round=>{
-    if(pitStopData[round]) return; // already in memory
-    try{
-      const cached=JSON.parse(localStorage.getItem('pit:'+SEASON+':'+round));
-      if(cached&&Date.now()-cached.ts<PIT_TTL) pitStopData[round]=cached.data;
-    }catch(e){}
-  });
-  for(let i=0;i<completedRoundsForPit.length;i++){
-    if(myGen!==_modalGeneration) return; // a newer modal was opened — abort
-    const round=completedRoundsForPit[i];
-    if(pitStopData[round]) continue; // already loaded (from memory or localStorage)
-    const pitUrl=BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=200';
-    const isCached=!!cacheGet(pitUrl);
-    if(i>0&&!isCached) await new Promise(r=>setTimeout(r,500));
-    try{
-      const pd=await fetchJSON(pitUrl,2,false);
-      const stops=pd.MRData?.RaceTable?.Races?.[0]?.PitStops||[];
-      stops.forEach(s=>{ if(!pitStopData[round]) pitStopData[round]=[]; pitStopData[round].push({driverId:s.driverId,duration:s.duration}); });
-      // Write to localStorage so future page loads skip the network fetch for this round
-      if(pitStopData[round]){
-        try{ localStorage.setItem('pit:'+SEASON+':'+round,JSON.stringify({ts:Date.now(),data:pitStopData[round]})); }catch(e){}
-      }
-    }catch(e){}
-  }
-  if(myGen!==_modalGeneration) return;
   const initials=(d.first[0]||'')+(d.last[0]||'');
   const age=d.dob?Math.floor((Date.now()-new Date(d.dob))/(365.25*86400000)):'—';
 
@@ -1415,6 +1386,37 @@ async function openDriverModal(driverId){
       return allRaces;
     }catch(e){ return []; }
   }
+
+  // Run pit stop pre-fetch in the background — modal is already visible.
+  // Restores from localStorage first, only hits Jolpica for rounds not yet cached.
+  // The Avg pit stop stat box starts as — and fills in once this completes.
+  const pitFetchPromise=(async()=>{
+    const PIT_TTL=7*24*60*60*1000;
+    const completedRoundsForPit=Object.keys(resultsMap).filter(r=>(resultsMap[r]||[]).length>0);
+    completedRoundsForPit.forEach(round=>{
+      if(pitStopData[round]) return;
+      try{
+        const cached=JSON.parse(localStorage.getItem('pit:'+SEASON+':'+round));
+        if(cached&&Date.now()-cached.ts<PIT_TTL) pitStopData[round]=cached.data;
+      }catch(e){}
+    });
+    for(let i=0;i<completedRoundsForPit.length;i++){
+      if(myGen!==_modalGeneration) return;
+      const round=completedRoundsForPit[i];
+      if(pitStopData[round]) continue;
+      const pitUrl=BASE+'/'+SEASON+'/'+round+'/pitstops.json?limit=200';
+      const isCached=!!cacheGet(pitUrl);
+      if(i>0&&!isCached) await new Promise(r=>setTimeout(r,500));
+      try{
+        const pd=await fetchJSON(pitUrl,2,false);
+        const stops=pd.MRData?.RaceTable?.Races?.[0]?.PitStops||[];
+        stops.forEach(s=>{ if(!pitStopData[round]) pitStopData[round]=[]; pitStopData[round].push({driverId:s.driverId,duration:s.duration}); });
+        if(pitStopData[round]){
+          try{ localStorage.setItem('pit:'+SEASON+':'+round,JSON.stringify({ts:Date.now(),data:pitStopData[round]})); }catch(e){}
+        }
+      }catch(e){}
+    }
+  })();
 
   // Fetch sequentially with delays to avoid 429s — career fetch is already internally sequential
   // Delays are cache-aware: only wait 500ms if the data is not already in localStorage.
@@ -1614,6 +1616,8 @@ async function openDriverModal(driverId){
       // Fastest laps — read from fastestLapCounts populated during standings load
       const flEl=document.getElementById('ms-fl');
       if(flEl) flEl.textContent=fastestLapCounts[driverId]||0;
+      // Await pit stop background fetch before populating avg pit stop
+      await pitFetchPromise;
       // Avg pit stop — compute from pitStopData across all completed rounds
       const apEl=document.getElementById('ms-avgpit');
       if(apEl){
