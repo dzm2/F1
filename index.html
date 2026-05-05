@@ -2148,17 +2148,20 @@ async function loadCalendar(bypassCache=false){
     const completedSprints=completed.filter(r=>SPRINT_ROUNDS.has(parseInt(r.round)));
     if(completed.length>0){
       // Fetch per-round data sequentially to avoid 429 rate limiting
-      // Skip delay if data is already in cache — only throttle actual network requests
+      // Completed round data is immutable once published — use a 7-day TTL so repeat
+      // page loads skip the network entirely for rounds already cached.
+      // bypassCache=true (↻ Refresh) still forces fresh fetches for all rounds.
+      const ROUND_TTL=7*24*60*60*1000;
       for(let i=0;i<completed.length;i++){
         const r=completed[i];
         const isSprint=SPRINT_ROUNDS.has(parseInt(r.round));
-        const resultsCached=!bypassCache&&!!cacheGet(`${BASE}/${SEASON}/${r.round}/results.json?limit=25`);
+        const resultsCached=!bypassCache&&!!cacheGet(`${BASE}/${SEASON}/${r.round}/results.json?limit=25`,ROUND_TTL);
         if(i>0&&!resultsCached) await new Promise(r=>setTimeout(r,500));
         const fetches=[
-          fetchJSON(`${BASE}/${SEASON}/${r.round}/results.json?limit=25`,2,bypassCache).catch(()=>null),
-          fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null),
-          isSprint?fetchJSON(`${BASE}/${SEASON}/${r.round}/sprint.json?limit=25`,2,bypassCache).catch(()=>null):Promise.resolve(null),
-          isSprint?fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache).catch(()=>null):Promise.resolve(null),
+          fetchJSON(`${BASE}/${SEASON}/${r.round}/results.json?limit=25`,2,bypassCache,ROUND_TTL).catch(()=>null),
+          fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache,ROUND_TTL).catch(()=>null),
+          isSprint?fetchJSON(`${BASE}/${SEASON}/${r.round}/sprint.json?limit=25`,2,bypassCache,ROUND_TTL).catch(()=>null):Promise.resolve(null),
+          isSprint?fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache,ROUND_TTL).catch(()=>null):Promise.resolve(null),
         ];
         const [gpRes,qualiRes,sprintRes,sprintQualiRes]=await Promise.all(fetches);
         if(gpRes)    resultsMap[r.round]    =gpRes.MRData?.RaceTable?.Races?.[0]?.Results||[];
