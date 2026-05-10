@@ -524,10 +524,10 @@
         <th style="text-align:right">#</th><th colspan="2">Driver</th>
         <th style="text-align:right">Points</th>
         <th style="text-align:center">Wins</th>
-        <th style="text-align:center">Race pts</th>
-        <th style="text-align:center">Sprint pts</th>
+        <th style="text-align:center"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Race pts</span><span class="ss-tooltip-box">Points from grand prix races only</span></span></th>
+        <th style="text-align:center"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Sprint pts</span><span class="ss-tooltip-box">Points from sprint races only</span></span></th>
         <th style="text-align:center"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Finish %</span><span class="ss-tooltip-box tip-right">% of started races completed without retiring</span></span></th>
-        <th style="text-align:right">Gap</th>
+        <th style="text-align:right"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Gap</span><span class="ss-tooltip-box tip-right">Points behind the leader</span></span></th>
       </tr></thead>
       <tbody id="driver-tbody"></tbody>
     </table>
@@ -787,10 +787,12 @@ const flagMap = {
   'New Zealander':'🇳🇿','Japanese':'🇯🇵','Chinese':'🇨🇳','Danish':'🇩🇰','Austrian':'🇦🇹',
 };
 // Tyre compound → colour code
+const tyreNames={S:'Soft — fastest grip, degrades quickest',M:'Medium — balanced compound',H:'Hard — slowest but most durable',I:'Intermediate — for light rain or drying track',W:'Wet — for standing water'};
 function tyreChip(c){
   const k = c ? c.charAt(0).toUpperCase() : 'U';
   const label = c || '?';
-  return `<span class="tyre tyre-${k}" title="${label}">${k}</span>`;
+  const tip = tyreNames[k]||label;
+  return `<span class="ss-tooltip-wrap"><span class="tyre tyre-${k} ss-tooltip-label">${k}</span><span class="ss-tooltip-box">${tip}</span></span>`;
 }
 function teamColor(n){ for(const[k,v]of Object.entries(teamColors))if(n.includes(k))return v; return'#888'; }
 function cleanConstructorName(n){
@@ -1075,9 +1077,9 @@ async function loadDriverStandings(bypassCache=false){
     const maxFromHere=d.pts+maxPossible;
     const eliminated=maxFromHere<leaderPts&&d.pos!==1;
     const statusBadge=eliminated
-      ? '<span class="champ-badge champ-eliminated" title="Mathematically eliminated">OUT</span>'
+      ? '<span class="ss-tooltip-wrap"><span class="champ-badge champ-eliminated ss-tooltip-label">OUT</span><span class="ss-tooltip-box tip-right">Mathematically eliminated from the championship</span></span>'
       : (d.pos===1&&racesLeft===0?'<span class="champ-badge champ-winner">✓ Champion</span>':'');
-    const rookieBadge=isRookie?'<span class="rookie-badge">R</span>':'';
+    const rookieBadge=isRookie?'<span class="ss-tooltip-wrap"><span class="rookie-badge ss-tooltip-label">R</span><span class="ss-tooltip-box">This driver is competing in their first full Formula 1 season</span></span>':'';
     const winsClass='wins-cell';
     const sprintPts=window._driverSprintPts?.[d.driverId]||0;
     const racePtsCol=d.pts-sprintPts;
@@ -1323,22 +1325,22 @@ async function openDriverModal(driverId){
       <div class="modal-stat"><div class="modal-stat-label">Position</div><div class="modal-stat-value">P${d.pos}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Wins</div><div class="modal-stat-value">${d.wins}</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Podiums</div><div class="modal-stat-value" id="ms-podiums">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Avg finish</div><div class="modal-stat-value" id="ms-avgfin">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Avg grid</div><div class="modal-stat-value" id="ms-avggrid">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Finish rate</div><div class="modal-stat-value" id="ms-finrate">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Avg finish</span><span class="ss-tooltip-box">Average finishing position this season</span></span></div><div class="modal-stat-value" id="ms-avgfin">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Avg grid</span><span class="ss-tooltip-box">Average qualifying position this season</span></span></div><div class="modal-stat-value" id="ms-avggrid">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Finish rate</span><span class="ss-tooltip-box">% of started races completed without retiring</span></span></div><div class="modal-stat-value" id="ms-finrate">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Top 10s</div><div class="modal-stat-value" id="ms-top10">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Best quali</div><div class="modal-stat-value" id="ms-bestq">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Avg quali</div><div class="modal-stat-value" id="ms-avgq">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Quali reach Q3</div><div class="modal-stat-value" id="ms-q3rate">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Pts/race</div><div class="modal-stat-value" id="ms-ppr">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Quali reach Q3</span><span class="ss-tooltip-box">% of qualifying sessions this season in which the driver reached Q3</span></span></div><div class="modal-stat-value" id="ms-q3rate">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Pts/race</span><span class="ss-tooltip-box">Average points scored per race this season</span></span></div><div class="modal-stat-value" id="ms-ppr">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Last 3 races</div><div class="modal-stat-value" id="ms-last3">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Points streak</div><div class="modal-stat-value" id="ms-streak">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Quali delta</div><div class="modal-stat-value small" id="ms-qdelta">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">H2H race wins</div><div class="modal-stat-value" id="ms-h2hrace">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Points streak</span><span class="ss-tooltip-box">Consecutive races in which this driver has scored at least one point</span></span></div><div class="modal-stat-value" id="ms-streak">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Quali delta</span><span class="ss-tooltip-box">Average grid positions gained from qualifying to finish</span></span></div><div class="modal-stat-value small" id="ms-qdelta">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">H2H race wins</span><span class="ss-tooltip-box">How many times each driver has finished ahead of their teammate</span></span></div><div class="modal-stat-value" id="ms-h2hrace">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Did Not Finish</div><div class="modal-stat-value" id="ms-dnf">—</div></div>
-      <div class="modal-stat"><div class="modal-stat-label">Fastest laps</div><div class="modal-stat-value" id="ms-fl">—</div></div>
-      <div class="modal-stat" style="grid-column:span 2"><div class="modal-stat-label">Avg pit stop</div><div class="modal-stat-value small" id="ms-avgpit">—</div></div>
-      <div class="modal-stat" style="grid-column:span 2"><div class="modal-stat-label">Max pts available</div><div class="modal-stat-value small" id="ms-maxpts">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Fastest laps</span><span class="ss-tooltip-box">Times this driver set the fastest lap of the race. Worth 1 bonus point if finished in the top 10</span></span></div><div class="modal-stat-value" id="ms-fl">—</div></div>
+      <div class="modal-stat" style="grid-column:span 2"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Avg pit stop</span><span class="ss-tooltip-box">Average pit stop duration this season in seconds</span></span></div><div class="modal-stat-value small" id="ms-avgpit">—</div></div>
+      <div class="modal-stat" style="grid-column:span 2"><div class="modal-stat-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Max pts available</span><span class="ss-tooltip-box">Maximum points still achievable if the driver wins every remaining race and fastest lap</span></span></div><div class="modal-stat-value small" id="ms-maxpts">—</div></div>
     </div>
     <hr class="modal-divider">
     <div class="modal-section-title">Championship context</div>
@@ -1659,8 +1661,8 @@ async function openDriverModal(driverId){
         out+='<div class="modal-result-header">';
         out+='<span class="modal-result-race">'+raceName+'</span>';
         out+='<span style="display:flex;align-items:center;gap:6px">';
-        if(isDNS) out+='<span class="dns-badge">DNS</span>';
-        else if(isDNF) out+='<span class="dnf-badge">DNF</span>';
+        if(isDNS) out+='<span class="ss-tooltip-wrap"><span class="dns-badge ss-tooltip-label">DNS</span><span class="ss-tooltip-box">Did Not Start — the driver did not take part in the race</span></span>';
+        else if(isDNF) out+='<span class="ss-tooltip-wrap"><span class="dnf-badge ss-tooltip-label">DNF</span><span class="ss-tooltip-box">Did Not Finish — the driver retired before the chequered flag</span></span>';
         out+='<span class="modal-result-pos'+((isDNF||isDNS)?' dnf':'')+'">'+(!isDNF&&!isDNS?(pos==='1'?'🏆 P1':'P'+pos):isDNS?'DNS':'DNF')+'</span>';
         if(totalRoundPts>0) out+='<span class="modal-result-pts">'+(!isDNF&&!isDNS&&racePts>0?'+'+racePts+' pts':'')+'</span>';
         out+='</span></div>';
@@ -1683,8 +1685,8 @@ async function openDriverModal(driverId){
           out+='<div class="modal-result-sprint">';
           out+='<span class="modal-result-sprint-label">Sprint</span>';
           out+='<span style="display:flex;align-items:center;gap:6px">';
-          if(sIsDNS) out+='<span class="dns-badge">DNS</span>';
-          else if(sIsDNF) out+='<span class="dnf-badge">DNF</span>';
+          if(sIsDNS) out+='<span class="ss-tooltip-wrap"><span class="dns-badge ss-tooltip-label">DNS</span><span class="ss-tooltip-box">Did Not Start — the driver did not take part in the race</span></span>';
+          else if(sIsDNF) out+='<span class="ss-tooltip-wrap"><span class="dnf-badge ss-tooltip-label">DNF</span><span class="ss-tooltip-box">Did Not Finish — the driver retired before the chequered flag</span></span>';
           out+='<span class="modal-result-pos'+((sIsDNF||sIsDNS)?' dnf':'')+'">'+(sIsDNS?'DNS':sIsDNF?'DNF':'P'+sData.pos)+'</span>';
           if(spts>0) out+='<span class="modal-result-pts">+'+spts+' pts</span>';
           out+='</span></div>';
@@ -2306,7 +2308,7 @@ async function loadCalendar(bypassCache=false){
     const nameDiv=document.createElement('div');
     nameDiv.className='race-name-text';
     nameDiv.textContent=r.raceName;
-    if(isSprint){ const p=document.createElement('span'); p.className='sprint-pill'; p.textContent='Sprint'; nameDiv.appendChild(p); }
+    if(isSprint){ const p=document.createElement('span'); p.className='ss-tooltip-wrap'; p.innerHTML='<span class="sprint-pill ss-tooltip-label">Sprint</span><span class="ss-tooltip-box">This round includes a sprint race — a short standalone points-scoring race held on Saturday</span>'; nameDiv.appendChild(p); }
     rightCol.appendChild(nameDiv);
 
     // Meta
@@ -2393,7 +2395,7 @@ async function loadCalendar(bypassCache=false){
       const lr=document.createElement('div'); lr.className='track-info-item';
       lr.innerHTML='<div class="track-info-label">Lap record</div><div class="track-info-value mono">'+(ci.lapRecord||'—')+' <span style="font-size:11px;font-weight:400;color:var(--text2)">'+(ci.lapRecordHolder||'')+' '+(ci.lapRecordYear?'('+ci.lapRecordYear+')':'')+'</span></div>';
       grid.appendChild(lr);
-      if(ci.overtakeModeZones!=null){ const d=document.createElement('div'); d.className='track-info-item'; d.innerHTML='<div class="track-info-label">Overtake Mode zones</div><div class="track-info-value">'+ci.overtakeModeZones+'</div>'; grid.appendChild(d); }
+      if(ci.overtakeModeZones!=null){ const d=document.createElement('div'); d.className='track-info-item'; d.innerHTML='<div class="track-info-label"><span class="ss-tooltip-wrap"><span class="ss-tooltip-label">Overtake Mode zones</span><span class="ss-tooltip-box">Zones where drivers can activate Overtake Mode — the 2026 active aero system replacing DRS</span></span></div><div class="track-info-value">'+ci.overtakeModeZones+'</div>'; grid.appendChild(d); }
       if(ci.altitudeM!=null){ const d=document.createElement('div'); d.className='track-info-item'; d.innerHTML='<div class="track-info-label">Altitude</div><div class="track-info-value">'+(ci.altitudeM>=0?ci.altitudeM+'m':ci.altitudeM+'m')+'</div>'; grid.appendChild(d); }
       if(ci.overview){ const d=document.createElement('div'); d.className='track-info-item'; d.style.gridColumn='span 3'; d.innerHTML='<div class="track-info-label">Overview</div><div style="font-family:\'Barlow\',sans-serif;font-weight:700;font-size:13px;color:var(--text2);line-height:1.6;margin-top:4px">'+ci.overview+'</div>'; grid.appendChild(d); }
       trackBody.appendChild(grid);
