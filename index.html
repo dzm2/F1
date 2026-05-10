@@ -1079,7 +1079,7 @@ async function loadDriverStandings(bypassCache=false){
     const statusBadge=eliminated
       ? '<span class="ss-tooltip-wrap"><span class="champ-badge champ-eliminated ss-tooltip-label">OUT</span><span class="ss-tooltip-box tip-right">Mathematically eliminated from the championship</span></span>'
       : (d.pos===1&&racesLeft===0?'<span class="champ-badge champ-winner">✓ Champion</span>':'');
-    const rookieBadge=isRookie?'<span class="ss-tooltip-wrap"><span class="rookie-badge ss-tooltip-label">R</span><span class="ss-tooltip-box">This driver is competing in their first full Formula 1 season</span></span>':'';
+    const rookieBadge=isRookie?'<span class="rookie-badge">R</span>':'';
     const winsClass='wins-cell';
     const sprintPts=window._driverSprintPts?.[d.driverId]||0;
     const racePtsCol=d.pts-sprintPts;
@@ -3963,6 +3963,50 @@ function scheduleAutoRefresh(){
     },POLL_INTERVAL_MS);
   }
 }
+
+// ── Modal tooltip fix — use position:fixed to escape overflow:auto clipping ──
+// Tooltips inside .modal use getBoundingClientRect to position relative to viewport
+(function(){
+  let _tip=null;
+  document.addEventListener('mouseover',e=>{
+    const wrap=e.target.closest('.modal .ss-tooltip-wrap');
+    if(!wrap) return;
+    const box=wrap.querySelector('.ss-tooltip-box');
+    if(!box) return;
+    // Switch to fixed positioning
+    box.style.position='fixed';
+    box.style.opacity='0';
+    box.style.display='block';
+    const r=wrap.getBoundingClientRect();
+    const bw=box.offsetWidth;
+    const bh=box.offsetHeight;
+    // Horizontal: right-align if tip-right, left-align if tip-left, else center
+    let left;
+    if(box.classList.contains('tip-right')){
+      left=r.right-bw;
+    } else if(box.classList.contains('tip-left')){
+      left=r.left;
+    } else {
+      left=r.left+(r.width/2)-(bw/2);
+    }
+    // Keep within viewport
+    left=Math.max(8,Math.min(left,window.innerWidth-bw-8));
+    const top=r.top-bh-6;
+    box.style.left=left+'px';
+    box.style.top=top+'px';
+    box.style.bottom='auto';
+    box.style.transform='none';
+    box.style.opacity='1';
+    _tip=box;
+  });
+  document.addEventListener('mouseout',e=>{
+    const wrap=e.target.closest('.modal .ss-tooltip-wrap');
+    if(!wrap) return;
+    const box=wrap.querySelector('.ss-tooltip-box');
+    if(box){ box.style.opacity='0'; }
+    _tip=null;
+  });
+})();
 
 // ── Boot ──
 loadAll();
