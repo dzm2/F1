@@ -2158,21 +2158,21 @@ async function loadCalendar(bypassCache=false){
     const schedData=await fetchJSON(`${BASE}/${SEASON}.json?limit=30`,2,bypassCache);
     allRaces=schedData.MRData?.RaceTable?.Races||[];
     const today=new Date();
-    // Use full race datetime when available so date-only midnight UTC comparison
-    // doesn't incorrectly mark a race as completed before it has started
-    const completed=allRaces.filter(r=>{
+    // completedByDate — rounds whose scheduled start time has passed.
+    // Used for header stats and deciding which rounds to attempt fetching.
+    const completedByDate=allRaces.filter(r=>{
       const dt=r.date&&r.time?new Date(r.date+'T'+r.time):new Date(r.date+'T23:59:59Z');
       return dt<=today;
     });
-    const completedSprints=completed.filter(r=>SPRINT_ROUNDS.has(parseInt(r.round)));
-    if(completed.length>0){
-      // Fetch per-round data sequentially to avoid 429 rate limiting
-      // Completed round data is immutable once published — use a 7-day TTL so repeat
-      // page loads skip the network entirely for rounds already cached.
-      // bypassCache=true (↻ Refresh) still forces fresh fetches for all rounds.
+    const completedSprints=completedByDate.filter(r=>SPRINT_ROUNDS.has(parseInt(r.round)));
+    if(completedByDate.length>0){
+      // Fetch per-round data sequentially to avoid 429 rate limiting.
+      // Long TTL (7 days) is only applied once results are confirmed non-empty —
+      // empty results are not cached so they get re-checked on the next page load.
       const ROUND_TTL=7*24*60*60*1000;
-      for(let i=0;i<completed.length;i++){
-        const r=completed[i];
+      const EMPTY_TTL=15*60*1000; // 15 minutes — retry soon if Jolpica hasn't published yet
+      for(let i=0;i<completedByDate.length;i++){
+        const r=completedByDate[i];
         const isSprint=SPRINT_ROUNDS.has(parseInt(r.round));
         const resultsCached=!bypassCache&&!!cacheGet(`${BASE}/${SEASON}/${r.round}/results.json?limit=25`,ROUND_TTL);
         if(i>0&&!resultsCached) await new Promise(r=>setTimeout(r,500));
@@ -2183,8 +2183,14 @@ async function loadCalendar(bypassCache=false){
           isSprint?fetchJSON(`${BASE}/${SEASON}/${r.round}/qualifying.json?limit=30`,2,bypassCache,ROUND_TTL).catch(()=>null):Promise.resolve(null),
         ];
         const [gpRes,qualiRes,sprintRes,sprintQualiRes]=await Promise.all(fetches);
-        if(gpRes)    resultsMap[r.round]    =gpRes.MRData?.RaceTable?.Races?.[0]?.Results||[];
-        if(qualiRes) qualiMap[r.round]      =qualiRes.MRData?.RaceTable?.Races?.[0]?.QualifyingResults||[];
+        const gpResults=gpRes?.MRData?.RaceTable?.Races?.[0]?.Results||[];
+        resultsMap[r.round]=gpResults;
+        // If results came back empty, evict the long-TTL cache entry so the next page
+        // load re-checks Jolpica rather than serving a stale empty for 7 days.
+        if(!gpResults.length){
+          try{ localStorage.removeItem(`${BASE}/${SEASON}/${r.round}/results.json?limit=25`); }catch(e){}
+        }
+        if(qualiRes) qualiMap[r.round]=qualiRes.MRData?.RaceTable?.Races?.[0]?.QualifyingResults||[];
         if(sprintRes){
           const race0=sprintRes.MRData?.RaceTable?.Races?.[0];
           const sr=(race0?.SprintResults||race0?.Results||[]);
@@ -2194,8 +2200,8 @@ async function loadCalendar(bypassCache=false){
         if(sprintQualiRes) sprintQualiMap[r.round]=sprintQualiRes.MRData?.RaceTable?.Races?.[0]?.QualifyingResults||[];
       }
     }
-    // Expose completed rounds for Season tab standings history build
-    window._completedRounds=completed;
+    // Expose completed rounds (date-based) for Season tab standings history build
+    window._completedRounds=completedByDate;
   }catch(e){
     const fb=cacheGetStale(`${BASE}/${SEASON}.json?limit=30`);
     if(fb){allRaces=fb.MRData?.RaceTable?.Races||[];stale=true;
@@ -2211,7 +2217,11 @@ async function loadCalendar(bypassCache=false){
   document.getElementById('cal-stale').classList.toggle('show',stale);
 
   const today=new Date();
-  const completed=allRaces.filter(r=>(resultsMap[r.round]||[]).length>0);
+  // completedByDate drives the header stats — rounds whose scheduled time has passed,
+  // regardless of whether Jolpica has published results yet.
+  const completedByDate=window._completedRounds||[];
+  // completedWithResults drives card ordering and the race card isCompleted flag.
+  const completedWithResults=allRaces.filter(r=>(resultsMap[r.round]||[]).length>0);
   const upcoming=allRaces.filter(r=>(resultsMap[r.round]||[]).length===0);
   // Use full race datetime if available so timezone differences don't cause the race to be
   // missed when r.date (midnight UTC) has passed but the race hasn't started yet
@@ -2224,18 +2234,13 @@ async function loadCalendar(bypassCache=false){
   window._allRaces=allRaces;
   window._nextRaceDate=nextRace?new Date(nextRace.date):null;
 
-
-  if(completed.length>0){
-    const last=completed[completed.length-1];
-
-  }
-
-  // Populate new header stats
+  // Populate header stats — use date-based count so the number is always correct
+  // even when Jolpica hasn't published results for the most recent race yet.
   const hDone=document.getElementById('h-rounds-done');
   const hLeft=document.getElementById('h-rounds-left');
   const hNext=document.getElementById('h-next-race');
-  if(hDone) hDone.textContent=completed.length;
-  if(hLeft) hLeft.textContent=upcoming.length;
+  if(hDone) hDone.textContent=completedByDate.length;
+  if(hLeft) hLeft.textContent=allRaces.length-completedByDate.length;
   if(hNext&&nextRace){
     // 3-letter abbreviation from circuit country or race name
     const abbr=nextRace.Circuit?.Location?.country?.slice(0,3).toUpperCase()||
@@ -2252,7 +2257,9 @@ async function loadCalendar(bypassCache=false){
   }
 
   const rl=document.getElementById('race-list');rl.innerHTML='';
-  const allOrdered=[...completed,...upcoming];
+  // Card ordering still uses results-based split so completed cards (with data to show)
+  // appear above upcoming cards.
+  const allOrdered=[...completedWithResults,...upcoming];
   const nextRaceRound=nextRace?parseInt(nextRace.round):null;
 
   allOrdered.forEach(r=>{
@@ -2261,7 +2268,7 @@ async function loadCalendar(bypassCache=false){
     const isNext=nextRace&&r.round===nextRace.round;
 
     // Insert subtle divider before the first upcoming race
-    if(isNext&&completed.length>0){
+    if(isNext&&completedWithResults.length>0){
       const divider=document.createElement('div');
       divider.style.cssText='height:1px;background:var(--border);margin:4px 0;opacity:0.6;';
       rl.appendChild(divider);
