@@ -771,6 +771,12 @@ const CACHE_TTL = 60 * 60 * 1000;
 // Also detected dynamically — if the API returns sprint data for a round, it's treated as a sprint weekend
 const SPRINT_ROUNDS = new Set([2,4,5,11,15,18]);
 
+// ── Header stats — updated manually after each race (see "What to update after each race") ──
+// Update HEADER_ROUNDS_DONE when told "Round X is done". HEADER_NEXT_RACE is the
+// 3-letter abbreviation displayed in the strip. Countdown is unaffected — still Jolpica.
+const HEADER_ROUNDS_DONE = 4;
+const HEADER_NEXT_RACE   = 'CAN';
+
 const teamColors = {
   'Mercedes':'#75F1D3','Ferrari':'#D52E37','McLaren':'#ef8733',
   'Haas F1 Team':'#B6BABD','Haas':'#B6BABD','Red Bull':'#4570C0',
@@ -2234,21 +2240,15 @@ async function loadCalendar(bypassCache=false){
   window._allRaces=allRaces;
   window._nextRaceDate=nextRace?new Date(nextRace.date):null;
 
-  // Populate header stats — use date-based count so the number is always correct
-  // even when Jolpica hasn't published results for the most recent race yet.
+  // Populate header stats — Rounds Done and Next Race read from hardcoded constants
+  // (HEADER_ROUNDS_DONE, HEADER_NEXT_RACE) updated manually after each race.
+  // Countdown is unaffected and still driven by Jolpica schedule data below.
   const hDone=document.getElementById('h-rounds-done');
   const hLeft=document.getElementById('h-rounds-left');
   const hNext=document.getElementById('h-next-race');
-  if(hDone) hDone.textContent=completedByDate.length;
-  if(hLeft) hLeft.textContent=allRaces.length-completedByDate.length;
-  if(hNext&&nextRace){
-    // 3-letter abbreviation from circuit country or race name
-    const abbr=nextRace.Circuit?.Location?.country?.slice(0,3).toUpperCase()||
-      nextRace.raceName.replace(' Grand Prix','').slice(0,3).toUpperCase();
-    hNext.textContent=abbr;
-  } else if(hNext){
-    hNext.textContent='—';
-  }
+  if(hDone) hDone.textContent=HEADER_ROUNDS_DONE;
+  if(hLeft) hLeft.textContent=TOTAL_RACES-HEADER_ROUNDS_DONE;
+  if(hNext) hNext.textContent=HEADER_NEXT_RACE;
 
   // Start countdown to next race in the metrics bar
   if(nextRace){
