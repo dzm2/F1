@@ -4016,6 +4016,16 @@ function scheduleAutoRefresh(){
 })();
 
 // ── Boot ──
+// Populate Rounds Done, Remaining, and Next Race immediately from hardcoded constants —
+// no API call needed, so these appear instantly on page load before loadAll() resolves.
+(function(){
+  const hDone=document.getElementById('h-rounds-done');
+  const hLeft=document.getElementById('h-rounds-left');
+  const hNext=document.getElementById('h-next-race');
+  if(hDone) hDone.textContent=HEADER_ROUNDS_DONE;
+  if(hLeft) hLeft.textContent=TOTAL_RACES-HEADER_ROUNDS_DONE;
+  if(hNext) hNext.textContent=HEADER_NEXT_RACE;
+})();
 loadAll();
 </script>
 </body>
