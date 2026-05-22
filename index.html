@@ -792,14 +792,6 @@ const flagMap = {
   'American':'🇺🇸','Brazilian':'🇧🇷','Argentine':'🇦🇷','Swedish':'🇸🇪',
   'New Zealander':'🇳🇿','Japanese':'🇯🇵','Chinese':'🇨🇳','Danish':'🇩🇰','Austrian':'🇦🇹',
 };
-// Tyre compound → colour code
-const tyreNames={S:'Soft — fastest grip, degrades quickest',M:'Medium — balanced compound',H:'Hard — slowest but most durable',I:'Intermediate — for light rain or drying track',W:'Wet — for standing water'};
-function tyreChip(c){
-  const k = c ? c.charAt(0).toUpperCase() : 'U';
-  const label = c || '?';
-  const tip = tyreNames[k]||label;
-  return `<span class="ss-tooltip-wrap"><span class="tyre tyre-${k} ss-tooltip-label">${k}</span><span class="ss-tooltip-box">${tip}</span></span>`;
-}
 function teamColor(n){ for(const[k,v]of Object.entries(teamColors))if(n.includes(k))return v; return'#888'; }
 function cleanConstructorName(n){
   if(!n) return n;
@@ -890,8 +882,7 @@ async function fetchJSON(url,retries=2,bypassCache=false,ttl=CACHE_TTL){
   }
 }
 
-// ── State ──
-// Chart colour helper — reads CSS variables at render time so charts adapt to theme
+// ── Chart colour helper — reads CSS variables at render time so charts adapt to theme ──
 function chartDefaults(yTitle=''){
   const cs=getComputedStyle(document.documentElement);
   const tick=cs.getPropertyValue('--text2').trim()||'#73726c';
@@ -907,6 +898,7 @@ function chartDefaults(yTitle=''){
     }
   };
 }
+// ── State ──
 let liveDrivers=[], liveConstructors=[], standingsHistory=[], conHistory=[];
 let fastestLapCounts={};  // driverId -> FL count for 2026
 let resultsMap={}, sprintMap={}, qualiMap={}, sprintQualiMap={};
@@ -996,8 +988,6 @@ function startCountdown(dateStr,name,timeStr){
   tick(); _cdInterval=setInterval(tick,1000);
 }
 
-
-
 // ── Driver Standings ──
 async function loadDriverStandings(bypassCache=false){
   let stale=false,list,data;
@@ -1070,7 +1060,7 @@ async function loadDriverStandings(bypassCache=false){
     pos:parseInt(d.position),flag:flag(d.Driver.nationality),
     first:d.Driver.givenName,last:d.Driver.familyName,
     driverId:d.Driver.driverId,nationality:d.Driver.nationality,
-    dob:d.Driver.dateOfBirth,code:d.Driver.code,number:d.Driver.permanentNumber,
+    dob:d.Driver.dateOfBirth,number:d.Driver.permanentNumber,
     team:cleanConstructorName(d.Constructors[0]?.name||''),constructorId:d.Constructors[0]?.constructorId||'',
     pts:parseFloat(d.points),wins:parseInt(d.wins),color:teamColor(d.Constructors[0]?.name||'')
   }));
@@ -1086,14 +1076,12 @@ async function loadDriverStandings(bypassCache=false){
       ? '<span class="ss-tooltip-wrap"><span class="champ-badge champ-eliminated ss-tooltip-label">OUT</span><span class="ss-tooltip-box tip-right">Mathematically eliminated from the championship</span></span>'
       : (d.pos===1&&racesLeft===0?'<span class="champ-badge champ-winner">✓ Champion</span>':'');
     const rookieBadge=isRookie?'<span class="rookie-badge">R</span>':'';
-    const winsClass='wins-cell';
     const sprintPts=window._driverSprintPts?.[d.driverId]||0;
     const racePtsCol=d.pts-sprintPts;
     const finRate=window._driverFinRate?.[d.driverId];
     const finRateStr=finRate!==null&&finRate!==undefined?finRate+'%':'—';
-    // Trend: compare current pts to pts after previous round
 
-    dtb.innerHTML+=`<tr class="${d.pos===1?'p1':''}" data-search="${d.first} ${d.last} ${d.team}" data-driver-number="${d.number||''}" onclick="openDriverModal('${d.driverId}')">
+    dtb.innerHTML+=`<tr class="${d.pos===1?'p1':''}" data-search="${d.first} ${d.last} ${d.team}" onclick="openDriverModal('${d.driverId}')">
       <td class="f1-pos">${d.pos}</td>
       <td style="padding-right:0;width:4px"><div class="team-pip" style="background:${d.color}"></div></td>
       <td><div class="driver-info-wrap">
@@ -1107,7 +1095,7 @@ async function loadDriverStandings(bypassCache=false){
         <div class="driver-pts-bar"><div class="driver-pts-bar-fill" style="width:${pct}%;background:${d.color}"></div></div>
       </div></td>
       <td class="pts-cell" data-val="${d.pts}"><div class="pts-num">${d.pts}</div></td>
-      <td class="${winsClass}" data-val="${d.wins}">${d.wins}</td>
+      <td class="wins-cell" data-val="${d.wins}">${d.wins}</td>
       <td class="sprint-pts-cell">${racePtsCol>0?racePtsCol:'—'}</td>
       <td class="sprint-pts-cell">${sprintPts>0?'+'+sprintPts:'—'}</td>
       <td class="finrate-cell">${finRateStr}</td>
@@ -1122,13 +1110,6 @@ async function loadDriverStandings(bypassCache=false){
   }
   document.getElementById('drivers-table').style.display='';
   document.getElementById('drivers-stale').classList.toggle('show',stale);
-  if(liveDrivers.length>=2){
-    const p1=liveDrivers[0],p2=liveDrivers[1];
-
-    // Points needed to clinch
-    const ptsNeeded=Math.max(0,Math.ceil((p2.pts+maxPossible-p1.pts)/2)+1);
-
-  }
   tickProgress();
 }
 
@@ -1282,8 +1263,8 @@ const TEAM_INFO = {
   'cadillac':      { base:'Concord, USA',            principal:'Graeme Lowdon',       power:'GM/Ferrari', founded:2024, f1Since:2026, titles:0,  wins:0,   podiums:0,
     bio:['Cadillac is one of two new entries joining the Formula 1 grid in 2026, becoming the second American team on the grid alongside Haas. The team is backed by General Motors and Andretti Global — the motorsport outfit founded by racing legend Michael Andretti — and represents a significant moment for American involvement in the sport after a lengthy and at times contentious approval process. Based in Concord, North Carolina, the team uses Ferrari power units while GM develops its own F1-specification power unit for future seasons.','Led by team principal Graeme Lowdon, Cadillac enter their debut season with realistic expectations of learning and developing rather than immediately challenging for points. {D1} and {D2} take on the formidable task of launching a brand new team in one of the most competitive periods in F1 history.']
   },
-  'audi':          { base:'Hinwil, Switzerland',     principal:'Mattia Binotto',   power:'Audi',       founded:2026, f1Since:2026, titles:0,  wins:0,   podiums:0,
-    bio:['Audi\'s arrival in Formula 1 in 2026 marks one of the most significant manufacturer entries in the sport\'s history. The German automotive giant acquired a majority stake in the Sauber Group — which had operated the Hinwil-based team since 1993 — and has invested heavily in building a works power unit programme from scratch. It is the first time Audi has competed in Formula 1 as a constructor, though the brand has a distinguished motorsport heritage including multiple Le Mans victories and dominance in the World Rally Championship.','The 2026 season is expected to be a learning year as Audi develops its new power unit and establishes its structures in Formula 1. Under team principal Mattia Binotto — who previously led Ferrari\'s F1 programme — and with {D1} and {D2} as its first ever F1 drivers, Audi\'s long-term ambition is to become a championship-winning force within the decade.']
+  'audi':          { base:'Hinwil, Switzerland',     principal:'TBD',   power:'Audi',       founded:2026, f1Since:2026, titles:0,  wins:0,   podiums:0,
+    bio:['Audi\'s arrival in Formula 1 in 2026 marks one of the most significant manufacturer entries in the sport\'s history. The German automotive giant acquired a majority stake in the Sauber Group — which had operated the Hinwil-based team since 1993 — and has invested heavily in building a works power unit programme from scratch. It is the first time Audi has competed in Formula 1 as a constructor, though the brand has a distinguished motorsport heritage including multiple Le Mans victories and dominance in the World Rally Championship.','The 2026 season is expected to be a learning year as Audi develops its new power unit and establishes its structures in Formula 1. Under team principal Jonathan Wheatley — recruited from Red Bull Racing — and with {D1} and {D2} as its first ever F1 drivers, Audi\'s long-term ambition is to become a championship-winning force within the decade.']
   },
 };
 
@@ -2066,10 +2047,6 @@ async function loadConstructorStandings(bypassCache=false){
   }
   document.getElementById('con-table').style.display='';
   document.getElementById('con-stale').classList.toggle('show',stale);
-  if(list.length>=2){
-    const p1=list[0],p2=list[1];
-
-  }
   tickProgress();
 }
 
@@ -2170,13 +2147,11 @@ async function loadCalendar(bypassCache=false){
       const dt=r.date&&r.time?new Date(r.date+'T'+r.time):new Date(r.date+'T23:59:59Z');
       return dt<=today;
     });
-    const completedSprints=completedByDate.filter(r=>SPRINT_ROUNDS.has(parseInt(r.round)));
     if(completedByDate.length>0){
       // Fetch per-round data sequentially to avoid 429 rate limiting.
       // Long TTL (7 days) is only applied once results are confirmed non-empty —
       // empty results are not cached so they get re-checked on the next page load.
       const ROUND_TTL=7*24*60*60*1000;
-      const EMPTY_TTL=15*60*1000; // 15 minutes — retry soon if Jolpica hasn't published yet
       for(let i=0;i<completedByDate.length;i++){
         const r=completedByDate[i];
         const isSprint=SPRINT_ROUNDS.has(parseInt(r.round));
@@ -2260,8 +2235,6 @@ async function loadCalendar(bypassCache=false){
   // Card ordering still uses results-based split so completed cards (with data to show)
   // appear above upcoming cards.
   const allOrdered=[...completedWithResults,...upcoming];
-  const nextRaceRound=nextRace?parseInt(nextRace.round):null;
-
   allOrdered.forEach(r=>{
     try{
     const isCompleted=(resultsMap[r.round]||[]).length>0;
@@ -2948,9 +2921,6 @@ document.getElementById('race-list').addEventListener('click', e=>{
   }
 });
 
-// ── Chart ──
-
-// ── Table helpers ──
 // ── CSV export ──
 function exportCSV(type){
   if(type==='drivers'&&!liveDrivers.length) return;
@@ -3974,7 +3944,6 @@ function scheduleAutoRefresh(){
 // ── Modal tooltip fix — use position:fixed to escape overflow:auto clipping ──
 // Tooltips inside .modal use getBoundingClientRect to position relative to viewport
 (function(){
-  let _tip=null;
   document.addEventListener('mouseover',e=>{
     const wrap=e.target.closest('.modal .ss-tooltip-wrap');
     if(!wrap) return;
@@ -4004,14 +3973,12 @@ function scheduleAutoRefresh(){
     box.style.bottom='auto';
     box.style.transform='none';
     box.style.opacity='1';
-    _tip=box;
   });
   document.addEventListener('mouseout',e=>{
     const wrap=e.target.closest('.modal .ss-tooltip-wrap');
     if(!wrap) return;
     const box=wrap.querySelector('.ss-tooltip-box');
     if(box){ box.style.opacity='0'; }
-    _tip=null;
   });
 })();
 
