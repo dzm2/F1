@@ -424,8 +424,8 @@
     .df-box.df-podium{background:#22c55e;}
     .df-box.df-strong{background:#eab308;color:#412402;}
     .df-box.df-points{background:#f97316;}
-    .df-box.df-outside{background:var(--bg3);color:var(--text);border:0.5px solid var(--red);}
-    .df-box.df-dnf{background:#E10600;color:#fff;}
+    .df-box.df-outside{background:#E10600;color:#fff;border:none;}
+    .df-box.df-dnf{background:var(--bg3);color:var(--text);border:0.5px solid var(--red);}
     .df-box.df-nodata{background:transparent;color:var(--text3);border:0.5px solid rgba(255,255,255,0.07);font-size:11px;}
     .df-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
     .df-leg{display:flex;align-items:center;gap:5px;font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.5px;}
@@ -3060,8 +3060,8 @@ function renderDriverForm(){
     '<div class="df-leg"><div class="df-leg-sw" style="background:#22c55e"></div>Podium (1–3)</div>'
    +'<div class="df-leg"><div class="df-leg-sw" style="background:#eab308"></div>Points (4–6)</div>'
    +'<div class="df-leg"><div class="df-leg-sw" style="background:#f97316"></div>Points (7–10)</div>'
-   +'<div class="df-leg"><div class="df-leg-sw" style="background:var(--bg3);border:0.5px solid var(--red)"></div>Outside top 10</div>'
-   +'<div class="df-leg"><div class="df-leg-sw" style="background:#E10600"></div>DNF / DNS</div>';
+   +'<div class="df-leg"><div class="df-leg-sw" style="background:#E10600"></div>Outside top 10</div>'
+   +'<div class="df-leg"><div class="df-leg-sw" style="background:var(--bg3);border:0.5px solid var(--red)"></div>DNF / DNS</div>';
   el.appendChild(legend);
   liveDrivers.forEach(d=>{
     const row=document.createElement('div'); row.className='df-row';
