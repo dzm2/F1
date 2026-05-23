@@ -644,10 +644,6 @@
           <div style="position:relative;height:200px"><canvas id="champ-gap-chart"></canvas></div>
         </div>
         <div style="margin-bottom:1rem">
-          <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Championship leader each round</div>
-          <div id="champ-leader-table"></div>
-        </div>
-        <div style="margin-bottom:1rem">
           <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">Driver performance rates</div>
           <div style="position:relative;height:220px"><canvas id="champ-rate-chart"></canvas></div>
         </div>
@@ -3235,19 +3231,6 @@ function renderChampionshipDeepDive(){
     const gapOpts=baseOpts('Championship points');
     gapOpts.plugins.legend={display:false};
     gapCtx._chart=new Chart(gapCtx,{type:'line',data:{labels,datasets},options:gapOpts});
-  }
-
-  // Championship leader each round
-  const leaderEl=document.getElementById('champ-leader-table');
-  if(leaderEl){
-    leaderEl.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:4px">'+standingsHistory.map(h=>{
-      const p1=h.standings[0];
-      const col=p1?liveDrivers.find(d=>d.driverId===p1.id)?.color||'#888':'#888';
-      return p1?'<div style="background:var(--bg2);border:0.5px solid var(--border);border-left:3px solid '+col+';border-radius:4px;padding:4px 8px">'
-        +'<div style="font-family:\'Barlow\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Rd '+h.round+'</div>'
-        +'<div style="font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:'+col+';text-transform:uppercase;letter-spacing:0.2px">'+p1.last+'</div>'
-        +'</div>':'';
-    }).join('')+'</div>';
   }
 
   // Win rate bar chart — top 8 drivers
