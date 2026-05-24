@@ -768,10 +768,12 @@ const CACHE_TTL = 60 * 60 * 1000;
 const SPRINT_ROUNDS = new Set([2,4,5,11,15,18]);
 
 // ── Header stats — updated manually after each race (see "What to update after each race") ──
-// Update HEADER_ROUNDS_DONE when told "Round X is done". HEADER_NEXT_RACE is the
-// 3-letter abbreviation displayed in the strip. Countdown is unaffected — still Jolpica.
+// Update HEADER_ROUNDS_DONE when told "Round X is done".
+// HEADER_NEXT_RACE is kept here for reference but is no longer used to populate the
+// Next Race box — that is now derived automatically from the live schedule via
+// startCountdownFromList, which updates it in real time throughout race day.
 const HEADER_ROUNDS_DONE = 4;
-const HEADER_NEXT_RACE   = 'CAN';
+const HEADER_NEXT_RACE   = 'CAN'; // unused — kept for reference only
 
 const teamColors = {
   'Mercedes':'#75F1D3','Ferrari':'#D52E37','McLaren':'#ef8733',
@@ -947,33 +949,81 @@ function weatherIcon(code){
 }
 
 // ── Countdown ──
+// Accepts the full sorted race list so it can automatically chain to the next
+// race once a race's 2-hour window closes — no page reload required.
 let _cdInterval=null;
-function startCountdown(dateStr,name,timeStr){
-  if(_cdInterval) clearInterval(_cdInterval);
-  // Use actual race time from API if available, otherwise fall back to 13:00 UTC
-  let raceStart;
-  if(timeStr){
-    raceStart=new Date(dateStr+'T'+timeStr);
-  } else {
-    raceStart=new Date(dateStr);
-    raceStart.setUTCHours(13,0,0,0);
-  }
-  if(isNaN(raceStart.getTime())) return; // invalid date — bail silently
-  const raceEnd=new Date(raceStart.getTime()+2*60*60*1000); // 2 hours after start
+const RACE_WINDOW_MS=2*60*60*1000; // 2 hours
+
+function raceStartTime(r){
+  // Returns a Date for the scheduled race start, falling back to 13:00 UTC
+  if(r.date&&r.time) return new Date(r.date+'T'+r.time);
+  const d=new Date(r.date); d.setUTCHours(13,0,0,0); return d;
+}
+
+function startCountdownFromList(races){
+  // races: full sorted array of Jolpica race objects for the season
+  if(_cdInterval){ clearInterval(_cdInterval); _cdInterval=null; }
+  if(!races||!races.length) return;
+
   const el=document.getElementById('h-countdown');
+  const hNext=document.getElementById('h-next-race');
+
+  // Find the right race to display:
+  // 1. A race currently within its 2-hour live window  → "Race on"
+  // 2. The next race whose window hasn't started yet   → countdown
+  function findActiveRace(){
+    const now=Date.now();
+    for(const r of races){
+      const start=raceStartTime(r);
+      if(isNaN(start.getTime())) continue;
+      const end=start.getTime()+RACE_WINDOW_MS;
+      if(now>=start.getTime()&&now<end) return {r,state:'live'};
+      if(start.getTime()>now) return {r,state:'upcoming'};
+    }
+    return null; // season over
+  }
+
+  // Derive a short 3-letter abbreviation from the race name or country
+  function raceAbbr(r){
+    // Use country code from Location if available, otherwise abbreviate raceName
+    const country=r.Circuit?.Location?.country||'';
+    const knownAbbr={
+      'Australia':'AUS','China':'CHN','Japan':'JPN','Bahrain':'BAH',
+      'Saudi Arabia':'SAU','United States':'USA','Canada':'CAN',
+      'Monaco':'MON','Spain':'ESP','Austria':'AUT','United Kingdom':'GBR',
+      'Belgium':'BEL','Hungary':'HUN','Netherlands':'NED','Italy':'ITA',
+      'Spain':'ESP','Azerbaijan':'AZE','Singapore':'SGP','Mexico':'MEX',
+      'Brazil':'BRA','Qatar':'QAT','UAE':'UAE','Las Vegas':'LAS',
+    };
+    if(knownAbbr[country]) return knownAbbr[country];
+    // Fallback: first 3 letters of raceName stripped of "Grand Prix"
+    return (r.raceName||'').replace(' Grand Prix','').replace('Grand Prix','').trim().slice(0,3).toUpperCase();
+  }
+
   function tick(){
     const now=Date.now();
-    const diffToStart=raceStart.getTime()-now;
-    if(now>=raceStart.getTime()&&now<=raceEnd.getTime()){
+    const active=findActiveRace();
+
+    if(!active){
+      // Season finished
+      if(el){ el.textContent='Season over'; el.className='season-stat-val season-stat-countdown'; }
+      clearInterval(_cdInterval); _cdInterval=null;
+      return;
+    }
+
+    const {r,state}=active;
+    const start=raceStartTime(r);
+
+    // Update Next Race box to always reflect the active race
+    if(hNext) hNext.textContent=raceAbbr(r);
+
+    if(state==='live'){
       if(el){ el.textContent='Race on'; el.className='season-stat-val season-stat-countdown race-on'; }
       return;
     }
-    if(now>raceEnd.getTime()){
-      if(el){ el.textContent='Results soon'; el.className='season-stat-val season-stat-countdown'; }
-      clearInterval(_cdInterval);
-      return;
-    }
-    const diff=diffToStart;
+
+    // Upcoming — count down to start
+    const diff=start.getTime()-now;
     const d=Math.floor(diff/86400000);
     const h=Math.floor((diff%86400000)/3600000);
     const m=Math.floor((diff%3600000)/60000);
@@ -981,7 +1031,15 @@ function startCountdown(dateStr,name,timeStr){
     const str=d>0?`${d}d ${h}h ${m}m ${s}s`:`${h}h ${m}m ${s}s`;
     if(el){ el.textContent=str; el.className='season-stat-val season-stat-countdown'; }
   }
-  tick(); _cdInterval=setInterval(tick,1000);
+
+  tick();
+  _cdInterval=setInterval(tick,1000);
+}
+
+// Legacy shim — keeps any existing call sites working during transition
+function startCountdown(dateStr,name,timeStr){
+  // Build a minimal race object and delegate to startCountdownFromList
+  startCountdownFromList([{date:dateStr,time:timeStr,raceName:name,Circuit:{Location:{country:''}}}]);
 }
 
 // ── Driver Standings ──
@@ -2194,38 +2252,39 @@ async function loadCalendar(bypassCache=false){
   document.getElementById('cal-stale').classList.toggle('show',stale);
 
   const today=new Date();
+  const now=today.getTime();
   // completedByDate drives the header stats — rounds whose scheduled time has passed,
   // regardless of whether Jolpica has published results yet.
   const completedByDate=window._completedRounds||[];
   // completedWithResults drives card ordering and the race card isCompleted flag.
   const completedWithResults=allRaces.filter(r=>(resultsMap[r.round]||[]).length>0);
   const upcoming=allRaces.filter(r=>(resultsMap[r.round]||[]).length===0);
-  // Use full race datetime if available so timezone differences don't cause the race to be
-  // missed when r.date (midnight UTC) has passed but the race hasn't started yet
-  const nextRace=allRaces.filter(r=>{
-    const dt=r.date&&r.time?new Date(r.date+'T'+r.time):new Date(r.date+'T23:59:59Z');
-    return dt>today;
-  })[0]||upcoming[0];
+
+  // nextRace: the race currently within its 2-hour live window, OR the next
+  // race whose start time hasn't arrived yet. This means a race that has started
+  // but has no results yet is still treated as "the current race" rather than
+  // being skipped over — fixing the race-day no-man's-land bug.
+  const nextRace=allRaces.find(r=>{
+    const start=raceStartTime(r);
+    if(isNaN(start.getTime())) return false;
+    // Include if still within 2-hour live window, or hasn't started yet
+    return start.getTime()+RACE_WINDOW_MS>now;
+  })||upcoming[0];
 
   // Expose schedule globally so auto-refresh can make smart decisions
   window._allRaces=allRaces;
   window._nextRaceDate=nextRace?new Date(nextRace.date):null;
 
-  // Populate header stats — Rounds Done and Next Race read from hardcoded constants
-  // (HEADER_ROUNDS_DONE, HEADER_NEXT_RACE) updated manually after each race.
-  // Countdown is unaffected and still driven by Jolpica schedule data below.
+  // Populate Rounds Done and Remaining from hardcoded constants (updated manually).
+  // Next Race is now derived dynamically from the live schedule via startCountdownFromList.
   const hDone=document.getElementById('h-rounds-done');
   const hLeft=document.getElementById('h-rounds-left');
-  const hNext=document.getElementById('h-next-race');
   if(hDone) hDone.textContent=HEADER_ROUNDS_DONE;
   if(hLeft) hLeft.textContent=TOTAL_RACES-HEADER_ROUNDS_DONE;
-  if(hNext) hNext.textContent=HEADER_NEXT_RACE;
 
-  // Start countdown to next race in the metrics bar
-  if(nextRace){
-    const shortName=nextRace.raceName.replace(' Grand Prix','').replace('Grand Prix','');
-    startCountdown(nextRace.date,shortName+' GP',nextRace.time||null);
-  }
+  // Start the self-managing countdown — handles "Race on", chaining to next race,
+  // and keeping the Next Race box up to date, all without page reloads.
+  startCountdownFromList(allRaces);
 
   const rl=document.getElementById('race-list');rl.innerHTML='';
   // Card ordering still uses results-based split so completed cards (with data to show)
@@ -2418,8 +2477,14 @@ async function loadCalendar(bypassCache=false){
         detail.appendChild(schedTbl);
       }
       // Weather (async — append placeholder then fill)
+      // Show on any card within its 2-hour live window, or on the next upcoming race.
+      // This fixes the race-day bug where isNext had already advanced to the following
+      // race, causing weather to disappear from the card of the race currently running.
+      const cardStart=raceStartTime(r);
+      const cardNow=Date.now();
+      const isInWindow=!isNaN(cardStart.getTime())&&cardNow>=cardStart.getTime()&&cardNow<cardStart.getTime()+RACE_WINDOW_MS;
       const coords=CIRCUIT_COORDS[circuitId];
-      if(coords&&isNext){
+      if(coords&&(isNext||isInWindow)){
         const weatherDiv=document.createElement('div'); weatherDiv.className='weather-strip';
         weatherDiv.innerHTML='<span style="font-size:12px;color:var(--text3)">Loading weather...</span>';
         detail.appendChild(weatherDiv);
@@ -3966,15 +4031,15 @@ function scheduleAutoRefresh(){
 })();
 
 // ── Boot ──
-// Populate Rounds Done, Remaining, and Next Race immediately from hardcoded constants —
+// Populate Rounds Done and Remaining immediately from hardcoded constants —
 // no API call needed, so these appear instantly on page load before loadAll() resolves.
+// Next Race is intentionally left blank here — startCountdownFromList will populate
+// it correctly once the schedule is fetched, avoiding a flash of stale hardcoded data.
 (function(){
   const hDone=document.getElementById('h-rounds-done');
   const hLeft=document.getElementById('h-rounds-left');
-  const hNext=document.getElementById('h-next-race');
   if(hDone) hDone.textContent=HEADER_ROUNDS_DONE;
   if(hLeft) hLeft.textContent=TOTAL_RACES-HEADER_ROUNDS_DONE;
-  if(hNext) hNext.textContent=HEADER_NEXT_RACE;
 })();
 loadAll();
 </script>
