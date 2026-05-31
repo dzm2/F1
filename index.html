@@ -2539,13 +2539,13 @@ async function loadCalendar(bypassCache=false){
     // Sprint group (sprint rounds only)
     if(isCompleted&&sprintFinishers.length){
       const sprintGrp=makeGroup('Sprint',body=>{
-        // Sprint qualifying — lazy loaded from OpenF1
+        // Sprint qualifying — lazy loaded from OpenF1 /v1/session_result
         const sqTitle=document.createElement('div'); sqTitle.className='detail-section-title'; sqTitle.style.marginTop='0'; sqTitle.textContent='Sprint qualifying'; body.appendChild(sqTitle);
         const sqWrap=document.createElement('div'); sqWrap.id='sqresults-'+r.round;
         sqWrap.innerHTML='<div style="font-size:11px;color:var(--text3);padding:4px 0">Loading...</div>';
-        body.appendChild(sqWrap);
         sqWrap.dataset.round=r.round;
         sqWrap.dataset.loaded='0';
+        body.appendChild(sqWrap);
 
         if(sprintFinishers.length){
           const srt=document.createElement('div'); srt.className='detail-section-title'; srt.textContent='Sprint race'; body.appendChild(srt);
@@ -2879,39 +2879,48 @@ document.getElementById('race-list').addEventListener('click', e=>{
       if(!sqk){
         sqWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">Sprint qualifying data not available for this round.</div>';
       } else {
-        // OpenF1 /v1/results returns per-driver session results including position and lap times
-        fetchOF1(`${OF1_BASE}/results?session_key=${sqk}`).then(data=>{
+        // /v1/session_result returns one entry per driver; for qualifying sessions
+        // duration is an array [SQ1, SQ2, SQ3] in seconds (null if driver didn't set a time)
+        fetchOF1(`${OF1_BASE}/session_result?session_key=${sqk}`).then(data=>{
           if(!data||!data.length){sqWrap.innerHTML='<div style="font-size:11px;color:var(--text3)">No sprint qualifying data available.</div>';return;}
-          // Sort by finishing position
           const sorted=[...data].sort((a,b)=>(a.position??99)-(b.position??99));
           // Map driver_number to liveDrivers for name/team/colour
           const byNum={};
           liveDrivers.forEach(d=>{ if(d.number!=null) byNum[parseInt(d.number)]=d; });
-          // Build table — columns: Pos, Driver, Team, Best lap time
-          const top=sorted.slice(0,5);
-          const rest=sorted.slice(5);
+          // Format seconds to m:ss.sss
+          const fmtSec=s=>{
+            if(s==null||s===0) return '—';
+            const m=Math.floor(s/60);
+            const rem=(s%60).toFixed(3).padStart(6,'0');
+            return m+':'+rem;
+          };
           const buildRow=(r,i)=>{
             const d=byNum[r.driver_number]||{last:'#'+r.driver_number,color:'#888',team:''};
             const col=d.color||'#888';
             const team=(d.team||'').replace(' F1 Team','').replace(' Racing','');
-            const lapTime=r.lap_duration!=null
-              ?(() => { const s=r.lap_duration; const m=Math.floor(s/60); const sec=(s%60).toFixed(3).padStart(6,'0'); return m+':'+sec; })()
-              :'—';
+            // duration is [SQ1_secs, SQ2_secs, SQ3_secs] — null if session not reached
+            const dur=Array.isArray(r.duration)?r.duration:[null,null,null];
+            const sq1=fmtSec(dur[0]);
+            const sq2=fmtSec(dur[1]);
+            const sq3=fmtSec(dur[2]);
             const isP1=i===0;
             return '<tr>'
               +'<td class="q-pos'+(isP1?' pole':'')+'">'+(r.position??i+1)+'</td>'
               +'<td><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+col+';margin-right:5px;vertical-align:middle"></span>'
               +'<span class="q-name">'+d.last.toUpperCase()+'</span><br><span class="q-team">'+team+'</span></td>'
-              +'<td class="q-time'+(isP1?' pole':'')+'" style="text-align:right">'+lapTime+'</td>'
+              +'<td class="q-time'+(sq1==='—'?' empty':'')+'">'+sq1+'</td>'
+              +'<td class="q-time'+(sq2==='—'?' empty':'')+'">'+sq2+'</td>'
+              +'<td class="q-time'+(isP1&&sq3!=='—'?' pole':'')+(sq3==='—'?' empty':'')+'">'+sq3+'</td>'
               +'</tr>';
           };
-          const hdrHtml='<thead><tr><th style="width:24px"></th><th>Driver</th><th style="text-align:right">Best time</th></tr></thead>';
+          const hdrHtml='<thead><tr><th style="width:24px"></th><th>Driver</th><th style="text-align:right">SQ1</th><th style="text-align:right">SQ2</th><th style="text-align:right">SQ3</th></tr></thead>';
+          const top=sorted.slice(0,5); const rest=sorted.slice(5);
           const tbl=document.createElement('table'); tbl.className='qual-table'; tbl.style.width='100%';
           tbl.innerHTML=hdrHtml+'<tbody>'+top.map((r,i)=>buildRow(r,i)).join('')+'</tbody>';
           if(rest.length){
-            const hiddenBody=document.createElement('tbody'); hiddenBody.style.display='none';
-            hiddenBody.innerHTML=rest.map((r,i)=>buildRow(r,i+5)).join('');
-            tbl.appendChild(hiddenBody);
+            const hb=document.createElement('tbody'); hb.style.display='none';
+            hb.innerHTML=rest.map((r,i)=>buildRow(r,i+5)).join('');
+            tbl.appendChild(hb);
           }
           sqWrap.innerHTML='';
           sqWrap.appendChild(tbl);
@@ -3933,8 +3942,8 @@ async function loadHeadshots(){
 }
 
 async function loadOF1SessionKeys(){
-  // Fetch all 2026 race sessions and sprint qualifying sessions from OpenF1
-  // and map to Jolpica round numbers by matching on race date.
+  // Fetch 2026 Race and Sprint Qualifying sessions from OpenF1 in parallel,
+  // then map each to its Jolpica round number by matching on date.
   const [raceSessions,sqSessions]=await Promise.all([
     fetchOF1(`${OF1_BASE}/sessions?year=${SEASON}&session_name=Race`),
     fetchOF1(`${OF1_BASE}/sessions?year=${SEASON}&session_name=Sprint%20Qualifying`),
@@ -3949,17 +3958,15 @@ async function loadOF1SessionKeys(){
     });
   }
   if(Array.isArray(sqSessions)){
-    // Sprint Qualifying happens on the Friday of a sprint weekend — match by the race
-    // weekend it belongs to (any session whose date falls within the 4-day window before
-    // the race date).
+    // Sprint Qualifying falls on Friday of the sprint weekend — match by finding the
+    // session whose date is within the 4-day window before the race date.
     window._allRaces.forEach(r=>{
       if(!SPRINT_ROUNDS.has(parseInt(r.round))) return;
       const raceDate=new Date(r.date);
       const match=sqSessions.find(s=>{
         if(!s.date_start) return false;
-        const d=new Date(s.date_start.slice(0,10));
-        const diff=(raceDate-d)/(86400000);
-        return diff>=0&&diff<=4; // session falls within 4 days before race
+        const diff=(raceDate-new Date(s.date_start.slice(0,10)))/86400000;
+        return diff>=0&&diff<=4;
       });
       if(match) _of1SprintQualiKeys[r.round]=match.session_key;
     });
