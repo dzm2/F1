@@ -3936,9 +3936,15 @@ async function fetchOF1(url){
 async function loadHeadshots(){
   // One call per session — driver headshots don't change during the season
   const data=await fetchOF1(`${OF1_BASE}/drivers?session_key=latest`);
-  if(!Array.isArray(data)) return;
-  _headshots={};
-  data.forEach(d=>{ if(d.driver_number&&d.headshot_url) _headshots[d.driver_number]=d.headshot_url; });
+  if(Array.isArray(data)){
+    _headshots={};
+    data.forEach(d=>{ if(d.driver_number&&d.headshot_url) _headshots[d.driver_number]=d.headshot_url; });
+  }
+  // Hardcode Lindblad (41) — OpenF1 doesn't have him in their database yet.
+  // Uses the same F1 CDN pattern as every other driver headshot on the site.
+  if(!_headshots[41]){
+    _headshots[41]='https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/2026/ARVLIN01_Arvid_Lindblad/arvlin01.png';
+  }
 }
 
 async function loadOF1SessionKeys(){
