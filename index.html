@@ -902,7 +902,6 @@ let fastestLapCounts={};  // driverId -> FL count for 2026
 let resultsMap={}, sprintMap={}, qualiMap={};
 let pitStopData={};       // round -> {driverId -> [{lap,duration}]}
 let _headshots={};           // driver_number -> headshot_url (from OpenF1)
-let _headshotFallback2={};    // driver_number -> secondary fallback URL (hardcoded per-driver)
 let _of1SessionKeys={};      // jolpica round -> openf1 session_key (Race)
 let _of1SprintQualiKeys={};  // jolpica round -> openf1 session_key (Sprint Qualifying)
 
@@ -3941,13 +3940,9 @@ async function loadHeadshots(){
     _headshots={};
     data.forEach(d=>{ if(d.driver_number&&d.headshot_url) _headshots[d.driver_number]=d.headshot_url; });
   }
-  // Lindblad (#41) — OpenF1 does not have him in their database yet.
-  // Primary: standard fom-website/drivers/ headshot path (same as all other drivers).
-  // Fallback2: confirmed-live URL from formula1.com nav (June 2026) — shows the driver art.
-  // headshotImg() tries primary first, then fallback2, then initials.
+  // Lindblad (#41) — OpenF1 doesn't have him yet; hardcode using the same URL format as every other driver.
   if(!_headshots[41]){
     _headshots[41]='https://www.formula1.com/content/dam/fom-website/drivers/A/ARVLIN01_Arvid_Lindblad/arvlin01.png.transform/1col/image.png';
-    // fallback2 not needed — primary URL is the confirmed correct format
   }
 }
 
@@ -3985,14 +3980,8 @@ async function loadOF1SessionKeys(){
 
 function headshotImg(driverNumber,color,initials,size=44){
   const url=_headshots[driverNumber];
-  // fallback2 is a secondary URL to try if the primary 404s — used for Lindblad
-  // whose headshot may not yet exist at the standard fom-website/drivers/ path.
-  const fallback2=_headshotFallback2[driverNumber]||null;
   if(url){
-    const onErr=fallback2
-      ? `if(!this.dataset.tried){this.dataset.tried=1;this.src='${fallback2}';}else{this.style.display='none';this.nextElementSibling.style.display='flex';}`
-      : `this.style.display='none';this.nextElementSibling.style.display='flex';`;
-    return `<img src="${url}" alt="" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${color}44;flex-shrink:0;background:${color}22" onerror="${onErr}">
+    return `<img src="${url}" alt="" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${color}44;flex-shrink:0;background:${color}22" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
     <div style="display:none;width:${size}px;height:${size}px;border-radius:50%;background:${color}22;border:2px solid ${color}44;flex-shrink:0;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:900;font-size:${Math.round(size*0.4)}px;color:${color}">${initials}</div>`;
   }
   return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color}22;border:2px solid ${color}44;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:900;font-size:${Math.round(size*0.4)}px;color:${color}">${initials}</div>`;
