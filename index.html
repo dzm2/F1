@@ -2455,17 +2455,19 @@ async function loadCalendar(bypassCache=false){
       ];
 
       const rows=sessionFields
-        .filter(s=>r[s.key]&&r[s.key].date&&r[s.key].time)
+        .map(s=>({...s, sess:s.key==='Race'?{date:r.date,time:r.time}:r[s.key]}))
+        .filter(s=>s.sess&&s.sess.date&&s.sess.time)
         .map(s=>{
-          const utcStr=r[s.key].date+'T'+r[s.key].time; // e.g. "2026-03-15T10:00:00Z"
+          const utcStr=s.sess.date+'T'+s.sess.time; // e.g. "2026-03-15T10:00:00Z"
           const d=new Date(utcStr);
           const localTime=d.toLocaleString('en-US',{
             weekday:'short',day:'numeric',month:'short',
             hour:'numeric',minute:'2-digit',hour12:true,
             timeZone:userTz
           });
-          return '<tr><td class="session-name">'+s.name+'</td>'
-            +'<td class="session-time-local">'+localTime
+          const isRaceRow=s.key==='Race';
+          return '<tr><td class="session-name"'+(isRaceRow?' style="color:var(--red)"':'')+'>'+s.name+'</td>'
+            +'<td class="session-time-local"'+(isRaceRow?' style="color:var(--text)"':'')+'>'+localTime
             +' <span style="font-size:10px;color:var(--text3)">'+tzAbbr+'</span></td></tr>';
         });
 
