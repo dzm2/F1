@@ -763,9 +763,14 @@
 const SEASON = 2026;
 const BASE   = 'https://api.jolpi.ca/ergast/f1';
 const CACHE_TTL = 60 * 60 * 1000;
-// 2026 sprint weekends: China (2), Miami (4), Canada (5), Britain (11), Netherlands (15), Singapore (18)
-// Also detected dynamically — if the API returns sprint data for a round, it's treated as a sprint weekend
-const SPRINT_ROUNDS = new Set([2,4,5,11,15,18]);
+// 2026 sprint weekends: China (2), Miami (4), Canada (5), Britain (9), Netherlands (12), Singapore (16)
+// These round numbers reflect the actual 22-race calendar after Bahrain and Saudi Arabia
+// were cancelled — every round after those two shifted down from the originally
+// announced 24-race numbering. Also detected dynamically — if the API returns sprint
+// data for a round, it's treated as a sprint weekend regardless of this hardcoded set.
+// Populated automatically from the Jolpica schedule each time the calendar loads
+// (see loadCalendar) — never hardcoded, so it self-corrects if the calendar changes.
+let SPRINT_ROUNDS = new Set();
 
 // ── Header stats — updated manually after each race (see "What to update after each race") ──
 // Update HEADER_ROUNDS_DONE when told "Round X is done".
@@ -2253,6 +2258,12 @@ async function loadCalendar(bypassCache=false){
   try{
     const schedData=await fetchJSON(`${BASE}/${SEASON}.json?limit=30`,2,bypassCache);
     allRaces=schedData.MRData?.RaceTable?.Races||[];
+    // Determine sprint weekends directly from the schedule data rather than a hardcoded
+    // round list. Jolpica includes a `Sprint` session (with a date) on any race that runs
+    // the Sprint format, for every round in the schedule — past or upcoming. Rebuilding
+    // this on every load means it's always correct even if the calendar changes (races
+    // added, removed, or renumbered), with no manual updates required.
+    SPRINT_ROUNDS=new Set(allRaces.filter(r=>r.Sprint&&r.Sprint.date).map(r=>parseInt(r.round)));
     const today=new Date();
     // completedByDate — rounds whose scheduled start time has passed.
     // Used for header stats and deciding which rounds to attempt fetching.
@@ -2297,6 +2308,7 @@ async function loadCalendar(bypassCache=false){
   }catch(e){
     const fb=cacheGetStale(`${BASE}/${SEASON}.json?limit=30`);
     if(fb){allRaces=fb.MRData?.RaceTable?.Races||[];stale=true;
+      SPRINT_ROUNDS=new Set(allRaces.filter(r=>r.Sprint&&r.Sprint.date).map(r=>parseInt(r.round)));
       const today=new Date();
       const completedFb=allRaces.filter(r=>{
         const dt=r.date&&r.time?new Date(r.date+'T'+r.time):new Date(r.date+'T23:59:59Z');
@@ -2306,6 +2318,7 @@ async function loadCalendar(bypassCache=false){
     }
     else{document.getElementById('cal-loading').innerHTML=`<div class="error-msg">Could not load calendar.<br><small>${sanitise(e.message)}</small></div>`;tickProgress();return;}
   }
+
   document.getElementById('cal-stale').classList.toggle('show',stale);
 
   const today=new Date();
