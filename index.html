@@ -1347,6 +1347,31 @@ function ordinal(n){
   switch(n%10){ case 1:return n+'st'; case 2:return n+'nd'; case 3:return n+'rd'; default:return n+'th'; }
 }
 
+// Parses a lap time string like "1:29.708" (or "29.708" with no minutes) into seconds.
+function lapTimeToSeconds(t){
+  if(!t) return Infinity;
+  const m=String(t).match(/(?:(\d+):)?(\d+\.\d+)/);
+  if(!m) return Infinity;
+  return (m[1]?parseFloat(m[1])*60:0)+parseFloat(m[2]);
+}
+
+// Determines the single genuine fastest-lap driver for a race by comparing actual lap
+// times directly, rather than trusting each individual result's own FastestLap.rank
+// field. Jolpica's rank field is meant to be unique per race, but on rare occasions
+// (e.g. after a chaotic race with multiple post-race investigations) it has been seen
+// to mark more than one driver's entry as rank "1" — which would otherwise cause the
+// "FL" badge to appear next to two different drivers on the same race card. Computing
+// the fastest lap ourselves guarantees exactly one driver is ever credited.
+function getTrueFastestLapEntry(finishers){
+  if(!Array.isArray(finishers)) return null;
+  let best=null,bestSec=Infinity;
+  finishers.forEach(f=>{
+    const sec=lapTimeToSeconds(f.FastestLap?.Time?.time);
+    if(sec<bestSec){ bestSec=sec; best=f; }
+  });
+  return best;
+}
+
 // Builds a factual, data-only race summary from results already fetched for the
 // card (finishers + dnfs). No new API calls. Read-only narration of numbers
 // already shown elsewhere on the card — grid position, gap, fastest lap,
@@ -1365,7 +1390,7 @@ function buildAutoRaceSummary(r,finishers,dnfs){
   }
   let s=`${winner.Driver.givenName} ${winner.Driver.familyName} won the ${r.raceName}${startText?' '+startText:''}${gapText}.`;
   if(p3) s+=` ${p3.Driver.familyName} completed the podium in third.`;
-  const flEntry=finishers.find(f=>f.FastestLap?.rank==='1');
+  const flEntry=getTrueFastestLapEntry(finishers);
   if(flEntry) s+=` ${flEntry.Driver.familyName} set the fastest lap of the race${flEntry.FastestLap?.Time?.time?` (${flEntry.FastestLap.Time.time})`:''}.`;
   if(dnfs&&dnfs.length){
     s+=` ${dnfs.length} driver${dnfs.length>1?'s':''} failed to finish: ${dnfs.map(f=>f.Driver.familyName).join(', ')}.`;
@@ -1754,7 +1779,14 @@ async function openDriverModal(driverId){
         const grid=parseInt(res?.grid||0);
         const finPos=parseInt(res?.position||0);
         const gain=(!isDNF&&!isDNS&&grid>0&&finPos>0)?grid-finPos:null;
-        const isFl=res?.FastestLap?.rank==='1'||res?.FastestLap?.rank===1;
+        const isFl=(()=>{
+          const fieldResults=resultsMap[r.round];
+          if(fieldResults&&fieldResults.length){
+            const trueFl=getTrueFastestLapEntry(fieldResults);
+            return trueFl?.Driver?.driverId===driverId;
+          }
+          return res?.FastestLap?.rank==='1'||res?.FastestLap?.rank===1;
+        })();
         const flTime=res?.FastestLap?.Time?.time||'';
         const laps=res?.laps||'';
         const qData=modalQualiMap[r.round];
@@ -2002,7 +2034,11 @@ async function openConstructorModal(constructorId){
         const s=res.status||'';
         const laps=parseInt(res.laps||0);
         roundTotal+=resPts;
-        if(res.FastestLap?.rank==='1') fastestLaps++;
+        const fieldResultsForRound=resultsMap[rnd];
+        const hasTrueFl=fieldResultsForRound&&fieldResultsForRound.length
+          ? getTrueFastestLapEntry(fieldResultsForRound)?.Driver?.driverId===res.Driver?.driverId
+          : res.FastestLap?.rank==='1';
+        if(hasTrueFl) fastestLaps++;
         if(resPts>0) pointsFinishes++;
         if(resPos<=3) podiums++;
         if(s&&laps>0){
@@ -2468,7 +2504,7 @@ async function loadCalendar(bypassCache=false){
 
     // Fastest lap + DNFs extra row
     if(isCompleted){
-      const fl=finishers.find(f=>f.FastestLap?.rank==='1');
+      const fl=getTrueFastestLapEntry(finishers);
       const extra=document.createElement('div'); extra.className='race-extra';
       if(fl) extra.innerHTML+='<span style="color:#AA9FF0">⏱ Fastest: '+fl.Driver.familyName.toUpperCase()+' '+(fl.FastestLap?.Time?.time||'')+'</span>';
       if(dnfs.length) extra.innerHTML+='<span title="'+dnfs.map(f=>f.Driver.familyName.toUpperCase()+': '+f.status).join(', ')+'">⛔ '+dnfs.length+' DNF'+(dnfs.length>1?'s':'')+'</span>';
@@ -2645,7 +2681,7 @@ async function loadCalendar(bypassCache=false){
       const raceGrp=makeGroup('Race',body=>{
         const winner=finishers[0];
         const poleDriver=finishers.find(f=>f.grid==='1')||finishers[0];
-        const fl=finishers.find(f=>f.FastestLap?.rank==='1');
+        const fl=getTrueFastestLapEntry(finishers);
         const heroEl=document.createElement('div');
         heroEl.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px';
         const heroCard=(label,name,sub)=>`<div style="background:var(--bg2);border-radius:6px;padding:8px 12px"><div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:2px">${label}</div><div style="font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text)">${name}</div><div style="font-size:11px;color:var(--text2);font-family:monospace">${sub}</div></div>`;
@@ -2694,9 +2730,10 @@ async function loadCalendar(bypassCache=false){
           return m?parseInt(m[1]):0;
         };
         const allGaps=finishers.map(f=>parseGap(f.Time?.time||''));
+        const trueFastestLapEntry=getTrueFastestLapEntry(finishers);
         const raceHdr='<thead><tr><td class="r-pos"></td><td style="font-family:Barlow,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Driver / Team</td><td class="r-grid" title="Grid position" style="font-family:Barlow,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Grid</td><td class="r-gain same" title="Places gained or lost" style="font-family:Barlow,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">±</td><td style="font-family:Barlow,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Gap</td><td style="font-family:Barlow,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Interval</td><td class="r-pts" style="font-family:Barlow,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Pts</td></tr></thead>';
         const raceWrap=makeExpandTable(finishers,(f,i)=>{
-          const isFl=f.FastestLap?.rank==='1';
+          const isFl=f===trueFastestLapEntry;
           const grid=parseInt(f.grid)||0;
           const gained=grid>0?grid-(parseInt(f.position)||i+1):null;
           const gainCell=gained===null?'<td class="r-gain same">—</td>':gained>0?'<td class="r-gain up">↑'+gained+'</td>':gained<0?'<td class="r-gain down">↓'+Math.abs(gained)+'</td>':'<td class="r-gain same">—</td>';
@@ -2765,22 +2802,19 @@ async function loadCalendar(bypassCache=false){
 
         const flTitle=document.createElement('div'); flTitle.className='detail-section-title'; flTitle.textContent='Fastest lap · top 5 finishers'; body.appendChild(flTitle);
         const top5=finishers.slice(0,5).filter(f=>f.FastestLap?.Time?.time);
+        const trueFastestLapEntryForTop5=getTrueFastestLapEntry(finishers);
         if(top5.length){
-          const flSorted=[...top5].sort((a,b)=>{
-            const toSec=t=>{const p=t.match(/(\d+):(\d+\.\d+)/);return p?parseFloat(p[1])*60+parseFloat(p[2]):Infinity;};
-            return toSec(a.FastestLap.Time.time)-toSec(b.FastestLap.Time.time);
-          });
-          const toSec=t=>{const p=t.match(/(\d+):(\d+\.\d+)/);return p?parseFloat(p[1])*60+parseFloat(p[2]):Infinity;};
-          const fastest=toSec(flSorted[0].FastestLap.Time.time);
+          const flSorted=[...top5].sort((a,b)=>lapTimeToSeconds(a.FastestLap.Time.time)-lapTimeToSeconds(b.FastestLap.Time.time));
+          const fastest=lapTimeToSeconds(flSorted[0].FastestLap.Time.time);
           const flTbl=document.createElement('table'); flTbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;margin-top:4px';
           flTbl.innerHTML='<tbody>'+flSorted.map((f,i)=>{
             const color=teamColor(f.Constructor?.name||'');
             const teamShort=(f.Constructor?.name||'').replace(' F1 Team','').replace(' Racing','');
             const time=f.FastestLap.Time.time;
-            const sec=toSec(time);
+            const sec=lapTimeToSeconds(time);
             const delta=sec-fastest;
             const isFastest=i===0;
-            const flBadge=f.FastestLap?.rank==='1'?'<span style="display:inline-block;background:#9B59B622;color:#AA9FF0;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px">FL</span>':'';
+            const flBadge=f===trueFastestLapEntryForTop5?'<span style="display:inline-block;background:#9B59B622;color:#AA9FF0;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px">FL</span>':'';
             return '<tr style="border-bottom:0.5px solid var(--border)">'
               +'<td style="padding:6px 6px;width:22px;text-align:center;font-family:\'Barlow\',sans-serif;font-weight:900;font-size:13px;color:'+(isFastest?'var(--red)':'var(--text2)')+'">'+(i+1)+'</td>'
               +'<td style="padding:6px 6px"><span style="display:inline-block;width:3px;height:13px;border-radius:1px;background:'+color+';margin-right:5px;vertical-align:middle"></span>'
