@@ -772,13 +772,24 @@ const CACHE_TTL = 60 * 60 * 1000;
 // (see loadCalendar) — never hardcoded, so it self-corrects if the calendar changes.
 let SPRINT_ROUNDS = new Set();
 
-// ── Header stats — updated manually after each race (see "What to update after each race") ──
-// Update HEADER_ROUNDS_DONE when told "Round X is done".
-// HEADER_NEXT_RACE is kept here for reference but is no longer used to populate the
-// Next Race box — that is now derived automatically from the live schedule via
-// startCountdownFromList, which updates it in real time throughout race day.
-const HEADER_ROUNDS_DONE = 11;
+// ── Header stats ──
+// Rounds Done / Remaining are derived automatically from the `round` field returned
+// by the Jolpica driverstandings.json endpoint (see loadDriverStandings/updateRoundsHeader
+// below) — no manual update needed, this always reflects what Jolpica itself considers
+// the latest completed round. HEADER_NEXT_RACE is kept here for reference but is not
+// used to populate the Next Race box — that is derived automatically from the live
+// schedule via startCountdownFromList, which updates it in real time throughout race day.
 const HEADER_NEXT_RACE   = 'NED'; // unused — kept for reference only
+
+// Updates the Rounds Done / Remaining boxes in the header strip. Called once
+// loadDriverStandings() knows the current round from the standings API — left at
+// their default "—" placeholders until then, same pattern as the Next Race box.
+function updateRoundsHeader(roundsDone){
+  const hDone=document.getElementById('h-rounds-done');
+  const hLeft=document.getElementById('h-rounds-left');
+  if(hDone) hDone.textContent=roundsDone;
+  if(hLeft) hLeft.textContent=Math.max(0,TOTAL_RACES-roundsDone);
+}
 
 const teamColors = {
   'Mercedes':'#75F1D3','Ferrari':'#D52E37','McLaren':'#ef8733',
@@ -1112,6 +1123,8 @@ async function loadDriverStandings(bypassCache=false){
   // Use the round from the standings API (always correct regardless of load order)
   // Falls back to _completedRounds.length if round not available from API
   const completedRounds=parseInt(data?.MRData?.StandingsTable?.StandingsLists?.[0]?.round||(window._completedRounds?.length||0));
+  window._roundsDone=completedRounds;
+  updateRoundsHeader(completedRounds);
   const racesLeft=Math.max(0,TOTAL_RACES-completedRounds);
   const maxPossible=PTS[0]*racesLeft + 1; // +1 for FL bonus
   const leaderPts=parseFloat(list[0]?.points||0);
@@ -2384,12 +2397,8 @@ async function loadCalendar(bypassCache=false){
   window._allRaces=allRaces;
   window._nextRaceDate=nextRace?new Date(nextRace.date):null;
 
-  // Populate Rounds Done and Remaining from hardcoded constants (updated manually).
-  // Next Race is now derived dynamically from the live schedule via startCountdownFromList.
-  const hDone=document.getElementById('h-rounds-done');
-  const hLeft=document.getElementById('h-rounds-left');
-  if(hDone) hDone.textContent=HEADER_ROUNDS_DONE;
-  if(hLeft) hLeft.textContent=TOTAL_RACES-HEADER_ROUNDS_DONE;
+  // Rounds Done / Remaining are populated by loadDriverStandings via updateRoundsHeader.
+  // Next Race is derived dynamically from the live schedule via startCountdownFromList.
 
   // Start the self-managing countdown — handles "Race on", chaining to next race,
   // and keeping the Next Race box up to date, all without page reloads.
@@ -4222,16 +4231,9 @@ function scheduleAutoRefresh(){
 })();
 
 // ── Boot ──
-// Populate Rounds Done and Remaining immediately from hardcoded constants —
-// no API call needed, so these appear instantly on page load before loadAll() resolves.
-// Next Race is intentionally left blank here — startCountdownFromList will populate
-// it correctly once the schedule is fetched, avoiding a flash of stale hardcoded data.
-(function(){
-  const hDone=document.getElementById('h-rounds-done');
-  const hLeft=document.getElementById('h-rounds-left');
-  if(hDone) hDone.textContent=HEADER_ROUNDS_DONE;
-  if(hLeft) hLeft.textContent=TOTAL_RACES-HEADER_ROUNDS_DONE;
-})();
+// Rounds Done, Remaining, and Next Race are all intentionally left blank ("—") here —
+// each is populated once its respective data resolves (updateRoundsHeader for the
+// former, startCountdownFromList for the latter), avoiding a flash of stale data.
 loadAll();
 </script>
 </body>
