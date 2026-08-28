@@ -1104,7 +1104,9 @@ async function loadDriverStandings(bypassCache=false){
           perDriver[id].races++;
           const s=res.status||'';
           const isDNS=s.toLowerCase().includes('did not start')||s.toLowerCase()==='dns'||s.toLowerCase().includes('not qualified')||s.toLowerCase().includes('withdrew');
-          const isDNF=!isDNS&&s&&s!=='Finished'&&!s.startsWith('+')&&!s.toLowerCase().includes('lap');
+          // Blank/missing status (a known Jolpica quirk for some results) is not a finish by default —
+          // fall back to checking whether a race time was recorded, same as isDNFEntry in loadCalendar.
+          const isDNF=!s ? (!res.Time?.time&&!s.startsWith('+')) : (!isDNS&&s!=='Finished'&&!s.startsWith('+')&&!s.toLowerCase().includes('lap'));
           if(!isDNF&&!isDNS) perDriver[id].finishes++;
         });
       });
