@@ -236,16 +236,12 @@
     .dns-badge { display:inline-block; background:var(--red); color:#fff; font-family:'Barlow',sans-serif; font-size:9px; font-weight:700; letter-spacing:1px; padding:2px 6px; border-radius:3px; border:0.5px solid var(--red); }
 
     /* News */
-    .news-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
-    .news-filter-btn{font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:5px 14px;cursor:pointer;transition:all .15s;white-space:nowrap;}
-    .news-filter-btn:hover{border-color:var(--border2);color:var(--text);} .news-filter-btn.active{background:var(--red);color:#fff;border-color:var(--red);}
 
     /* News lead story */
     .news-lead{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px;text-decoration:none;display:block;transition:background .12s;}
     .news-lead:hover{background:var(--bg2);border-color:var(--border2);}
     .news-lead-inner{padding:18px 20px;border-left:4px solid var(--red);}
-    .news-lead-tag{font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-    .news-lead-headline{font-family:'Barlow',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.1px;color:var(--text);line-height:1.2;margin-bottom:8px;}
+    .news-lead-headline{font-family:'Barlow',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.1px;color:var(--text);line-height:1.2;margin-top:2px;margin-bottom:8px;}
     .news-lead-summary{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:10px;}
     .news-lead-meta{display:flex;align-items:center;gap:8px;}
 
@@ -254,8 +250,7 @@
     .news-item{background:var(--bg2);padding:13px 16px;display:grid;grid-template-columns:3px 1fr auto;gap:12px;align-items:center;text-decoration:none;transition:background .12s;}
     .news-item:hover{background:var(--bg);} .news-item.hidden{display:none;}
     .news-item-bar{align-self:stretch;flex-shrink:0;border-radius:0;}
-    .news-tag{font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
-    .news-headline{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;letter-spacing:0;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .news-headline{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;letter-spacing:0;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
     .news-summary{display:none;}
     .news-meta{font-size:11px;color:var(--text3);margin-top:3px;}
     .news-source{font-size:11px;color:var(--text3);}
@@ -504,13 +499,6 @@
 
   <!-- News -->
   <div id="news" class="f1-panel">
-    <div class="news-filter" id="news-filter-bar">
-      <button class="news-filter-btn active" onclick="filterNews('all',this)">All</button>
-      <button class="news-filter-btn" onclick="filterNews('race',this)">Race reports</button>
-      <button class="news-filter-btn" onclick="filterNews('analysis',this)">Analysis</button>
-      <button class="news-filter-btn" onclick="filterNews('team',this)">Team news</button>
-      <button class="news-filter-btn" onclick="filterNews('regulation',this)">Regulations</button>
-    </div>
     <div class="export-row" style="margin-bottom:8px">
       <button class="icon-btn" onclick="refreshNews()">↻ Refresh news</button>
     </div>
@@ -3471,16 +3459,6 @@ function sanitise(str){ return String(str||'').replace(/&/g,'&amp;').replace(/</
 function stripHtml(h){ const d=document.createElement('div');d.innerHTML=h||'';const t=d.textContent.trim();return t.slice(0,200)+(t.length>200?'…':''); }
 function formatDate(str){ try{const d=new Date(str);if(isNaN(d))return '';return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';} }
 function toIso(str){ try{const d=new Date(str);if(isNaN(d))return '1970-01-01';return d.toISOString().slice(0,10);}catch(e){return '1970-01-01';} }
-function categorise(title,desc){
-  const t=(title+' '+desc).toLowerCase();
-  if(/\bwins\b|victory|podium|race report|chequered|grand prix result/.test(t)) return {tag:'Race report',color:'#DC0000',cat:'race'};
-  if(/qualify|qualifying|pole position|grid|shootout/.test(t))                  return {tag:'Analysis',  color:'#85b7eb',cat:'analysis'};
-  if(/technical|aero|tyre|engine|power unit|analysis|explained/.test(t))        return {tag:'Analysis',  color:'#85b7eb',cat:'analysis'};
-  if(/fia|regulation|rule|penalty|steward|ban|appeal/.test(t))                  return {tag:'Regulation',color:'#d97706',cat:'regulation'};
-  if(/team|hire|sign|contract|appoint|depart|leave|join/.test(t))               return {tag:'Team news', color:'#00D2BE',cat:'team'};
-  return {tag:'News',color:'#a3b899',cat:'news'};
-}
-
 async function fetchFeed(feed){
   try{
     const res=await fetch(RSS2JSON+encodeURIComponent(feed.url),{signal:AbortSignal.timeout(10000)});
@@ -3492,8 +3470,7 @@ async function fetchFeed(feed){
       const desc=item.description||item.content||'';
       const link=item.link||item.guid||'#';
       const pubDate=item.pubDate||'';
-      const {tag,color,cat}=categorise(item.title||'',desc);
-      return {tag,tagColor:color,category:cat,headline:title,summary:stripHtml(desc),
+      return {headline:title,summary:stripHtml(desc),
               source:sanitise(feed.source),sourceColor:feed.color,date:formatDate(pubDate),sortDate:toIso(pubDate),url:link};
     });
   }catch(e){ return []; }
@@ -3508,23 +3485,14 @@ function renderNewsItems(items){
     ng.innerHTML='<div class="error-msg">No articles loaded. Try refreshing, or check your connection.</div>';
     return;
   }
-  const saved=lsGet('f1newsfilter','all');
 
-  // Separate lead story (first item) from rest
-  const visible=saved==='all'?items:items.filter(n=>n.category===saved);
-  if(!visible.length){
-    ng.innerHTML='<div class="error-msg" style="padding:1.5rem;text-align:center;font-size:14px;color:var(--text2)">No articles match this filter.</div>';
-    return;
-  }
-
-  const lead=visible[0];
-  const rest=visible.slice(1);
+  const lead=items[0];
+  const rest=items.slice(1);
 
   // Lead story
   if(nl){
     nl.innerHTML=`<a class="news-lead" href="${lead.url}" target="_blank" rel="noopener noreferrer">
       <div class="news-lead-inner">
-        <div class="news-lead-tag" style="color:${lead.tagColor}">${lead.tag}</div>
         <div class="news-lead-headline">${lead.headline}</div>
         <div class="news-lead-summary">${lead.summary}</div>
         <div class="news-lead-meta">
@@ -3540,10 +3508,9 @@ function renderNewsItems(items){
   rest.forEach(n=>{
     const a=document.createElement('a');
     a.className='news-item';
-    a.href=n.url; a.target='_blank'; a.dataset.category=n.category;
-    a.innerHTML=`<div class="news-item-bar" style="background:${n.tagColor}"></div>
+    a.href=n.url; a.target='_blank';
+    a.innerHTML=`<div class="news-item-bar" style="background:${n.sourceColor}"></div>
       <div>
-        <div class="news-tag" style="color:${n.tagColor}">${n.tag}</div>
         <div class="news-headline">${n.headline}</div>
         <div class="news-meta">${n.source}${n.date?` · ${n.date}`:''}</div>
       </div>
@@ -3568,17 +3535,6 @@ async function loadNews(){
 }
 
 function refreshNews(){ loadNews(); }
-
-function filterNews(cat,btn){
-  document.querySelectorAll('.news-filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  lsSet('f1newsfilter',cat);
-  if(window._newsItems) renderNewsItems(window._newsItems);
-}
-(function(){
-  const saved=lsGet('f1newsfilter');
-  if(saved&&saved!=='all'){ const btn=document.querySelector(`.news-filter-btn[onclick*="'${saved}'"]`); if(btn) filterNews(saved,btn); }
-})();
 
 
 // ── Welcome banner ──
