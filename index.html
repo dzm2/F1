@@ -379,27 +379,6 @@
     .h2h-val{font-family:'Barlow',sans-serif;font-weight:900;font-size:14px;color:var(--text);min-width:30px;text-align:right;}
     .h2h-cat{font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin:6px 0 3px;}
 
-    /* Records panel */
-    .records-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
-    .rc{background:var(--bg);border-radius:8px;border:0.5px solid var(--border);overflow:hidden;}
-    .rc-head{padding:16px 18px 14px;border-bottom:0.5px solid var(--border);}
-    .rc-category{font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;}
-    .rc-hero-num{font-family:'Barlow',sans-serif;font-weight:900;font-size:52px;letter-spacing:-2px;color:var(--red);line-height:1;}
-    .rc-hero-name{font-family:'Barlow',sans-serif;font-weight:900;font-size:18px;text-transform:uppercase;letter-spacing:-0.2px;color:var(--text);margin-top:4px;line-height:1;}
-    .rc-hero-context{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text2);margin-top:5px;}
-    .rc-note{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text2);line-height:1.55;padding:10px 18px;border-bottom:0.5px solid var(--border);}
-    .rc-list{padding:0 0 10px;}
-    .rc-row{display:grid;grid-template-columns:20px 1fr auto;gap:6px;align-items:start;padding:8px 18px 0;}
-    .rc-bar-wrap{padding:4px 18px 0;}
-    .rc-bar-track{height:2px;background:var(--border);border-radius:0;}
-    .rc-bar-fill{height:2px;border-radius:0;}
-    .rc-pos{font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;color:var(--text3);}
-    .rc-name{font-family:'Barlow',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;color:var(--text);letter-spacing:0.2px;line-height:1.2;}
-    .rc-val{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;color:var(--text);text-align:right;white-space:nowrap;}
-    .rc-row.p1 .rc-pos{color:#B8922A;}
-    .rc-row.p1 .rc-name{font-size:13px;}
-    .rc-row.p1 .rc-val{color:var(--red);font-size:17px;font-family:'Barlow',sans-serif;font-weight:700;}
-
     /* Regs + Team assessments */
     .reg-card{background:var(--bg);border-radius:8px;padding:16px 18px;border:0.5px solid var(--border);border-left:4px solid var(--red);margin-bottom:8px;}
     .reg-card-title{font-family:'Barlow',sans-serif;font-weight:900;font-size:16px;color:var(--text);margin-bottom:6px;}
@@ -510,8 +489,6 @@
     <button class="f1-tab"        onclick="showTab('calendar',this)" data-tab="calendar">Races</button>
     <button class="f1-tab"        onclick="showTab('season',this)" data-tab="season">Season</button>
     <button class="f1-tab"        onclick="showTab('news',this)" data-tab="news">News</button>
-    <button class="f1-tab"        onclick="showTab('records',this)" data-tab="records">Records</button>
-    <button class="f1-tab"        onclick="showTab('explainer',this)" data-tab="explainer">Explainer</button>
   </div>
 
   <!-- Drivers -->
@@ -557,35 +534,6 @@
     </div>
     <div class="loading" id="cal-loading"><div class="loading-spinner"></div><div class="loading-text">Fetching season calendar...</div></div>
     <div class="race-list" id="race-list" style="display:none"></div>
-  </div>
-
-  <!-- F1 Explainer -->
-  <div id="explainer" class="f1-panel">
-    <div class="section-group-label">The basics</div>
-    <div class="reg-card"><div class="reg-card-title">What is Formula 1?</div><div class="reg-card-body">Formula 1 is the top tier of single-seater motorsport — open-wheel cars, no roof, with a power unit generating north of 1,000 horsepower. The cars pull forces through corners that compress a driver's body to multiple times their own weight. It's been running since 1950, when the first World Championship round took place at Silverstone, England. Seven decades later, the sport spans 24 races across six continents, with a television audience in the hundreds of millions and a franchise value that's attracted American investors, Hollywood money, and — as of 2026 — a new American constructor, Cadillac.</div></div>
-    <div class="reg-card"><div class="reg-card-title">Grands Prix, teams, and championships</div><div class="reg-card-body">Each round is called a Grand Prix — French for "big prize," a holdover from European motorsport tradition dating back to the early 1900s. The 2026 calendar runs to 22 Grands Prix — originally 24, with the Bahrain and Saudi Arabian rounds cancelled due to the conflict in the Middle East — from purpose-built circuits like Silverstone and Suzuka to street circuits laid out on public roads in Monaco, Singapore, and Las Vegas. Eleven teams field two cars each, giving you 22 drivers competing for two separate championships: one for drivers, one for constructors (the teams). That distinction matters more than you might think.</div></div>
-
-    <div class="section-group-label" style="margin-top:1.5rem">Race weekends</div>
-    <div class="reg-card"><div class="reg-card-title">How a race weekend works</div><div class="reg-card-body">A Formula 1 weekend has a consistent structure. Friday brings two practice sessions — FP1 and FP2 — where teams gather data on how the car behaves at this circuit, tyre wear, and setup. The afternoon session often simulates race conditions. Saturday starts with a final practice hour (FP3), then qualifying — the knockout session that sets the grid. Sunday is race day, with points awarded based on finishing position. Some venues, Las Vegas being the main example, run Thursday to Saturday instead.</div></div>
-    <div class="reg-card"><div class="reg-card-title">Qualifying</div><div class="reg-card-body">Qualifying is divided into three segments. In Q1, the full field runs and the five slowest are eliminated. In Q2, five more are cut. Q3 is a ten-driver shootout for pole position — first place on the grid — with every driver pushing to the absolute limit for a single lap. It's Formula 1 at its most concentrated, and worth watching even if you skip everything else on Saturday. Starting position matters enormously. The circuits are often narrow, passing is genuinely difficult, and a driver who qualifies fifteenth faces a much harder Sunday than one who qualifies fifth.</div></div>
-    <div class="reg-card"><div class="reg-card-title">The race</div><div class="reg-card-body">Races cover a minimum of 305 kilometres — around 50 to 70 laps depending on the circuit. Monaco gets an exemption at 260km, simply because the street circuit is too short and narrow to extend. Before the race, cars sit in grid position with tyre blankets fitted — heated wraps that keep rubber at working temperature. The formation lap sends the field around the circuit once at reduced speed, giving drivers a chance to warm their tyres and brakes before returning to the grid. Then five red lights illuminate one by one. When all five extinguish simultaneously — lights out — the race starts. What happens in the next thirty seconds is often decisive.</div></div>
-    <div class="reg-card"><div class="reg-card-title">Sprint weekends</div><div class="reg-card-body">Not every Grand Prix follows the standard format. Six times a season, at selected circuits, the weekend is restructured around a sprint — a short, standalone race held on Saturday that adds a second points-scoring session to the weekend. The schedule shifts significantly: Friday still has practice, but only one session instead of two, and qualifying for Sunday's main race also moves to Friday. That means teams arrive at a new circuit, run one practice session, and then go straight into full qualifying with no second chance to refine the setup overnight. Saturday then belongs to the sprint. A second qualifying session — Sprint Shootout — sets the grid for the short race, which runs to 100 kilometres, roughly 20–30 laps. No mandatory tyre compounds apply, pit stops are rare, and grid positions are independent of Sunday's race. Sprints are chaotic in the best sense — with less at stake, drivers tend to be more aggressive.</div></div>
-
-    <div class="section-group-label" style="margin-top:1.5rem">Racing fundamentals</div>
-    <div class="reg-card"><div class="reg-card-title">Why overtaking is hard</div><div class="reg-card-body">The faster a Formula 1 car goes, the more its aerodynamics push it into the tarmac — generating downforce that allows cornering speeds that seem to defy physics. The problem is what the car does to the air around it. That air exits as a turbulent mess — dirty air — and a following car driving through it loses its own downforce, grip, and cornering ability. There's a partial counterbalancing effect called slipstream: following closely on a straight reduces air resistance and provides a speed boost. That's why overtakes tend to happen at the end of a long straight — the chasing car gets a tow and dives inside at the braking zone. New regulations attempt to solve dirty air at the source, with car designs generating more downforce from the underfloor. Overtaking in Formula 1 remains hard-earned. When it happens — a real, contested pass under braking, two drivers going wheel-to-wheel — it means something.</div></div>
-    <div class="reg-card"><div class="reg-card-title">Hybrid power and energy management</div><div class="reg-card-body">Formula 1 has been hybrid since 2014. The power unit — never just "the engine" anymore — combines a turbocharged internal combustion engine with an Energy Recovery System (ERS) that captures energy under braking and from exhaust heat, stores it in a battery, and deploys it as roughly 160 additional horsepower. Drivers manage this in real time: deploy on a long straight to attack, hold it back to defend later in the lap, or use it to make a pass knowing they'll be short of electrical power through the next corner. Lift and coast — lifting off the throttle before a braking zone rather than braking at the last moment — harvests additional energy and saves tyres. In 2026, new power unit regulations have made the electrical component even more significant, which is part of why the early season can be unpredictable.</div></div>
-
-    <div class="section-group-label" style="margin-top:1.5rem">Strategy</div>
-    <div class="reg-card"><div class="reg-card-title">Tyres</div><div class="reg-card-body">Formula 1 is not a race to see who drives fastest. It's a race to see who manages their afternoon most intelligently, and the central variable is tyres. Pirelli supplies all eleven teams with identical tyres. In dry conditions, three compounds are available: soft (red) — fastest grip, degrades quickly; medium (yellow) — balanced, usually the default; and hard (white) — durable but slower. Every driver must use at least two different compounds in a dry race. This forces a calculation: how long can you push before performance falls off? When does the loss from old tyres outweigh the roughly 25–30 seconds lost to a pit stop? A smooth, tyre-preserving driver can extend their stint and gain track position even if their raw lap times are marginally slower. Graining — small rubber balls forming on a cold tyre's surface — and blistering — overheating destroying the tyre from within — can both ruin a strategy.</div></div>
-    <div class="reg-card"><div class="reg-card-title">Pit stops and strategy calls</div><div class="reg-card-body">The pit window is the period during which stopping makes strategic sense. Two main strategies dominate: the undercut — pit earlier than the car ahead, lap faster on fresh tyres, and leapfrog them before they stop; and the overcut — stay out longer, extend the stint, and hope the car ahead loses more time in traffic. Teams make these calls while watching eleven other teams do the same, and one team's decision can trigger a chain reaction. Double stacking — pitting both team cars on the same lap — saves overall time but costs the second car precious seconds in the lane.</div></div>
-    <div class="reg-card"><div class="reg-card-title">Safety Cars and red flags</div><div class="reg-card-body">The Safety Car is Formula 1's great equaliser. When a crash or debris creates danger, a modified road car leads the field at reduced speed while marshals clear the track. A leader who built a 30-second gap suddenly has everyone right behind them again. Teams with drivers yet to pit pile in immediately — the field is bunched anyway, so they lose less time than usual. The Virtual Safety Car (VSC) achieves similar danger management without deploying a physical car: all drivers must maintain a mandated speed delta. A red flag stops the race entirely — cars return to the pit lane for a suspension or standing restart, and critically, teams can work on the cars during the stoppage, which can completely reshuffle the competitive picture.</div></div>
-    <div class="reg-card"><div class="reg-card-title">Weather and track conditions</div><div class="reg-card-body">Rain transforms Formula 1 completely. Slick tyres — no tread, maximum rubber contact — become dangerous almost immediately when it rains. The switch to intermediates (light rain or a drying track) or full wets (standing water) must be timed precisely: too early wastes time, too late means losing control of the car. Even in the dry, conditions evolve. In the early laps the track is "green" — low grip, rubber not yet laid down. As cars circulate, the racing line rubbers in and lap times naturally improve. Rain tends to invert the order entirely — some of the sport's most memorable races have been decided not by the fastest car, but by whoever managed the transition between conditions better than anyone else.</div></div>
-
-    <div class="section-group-label" style="margin-top:1.5rem">The bigger picture</div>
-    <div class="reg-card"><div class="reg-card-title">Reading the timing screen</div><div class="reg-card-body">The live timing data is as compelling as the racing itself once you know what you're looking at. Sector times are color-coded: purple means fastest anyone has gone in that sector all race; green is the driver's personal best today; yellow is slower than their own personal best. Watch for sectors going yellow on a driver who's been quick all race — it usually signals tyres going off, energy conservation, or a car problem, and it tells you the story before the commentators do. Gap to leader and interval (the gap between two adjacent cars) are the fundamental metrics. A shrinking interval means a battle is developing. Fastest lap — the quickest single lap by any driver — earns a bonus championship point, but only if that driver finishes in the top ten.</div></div>
-    <div class="reg-card"><div class="reg-card-title">It's a team sport</div><div class="reg-card-body">The driver stands on the podium. But no driver gets there alone. Each car has a race engineer — the driver's primary radio contact throughout the race, relaying data, passing strategy instructions, and managing the driver's mental state as much as their physical one. Behind them sits a strategy team running real-time simulations, modelling the effect of pitting now versus three laps from now versus staying out entirely. The pit crew executes stops in around two seconds — sometimes less. Twenty-odd mechanics in a choreography rehearsed thousands of times, four tyres changed before you've registered the car arriving. Then there's the teammate. Each constructor fields two cars with linked strategies — sometimes supporting each other, sometimes racing freely, sometimes one holding position to protect a result. Formula 1 awards two championships: the Drivers' Championship (individual) and the Constructors' Championship, combining both drivers' points. The constructor title is worth hundreds of millions in prize money. That's why team orders exist, and why they're so contested.</div></div>
-    <div class="reg-card"><div class="reg-card-title">Points and penalties</div><div class="reg-card-body">Points go to the top ten finishers: 25, 18, 15, 12, 10, 8, 6, 4, 2, 1 — plus one bonus point for fastest lap if that driver finishes in the top ten. Sprint points go to the top eight: 8, 7, 6, 5, 4, 3, 2, 1. The stewards review incidents during and after the race and carry real power. Common outcomes include 5 or 10-second time penalties for contact or unsafe pit releases; track limits violations — exceeding the white lines at circuit edges — result in deleted lap times in qualifying or time penalties in the race; and grid penalties for the next race, typically for exceeding the seasonal allocation of power unit components. Penalties can be applied after the chequered flag — a driver who finishes third can be reclassified fifth following a post-race investigation.</div></div>
-    <div class="reg-card"><div class="reg-card-title">What to watch for</div><div class="reg-card-body">You don't need to understand everything immediately. Watch qualifying — one lap at the limit, it sets the framework for Sunday. Follow the gaps, not just the leader: the shrinking interval between second and third often tells a better story than the front. Listen for "box, box" — a pit call is about to change the order, and watch how rivals respond. Notice tyre age — a driver on lap 40 of a soft set built for 20 laps is either managing brilliantly or about to have a very bad few laps. When it rains, pay attention to everything. Be patient with the sport. The first race might feel impenetrable. The fifth will feel like a different world. Formula 1 reveals itself gradually, one layer at a time.</div></div>
   </div>
 
   <!-- News -->
@@ -680,12 +628,6 @@
       <div class="section-group-label">2026 regulations</div>
       <div id="regs-list"></div>
     </div>
-  </div>
-
-  <!-- Records tab -->
-  <div id="records" class="f1-panel">
-    <div class="loading" id="records-loading"><div class="loading-spinner"></div><div class="loading-text">Fetching all-time records...</div></div>
-    <div id="records-content" style="display:none"></div>
   </div>
 
   <div class="f1-sources">
@@ -831,7 +773,7 @@ function lsGet(k,fallback=null){ try{ const v=localStorage.getItem(k); return v=
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
 // ── Tab routing ──
-const TAB_ORDER=['drivers','constructors','calendar','season','news','records','explainer'];
+const TAB_ORDER=['drivers','constructors','calendar','season','news'];
 function showTab(id,btn){
   document.querySelectorAll('.f1-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.f1-tab').forEach(t=>t.classList.remove('active'));
@@ -843,7 +785,6 @@ function showTab(id,btn){
     if(!window._seasonLoaded) loadSeasonTab();
     else{ document.getElementById('season-loading').style.display='none'; document.getElementById('season-content').style.display=''; }
   }
-  if(id==='records'&&!window._recordsLoaded) loadRecords();
 }
 document.addEventListener('keydown',e=>{
   if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
@@ -3589,168 +3530,6 @@ function renderRegulations(){
 
 
 
-// ── All-time Records ──
-async function loadRecords(){
-  window._recordsLoaded=true;
-  const loadEl=document.getElementById('records-loading');
-  const el=document.getElementById('records-content');
-  try{
-    loadEl.style.display='none';
-    el.style.display='';
-
-    function rc(title, rows, context='', note='', heroOverride='', heroNum=''){
-      const firstVal=rows[0].val;
-      const tiedFirst=rows.filter(r=>r.val===firstVal);
-      const heroName=heroOverride||tiedFirst.map(r=>r.name.split(' ').pop().toUpperCase()).join(' · ');
-      const heroContext=tiedFirst.length>1?'Joint record holders':context;
-      const topNum=parseFloat(String(firstVal).replace(/[^0-9.]/g,''))||1;
-      let html='<div class="rc">';
-      html+='<div class="rc-head">';
-      html+='<div class="rc-category">'+title+'</div>';
-      html+='<div class="rc-hero-num">'+(heroNum||firstVal)+'</div>';
-      html+='<div class="rc-hero-name">'+heroName+'</div>';
-      if(heroContext) html+='<div class="rc-hero-context">'+heroContext+'</div>';
-      html+='</div>';
-      if(note) html+='<div class="rc-note">'+note+'</div>';
-      html+='<div class="rc-list">';
-      rows.forEach(r=>{
-        const isFirst=r.val===firstVal;
-        const numVal=parseFloat(String(r.val).replace(/[^0-9.]/g,''))||0;
-        const pct=topNum>0?Math.round(numVal/topNum*100):100;
-        const barColor=isFirst?'#E10600':'var(--text3)';
-        html+='<div class="rc-row'+(isFirst?' p1':'')+'">'+
-          '<div class="rc-pos">'+r.pos+'</div>'+
-          '<div class="rc-name">'+r.name+'</div>'+
-          '<div class="rc-val">'+r.val+'</div>'+
-          '</div>'+
-          '<div class="rc-bar-wrap"><div class="rc-bar-track"><div class="rc-bar-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div></div>';
-      });
-      html+='</div></div>';
-      return html;
-    }
-
-    el.innerHTML='<div class="records-grid">'
-      +rc('Most championships',[
-        {pos:1,name:'Lewis Hamilton',val:'7'},{pos:1,name:'Michael Schumacher',val:'7'},
-        {pos:3,name:'Max Verstappen',val:'4'},{pos:3,name:'Alain Prost',val:'4'},
-        {pos:3,name:'Sebastian Vettel',val:'4'},{pos:6,name:'Ayrton Senna',val:'3'},
-        {pos:6,name:'Jack Brabham',val:'3'},{pos:6,name:'Jackie Stewart',val:'3'}])
-      +rc('Most race wins (all-time)',[
-        {pos:1,name:'Lewis Hamilton',val:'105'},{pos:2,name:'Michael Schumacher',val:'91'},
-        {pos:3,name:'Max Verstappen',val:'71'},{pos:4,name:'Sebastian Vettel',val:'53'},
-        {pos:5,name:'Alain Prost',val:'51'},{pos:6,name:'Ayrton Senna',val:'41'},
-        {pos:7,name:'Fernando Alonso',val:'32'},{pos:8,name:'Nigel Mansell',val:'31'}],
-        '14 more than Schumacher in 2nd')
-      +rc('Most pole positions (all-time)',[
-        {pos:1,name:'Lewis Hamilton',val:'104'},{pos:2,name:'Michael Schumacher',val:'68'},
-        {pos:3,name:'Ayrton Senna',val:'65'},{pos:4,name:'Sebastian Vettel',val:'57'},
-        {pos:5,name:'Max Verstappen',val:'48'},{pos:6,name:'Alain Prost',val:'33'},
-        {pos:7,name:'Jim Clark',val:'33'},{pos:8,name:'Nigel Mansell',val:'32'}],
-        '36 clear of Schumacher in 2nd')
-      +rc('Most podiums (all-time)',[
-        {pos:1,name:'Lewis Hamilton',val:'203'},{pos:2,name:'Michael Schumacher',val:'155'},
-        {pos:3,name:'Max Verstappen',val:'127'},{pos:4,name:'Sebastian Vettel',val:'122'},
-        {pos:5,name:'Alain Prost',val:'106'},{pos:6,name:'Kimi Räikkönen',val:'103'},
-        {pos:7,name:'Fernando Alonso',val:'98'},{pos:8,name:'Valtteri Bottas',val:'67'}],
-        'More than anyone in history')
-      +rc('Most fastest laps (all-time)',[
-        {pos:1,name:'Michael Schumacher',val:'77'},{pos:2,name:'Lewis Hamilton',val:'68'},
-        {pos:3,name:'Kimi Räikkönen',val:'46'},{pos:4,name:'Alain Prost',val:'41'},
-        {pos:5,name:'Sebastian Vettel',val:'38'},{pos:6,name:'Max Verstappen',val:'37'},
-        {pos:7,name:'Nigel Mansell',val:'30'},{pos:8,name:'Jim Clark',val:'28'}],
-        '9 clear of Hamilton in 2nd')
-      +rc('Most wins in a season',[
-        {pos:1,name:'Max Verstappen (2023)',val:'19'},{pos:2,name:'Max Verstappen (2022)',val:'15'},
-        {pos:3,name:'Michael Schumacher (2004)',val:'13'},{pos:3,name:'Sebastian Vettel (2013)',val:'13'},
-        {pos:5,name:'Lewis Hamilton (2014)',val:'11'},{pos:5,name:'Lewis Hamilton (2019)',val:'11'},
-        {pos:5,name:'Lewis Hamilton (2020)',val:'11'},{pos:5,name:'Michael Schumacher (2002)',val:'11'}],
-        '19 wins from 22 races in 2023','','VERSTAPPEN')
-      +rc('Most races started',[
-        {pos:1,name:'Fernando Alonso',val:'427'},{pos:2,name:'Lewis Hamilton',val:'352'},
-        {pos:3,name:'Kimi Räikkönen',val:'349'},{pos:4,name:'Rubens Barrichello',val:'326'},
-        {pos:5,name:'Michael Schumacher',val:'308'},{pos:6,name:'Jenson Button',val:'306'},
-        {pos:7,name:'David Coulthard',val:'246'},{pos:8,name:'Nico Rosberg',val:'206'}],
-        '75 more than Hamilton in 2nd')
-      +rc('Most points in a season',[
-        {pos:1,name:'Max Verstappen (2023)',val:'575'},{pos:2,name:'Max Verstappen (2022)',val:'454'},
-        {pos:3,name:'Lewis Hamilton (2019)',val:'413'},{pos:4,name:'Lewis Hamilton (2018)',val:'408'},
-        {pos:5,name:'Sebastian Vettel (2013)',val:'397'},{pos:6,name:'Nico Rosberg (2016)',val:'385'},
-        {pos:7,name:'Lewis Hamilton (2015)',val:'381'},{pos:8,name:'Lewis Hamilton (2020)',val:'347'}],
-        '575 pts — 19 wins from 22 races',
-        '25 pts per win. The 2023 total of 575 — from 19 wins in 22 races — is the most dominant season in F1 history.',
-        'VERSTAPPEN')
-      +rc('Most grand slams',[
-        {pos:1,name:'Jim Clark',val:'8'},{pos:2,name:'Lewis Hamilton',val:'6'},
-        {pos:2,name:'Max Verstappen',val:'6'},{pos:4,name:'Alberto Ascari',val:'5'},
-        {pos:4,name:'Michael Schumacher',val:'5'},{pos:6,name:'Ayrton Senna',val:'4'},
-        {pos:6,name:'Nigel Mansell',val:'4'},{pos:6,name:'Sebastian Vettel',val:'4'}],
-        'Pole, win, fastest lap & led every lap',
-        'A grand slam means winning from pole, setting the fastest lap, and leading every single lap — the rarest achievement in F1.')
-      +rc('Youngest world champions',[
-        {pos:1,name:'Sebastian Vettel (2010)',val:'23y 134d'},{pos:2,name:'Lewis Hamilton (2008)',val:'23y 300d'},
-        {pos:3,name:'Fernando Alonso (2005)',val:'24y 58d'},{pos:4,name:'Max Verstappen (2021)',val:'24y 73d'},
-        {pos:5,name:'Emerson Fittipaldi (1972)',val:'25y 273d'},{pos:6,name:'Michael Schumacher (1994)',val:'25y 314d'},
-        {pos:7,name:'Lando Norris (2025)',val:'26y 24d'},{pos:8,name:'Niki Lauda (1975)',val:'26y 197d'}],
-        '23y 134d at his first title','','','VETTEL')
-      +rc('Oldest world champions',[
-        {pos:1,name:'Juan Manuel Fangio (1957)',val:'46y 1m 11d'},{pos:2,name:'Giuseppe Farina (1950)',val:'43y 10m 4d'},
-        {pos:3,name:'Jack Brabham (1966)',val:'40y 5m 2d'},{pos:4,name:'Graham Hill (1968)',val:'39y 8m 19d'},
-        {pos:5,name:'Nigel Mansell (1992)',val:'39y 8d'},{pos:6,name:'Alain Prost (1993)',val:'38y 7m 2d'},
-        {pos:7,name:'Mario Andretti (1978)',val:'38y 6m 13d'},{pos:8,name:'Damon Hill (1996)',val:'36y 26d'}],
-        '46y 1m 11d at his final title','','','FANGIO')
-      +rc('Most constructors championships',[
-        {pos:1,name:'Ferrari',val:'16'},{pos:2,name:'McLaren',val:'10'},
-        {pos:3,name:'Williams',val:'9'},{pos:4,name:'Mercedes',val:'8'},
-        {pos:5,name:'Lotus',val:'7'},{pos:6,name:'Red Bull',val:'6'},
-        {pos:7,name:'Brabham',val:'2'},{pos:7,name:'Renault',val:'2'}],
-        'Ferrari have more than anyone')
-      +rc('Most constructor race wins',[
-        {pos:1,name:'Ferrari',val:'250'},{pos:2,name:'McLaren',val:'205'},
-        {pos:3,name:'Mercedes',val:'139'},{pos:4,name:'Red Bull',val:'122'},
-        {pos:5,name:'Williams',val:'114'},{pos:6,name:'Lotus',val:'79'},
-        {pos:7,name:'Renault / Alpine',val:'35'},{pos:7,name:'Brabham',val:'35'}],
-        '45 more wins than McLaren in 2nd')
-      +rc('Most consecutive constructors titles',[
-        {pos:1,name:'Mercedes (2014–2021)',val:'8'},{pos:2,name:'Ferrari (1999–2004)',val:'6'},
-        {pos:3,name:'Williams (1992–1997)',val:'5'},{pos:4,name:'McLaren (1988–1991)',val:'4'},
-        {pos:4,name:'Red Bull (2010–2013)',val:'4'},{pos:6,name:'Lotus (1963–1965)',val:'3'},
-        {pos:7,name:'McLaren (2024–2025)',val:'2'},{pos:7,name:'Ferrari (1975–1976)',val:'2'}],
-        'Mercedes: 8 in a row 2014–2021','','MERCEDES')
-      +rc('Closest finish',[
-        {pos:1,name:'1971 Italian GP (Monza)',val:'0.010s'},{pos:2,name:'2002 Austrian GP',val:'0.011s'},
-        {pos:3,name:'1986 Spanish GP',val:'0.014s'},{pos:4,name:'1969 Italian GP',val:'0.080s'},
-        {pos:5,name:'2008 Brazilian GP',val:'0.086s'},{pos:6,name:'1967 Italian GP',val:'0.200s'},
-        {pos:7,name:'2005 San Marino GP',val:'0.215s'},{pos:8,name:'2020 Bahrain GP',val:'0.415s'}],
-        'Less than a car length in 1971',
-        'The 1971 Italian GP finish of 0.010s — less than a car length — remains the closest in history.')
-      +rc('Largest championship winning margin',[
-        {pos:1,name:'Verstappen (2023)',val:'290 pts'},{pos:2,name:'Verstappen (2022)',val:'146 pts'},
-        {pos:3,name:'Hamilton (2020)',val:'124 pts'},{pos:4,name:'Hamilton (2019)',val:'87 pts'},
-        {pos:5,name:'Schumacher (2002)',val:'67 pts'},{pos:6,name:'Mansell (1992)',val:'52 pts'},
-        {pos:7,name:'Senna (1988)',val:'36 pts'},{pos:8,name:'Schumacher (2004)',val:'34 pts'}],
-        '290 points clear in 2023',
-        'The 290-point margin in 2023 means the nearest rival would have needed to win every remaining race just to get close.',
-        'VERSTAPPEN')
-      +rc('Most grands prix at one circuit',[
-        {pos:1,name:'Monza (Italian GP)',val:'76'},{pos:2,name:'Monaco',val:'72'},
-        {pos:3,name:'Silverstone (British GP)',val:'60'},{pos:4,name:'Spa-Francorchamps',val:'55'},
-        {pos:5,name:'Interlagos',val:'42'},{pos:6,name:'Nürburgring',val:'37'},
-        {pos:7,name:'Hockenheimring',val:'36'},{pos:8,name:'Suzuka',val:'35'}],
-        '76 times since 1950 — more than any other circuit',
-        'Monza and Monaco have been on the F1 calendar almost every year since 1950, making them the spiritual homes of the sport.',
-        'MONZA')
-      +rc('Most wins at a single circuit',[
-        {pos:1,name:'Lewis Hamilton — Silverstone',val:'9'},{pos:2,name:'Michael Schumacher — Magny-Cours',val:'8'},
-        {pos:2,name:'Lewis Hamilton — Hungaroring',val:'8'},{pos:4,name:'Ayrton Senna — Monaco',val:'6'},
-        {pos:4,name:'Michael Schumacher — Montreal',val:'6'},{pos:6,name:'Sebastian Vettel — Singapore',val:'5'},
-        {pos:6,name:'Lewis Hamilton — Sochi',val:'5'},{pos:6,name:'Alain Prost — Silverstone',val:'5'}],
-        '9 wins at Silverstone — more than anyone at any circuit',
-        '','HAMILTON','9')
-      +'</div>';
-  }catch(e){
-    loadEl.innerHTML='<div class="error-msg">Could not load records data.</div>';
-  }
-}
 // ── News (live RSS — works on https:// hosts; falls back to static on file://) ──
 const RSS_FEEDS = [
   { url:'https://www.racefans.net/feed/',          source:'racefans.net',    color:'#1d4ed8' },
