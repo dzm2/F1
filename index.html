@@ -2215,6 +2215,24 @@ async function loadCalendar(bypassCache=false){
           if(sr.length) SPRINT_ROUNDS.add(parseInt(r.round));
         }
       }
+      // Safety net: fetchJSON already retries each call twice internally, but on rare
+      // occasions (a slow connection, a timeout) a round's results call can still fail
+      // outright, leaving resultsMap[r.round] empty even though the race is genuinely
+      // complete. Give any such round one more attempt, bypassing cache, before the
+      // card list is built — this is what lets a round recover on the very next load
+      // instead of needing a manual refresh. Card ordering below no longer depends on
+      // this succeeding (it's date-based regardless), but this keeps that round's card
+      // showing full race results on the first try rather than an "upcoming" layout.
+      const stillMissingResults=completedByDate.filter(r=>!(resultsMap[r.round]||[]).length);
+      for(let i=0;i<stillMissingResults.length;i++){
+        const r=stillMissingResults[i];
+        if(i>0) await new Promise(res=>setTimeout(res,500));
+        try{
+          const retryRes=await fetchJSON(`${BASE}/${SEASON}/${r.round}/results.json?limit=25`,1,true,ROUND_TTL);
+          const retryResults=retryRes?.MRData?.RaceTable?.Races?.[0]?.Results||[];
+          if(retryResults.length) resultsMap[r.round]=retryResults;
+        }catch(e){}
+      }
     }
     // Expose completed rounds (date-based) for Season tab standings history build
     window._completedRounds=completedByDate;
@@ -2239,8 +2257,11 @@ async function loadCalendar(bypassCache=false){
   // completedByDate drives the header stats — rounds whose scheduled time has passed,
   // regardless of whether Jolpica has published results yet.
   const completedByDate=window._completedRounds||[];
-  // completedWithResults drives card ordering and the race card isCompleted flag.
-  const completedWithResults=allRaces.filter(r=>(resultsMap[r.round]||[]).length>0);
+  // anyCompletedByDate is used only to decide whether the "completed / upcoming" divider
+  // is needed at all (see below) — separate from ordering.
+  const anyCompletedByDate=completedByDate.length>0;
+  // upcoming (results-based) is kept only as a fallback source for nextRace below when
+  // the date-based search finds nothing (i.e. the season has concluded).
   const upcoming=allRaces.filter(r=>(resultsMap[r.round]||[]).length===0);
 
   // nextRace: the race currently within its 2-hour live window, OR the next
@@ -2266,16 +2287,24 @@ async function loadCalendar(bypassCache=false){
   startCountdownFromList(allRaces);
 
   const rl=document.getElementById('race-list');rl.innerHTML='';
-  // Card ordering still uses results-based split so completed cards (with data to show)
-  // appear above upcoming cards.
-  const allOrdered=[...completedWithResults,...upcoming];
+  // Card order follows the schedule's natural chronological (round-number) order —
+  // exactly as Jolpica returns allRaces — rather than which rounds happened to have
+  // their results fetch succeed. Ordering by fetch success meant a single transient
+  // network failure on one round's results call (rare, but fetchJSON's own retries
+  // can still be exhausted) could bump that round out of its correct chronological
+  // slot and into the "upcoming" block, making it appear after later, already-completed
+  // rounds until the next page load re-fetched it successfully. isCompleted (used for
+  // each card's rendering style) is still based on resultsMap, so a round without
+  // results yet still renders the upcoming-style card — only the ordering itself is
+  // now immune to fetch hiccups.
+  const allOrdered=allRaces;
   allOrdered.forEach(r=>{
     try{
     const isCompleted=(resultsMap[r.round]||[]).length>0;
     const isNext=nextRace&&r.round===nextRace.round;
 
     // Insert subtle divider before the first upcoming race
-    if(isNext&&completedWithResults.length>0){
+    if(isNext&&anyCompletedByDate){
       const divider=document.createElement('div');
       divider.style.cssText='height:1px;background:var(--border);margin:4px 0;opacity:0.6;';
       rl.appendChild(divider);
