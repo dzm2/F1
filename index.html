@@ -535,21 +535,9 @@
       <hr class="modal-divider" style="margin:1rem 0">
       <div class="section-group-label" style="display:flex;align-items:center;justify-content:space-between">
         <span>Team season assessments</span>
-        <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text3);margin-left:auto">After round 13 · Italy</span>
+        <span id="assess-round-label" style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:var(--text3);margin-left:auto">After round 13 · Italy</span>
       </div>
-      <div class="assess-grid" id="assess-grid">
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">FERRARI</span><span class="assess-rating rating-mid">Mixed result</span></div><div class="assess-body">Hamilton was left to pick up the pieces of a difficult home weekend, salvaging sixth after early contact with teammate Leclerc at the first chicane forced him wide into the gravel and dropped him outside the points. Leclerc's race then ended in a heavy crash into the Parabolica barrier at the end of the second lap, triggering a lengthy red flag and a frank public exchange between the two drivers afterwards over how hard they had raced each other.</div></div>
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">MERCEDES</span><span class="assess-rating rating-strong">Race win</span></div><div class="assess-body">Antonelli delivered one of the drives of the season at his home race, recovering from a grid penalty and 19th on the grid to hunt down teammate Russell and snatch the lead in the closing laps for a maiden Monza victory. Russell led long spells of the race before having to settle for second in a comfortable Mercedes one-two.</div></div>
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">MCLAREN</span><span class="assess-rating rating-strong">Double points</span></div><div class="assess-body">Norris and Piastri fought closely with one another before crossing the line fourth and fifth respectively, unable to trouble the front-runners on a weekend where the Mercedes pace advantage was on full display.</div></div>
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">RED BULL</span><span class="assess-rating rating-strong">Podium finish</span></div><div class="assess-body">Verstappen fought through the field to complete the podium in third, producing several bold overtakes along the way, while Liam Lawson — again deputising for the injured Isack Hadjar — brought his Red Bull home 14th after a difficult afternoon in traffic.</div></div>
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">RACING BULLS</span><span class="assess-rating rating-strong">Double points</span></div><div class="assess-body">Arvid Lindblad continued his strong run of form with eighth place, while stand-in Yuki Tsunoda — filling Liam Lawson's seat for a second consecutive weekend — picked up his first point of the season in tenth.</div></div>
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">AUDI</span><span class="assess-rating rating-struggling">Off the pace</span></div><div class="assess-body">Gabriel Bortoleto and Nico Hulkenberg finished just outside the points in 11th and 12th, unable to find the pace to break into the top ten at a circuit that has not historically suited the team.</div></div>
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">ALPINE</span><span class="assess-rating rating-strong">Double points</span></div><div class="assess-body">Pierre Gasly took a sensational maiden pole position on Saturday but could not convert it into a result to match on Sunday, sliding back to seventh as the front-runners' pace proved too strong. Franco Colapinto recovered from an off-track excursion to bring the second car home in ninth for a solid double points finish.</div></div>
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">ASTON MARTIN</span><span class="assess-rating rating-struggling">Double retirement</span></div><div class="assess-body">Both Aston Martins retired without troubling the points, extending a difficult run of results for the team at one of the sport's most demanding power circuits.</div></div>
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">WILLIAMS</span><span class="assess-rating rating-struggling">Off the pace</span></div><div class="assess-body">Carlos Sainz brought the car home 13th, while Alex Albon was a lap down in 17th, with neither Williams able to make an impression on the points at Monza.</div></div>
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">HAAS</span><span class="assess-rating rating-struggling">Off the pace</span></div><div class="assess-body">Oliver Bearman and Esteban Ocon finished 15th and 16th respectively, the latter a lap down, in a quiet weekend for Haas away from the points.</div></div>
-        <div class="assess-card"><div class="assess-header"><span class="assess-team">CADILLAC</span><span class="assess-rating rating-struggling">Off the pace</span></div><div class="assess-body">Sergio Perez and Valtteri Bottas brought the cars home 18th and 19th respectively, a lap and two laps down on the winner, as Cadillac continued to find their feet in their debut season.</div></div>
-      </div>
+      <div class="assess-grid" id="assess-grid"></div>
       <hr class="modal-divider" style="margin:1rem 0">
       <div class="section-group-label">Team performance trend</div>
       <div id="team-trend-section" style="background:var(--bg);border-radius:8px;border:0.5px solid var(--border);padding:14px 16px;margin-bottom:4px"></div>
@@ -1200,7 +1188,54 @@ const TEAM_INFO = {
   },
 };
 
-// ── Race summaries ──
+// ── Team season assessments ──
+// Keyed by Jolpica constructorId (same keys as TEAM_INFO). Rendered by
+// renderTeamAssessments() in current constructor-standings order (from
+// liveConstructors, which is already position-sorted by the API) — so the
+// card order always matches the live standings and never needs manual
+// reordering. To update after a race: search for verified race reports,
+// confirm each claim against results before writing (same accuracy rules as
+// race summaries), then edit the relevant team(s) below and bump
+// ASSESS_ROUND/ASSESS_LOCATION. rating must be one of 'rating-strong',
+// 'rating-mid', 'rating-struggling'; label must be one of the 8 standardized
+// pill labels in the project knowledge doc's pill taxonomy table.
+const ASSESS_ROUND = 13;
+const ASSESS_LOCATION = 'Italy';
+const TEAM_ASSESSMENTS = {
+  mercedes:{rating:'rating-strong',label:'Race win',body:'Antonelli delivered one of the drives of the season at his home race, recovering from a grid penalty and 19th on the grid to hunt down teammate Russell and snatch the lead in the closing laps for a maiden Monza victory. Russell led long spells of the race before having to settle for second in a comfortable Mercedes one-two.'},
+  ferrari:{rating:'rating-mid',label:'Mixed result',body:'Hamilton was left to pick up the pieces of a difficult home weekend, salvaging sixth after early contact with teammate Leclerc at the first chicane forced him wide into the gravel and dropped him outside the points. Leclerc\'s race then ended in a heavy crash into the Parabolica barrier at the end of the second lap, triggering a lengthy red flag and a frank public exchange between the two drivers afterwards over how hard they had raced each other.'},
+  mclaren:{rating:'rating-strong',label:'Double points',body:'Norris and Piastri fought closely with one another before crossing the line fourth and fifth respectively, unable to trouble the front-runners on a weekend where the Mercedes pace advantage was on full display.'},
+  red_bull:{rating:'rating-strong',label:'Podium finish',body:'Verstappen fought through the field to complete the podium in third, producing several bold overtakes along the way, while Liam Lawson — again deputising for the injured Isack Hadjar — brought his Red Bull home 14th after a difficult afternoon in traffic.'},
+  rb:{rating:'rating-strong',label:'Double points',body:'Arvid Lindblad continued his strong run of form with eighth place, while stand-in Yuki Tsunoda — filling Liam Lawson\'s seat for a second consecutive weekend — picked up his first point of the season in tenth.'},
+  alpine:{rating:'rating-strong',label:'Double points',body:'Pierre Gasly took a sensational maiden pole position on Saturday but could not convert it into a result to match on Sunday, sliding back to seventh as the front-runners\' pace proved too strong. Franco Colapinto recovered from an off-track excursion to bring the second car home in ninth for a solid double points finish.'},
+  audi:{rating:'rating-struggling',label:'Off the pace',body:'Gabriel Bortoleto and Nico Hulkenberg finished just outside the points in 11th and 12th, unable to find the pace to break into the top ten at a circuit that has not historically suited the team.'},
+  williams:{rating:'rating-struggling',label:'Off the pace',body:'Carlos Sainz brought the car home 13th, while Alex Albon was a lap down in 17th, with neither Williams able to make an impression on the points at Monza.'},
+  haas:{rating:'rating-struggling',label:'Off the pace',body:'Oliver Bearman and Esteban Ocon finished 15th and 16th respectively, the latter a lap down, in a quiet weekend for Haas away from the points.'},
+  aston_martin:{rating:'rating-struggling',label:'Double retirement',body:'Both Aston Martins retired without troubling the points, extending a difficult run of results for the team at one of the sport\'s most demanding power circuits.'},
+  cadillac:{rating:'rating-struggling',label:'Off the pace',body:'Sergio Perez and Valtteri Bottas brought the cars home 18th and 19th respectively, a lap and two laps down on the winner, as Cadillac continued to find their feet in their debut season.'},
+};
+
+// Renders the team season assessment cards in current constructor-standings order.
+// liveConstructors is already sorted by position (as returned by Jolpica's
+// constructorstandings endpoint — see loadConstructorStandings), so simply
+// iterating it keeps the card order in sync with the live standings without
+// any manual re-sorting after a race.
+function renderTeamAssessments(){
+  const el=document.getElementById('assess-grid');
+  const labelEl=document.getElementById('assess-round-label');
+  if(labelEl) labelEl.textContent='After round '+ASSESS_ROUND+' · '+ASSESS_LOCATION;
+  if(!el) return;
+  if(!liveConstructors.length){ el.innerHTML='<div style="font-size:13px;color:var(--text2)">No data yet.</div>'; return; }
+  el.innerHTML=liveConstructors.map(c=>{
+    const id=c.Constructor.constructorId;
+    const a=TEAM_ASSESSMENTS[id];
+    if(!a) return '';
+    const name=cleanConstructorName(c.Constructor.name);
+    return '<div class="assess-card"><div class="assess-header"><span class="assess-team">'+name.toUpperCase()+'</span>'
+      +'<span class="assess-rating '+a.rating+'">'+a.label+'</span></div>'
+      +'<div class="assess-body">'+a.body+'</div></div>';
+  }).join('');
+}
 // Keyed by Jolpica round number (integer). If a round has an entry here, that
 // hand-written text is shown instead of the auto-generated summary below.
 // To add one: write it the same way as Team Assessments — search for verified
@@ -3140,6 +3175,7 @@ async function loadSeasonTab(background=false){
   renderTeamTrend();
   renderChampionshipDeepDive();
   renderH2H();
+  renderTeamAssessments();
   renderRegulations();
   if(!background){
     document.getElementById('season-loading').style.display='none';
